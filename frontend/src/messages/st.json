@@ -1,0 +1,99 @@
+{
+  "common": {
+    "appName": "MzansiLegal",
+    "tagline": "Motlatsi wa hao wa molao o sebetsang ka AI",
+    "loading": "E a laola...",
+    "error": "Ho entswe phoso. Ke kopa u leke hape.",
+    "disclaimer": "Tlhahisoleseding ena ke ho ho tataisa feela ebile ha e emele keletso ya molao. Hloka ho bua le setsebi sa molao se batlang se rutiloeng."
+  },
+  "nav": {
+    "home": "Lapeng",
+    "chat": "Botsa Potso",
+    "rights": "Ditokelo Tsa Ka",
+    "contracts": "Hlahloba Tumelano",
+    "history": "Nalane",
+    "settings": "Maemo",
+    "admin": "Motsamaisi",
+    "login": "Kena",
+    "register": "Ngodisa",
+    "logout": "Tswa"
+  },
+  "home": {
+    "title": "Tseba Ditokelo Tsa Hao",
+    "subtitle": "Botsa dipotso tsa molao ka puo ya hao — fumana dikarabo tse hlakileng tse nang le dipapatso.",
+    "askPlaceholder": "Ngola potso ya hao mona...",
+    "askButton": "Botsa Joale",
+    "trendingTitle": "Dipotso Tse Ratehang",
+    "categoriesTitle": "Hlahloba ka Mokgwa"
+  },
+  "chat": {
+    "title": "Dipotso le Dikarabo tsa Molao",
+    "inputPlaceholder": "Botsa potso ya molao kapa ya ditokelo tsa ditjhelete...",
+    "sendButton": "Romela",
+    "voiceButton": "Kenya ka Lentswe",
+    "stopButton": "Emisa ho Rekota",
+    "citationsTitle": "Mehlodi",
+    "newConversation": "Poledisano e Ntjha"
+  },
+  "rights": {
+    "title": "Mhloli wa Ditokelo Tsa Ka",
+    "searchPlaceholder": "Batla ditokelo...",
+    "allCategories": "Tsohle",
+    "learnMore": "Ithuta Haholwanyane",
+    "askAboutThis": "Botsa ka sena"
+  },
+  "contracts": {
+    "title": "Hlahloba Bophelo ba Tumelano",
+    "uploadTitle": "Kenya Tumelano Ya Hao",
+    "uploadHint": "Kenya tumelano ya PDF ho hlahloba maqhalong le matshwao a bomvu.",
+    "uploadButton": "Kenya & Hlahloba",
+    "healthScore": "Selekanyo sa Bophelo",
+    "redFlags": "Matshwao a Bomvu",
+    "summary": "Kakaretso",
+    "followUp": "Botsa potso ya tatellano mabapi le tumelano ena"
+  },
+  "history": {
+    "title": "Nalane ya Dipoledisano Tsa Ka",
+    "empty": "Ha ho na dipoledisano ho fihlela joale.",
+    "viewConversation": "Sheba"
+  },
+  "settings": {
+    "title": "Maemo",
+    "language": "Puo e Ratehang",
+    "dyslexiaMode": "Mokgwa o Bonolo wa ho Bala",
+    "autoPlayAudio": "Bapisa Ka Itseleng Dikarabo tsa Mmino",
+    "saveButton": "Boloka Dikgetho"
+  },
+  "auth": {
+    "loginTitle": "Kena",
+    "registerTitle": "Theha Akhaonto",
+    "emailLabel": "Aterese ya Imeile",
+    "passwordLabel": "Phasewete",
+    "nameLabel": "Lebitso le feletseng",
+    "loginButton": "Kena",
+    "registerButton": "Ngodisa",
+    "switchToRegister": "Ha o na akhaonto? Ngodisa",
+    "switchToLogin": "O setse o na le akhaonto? Kena"
+  },
+  "admin": {
+    "dashboardTitle": "Lephata la Motsamaisi",
+    "totalQuestions": "Dipotso Tsohle",
+    "totalUsers": "Basebedisi Bohle",
+    "pendingReview": "E Letile ho Hlahlojwa",
+    "publishedFaqs": "Dipotso Tse Ratehang Tse Phatlaladitsweng",
+    "reviewQueueTitle": "Molapo wa Tlhahlobo",
+    "markAccurate": "Tshwaya e le ke nepo",
+    "markInaccurate": "Tshwaya e le Phoso",
+    "publishAsFaq": "Phatlalatsa e le Potso e Ratehang",
+    "adminNotes": "Dinoutse tsa Motsamaisi"
+  },
+  "categories": {
+    "legal": "Ditokelo tsa Molao",
+    "financial": "Ditokelo tsa Ditjhelete",
+    "employment": "Mosebetsi",
+    "housing": "Bodulo",
+    "consumer": "Ditokelo tsa Badudi",
+    "family": "Molao wa Lelapa",
+    "criminal": "Toka ya Botlokotsebe"
+  }
+}
