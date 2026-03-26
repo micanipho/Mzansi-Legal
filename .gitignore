@@ -1,0 +1,96 @@
+# =========================
+# .NET / ASP.NET Core
+# =========================
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+build/
+bld/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.pidb
+*.svclog
+*.log
+
+# NuGet
+**/packages/
+*.nupkg
+**/project.lock.json
+**/project.fragment.lock.json
+
+# Visual Studio
+.vs/
+*.rsuser
+*.csproj.user
+*.dbmdl
+*.jfm
+launchSettings.json
+
+# Rider / JetBrains
+.idea/
+*.sln.iml
+
+# User secrets
+secrets.json
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# =========================
+# Node.js / Next.js / React
+# =========================
+node_modules/
+.next/
+out/
+dist/
+.turbo/
+.vercel/
+.cache/
+*.tsbuildinfo
+
+# Package manager lock files (keep one, ignore others if needed)
+# yarn.lock
+# pnpm-lock.yaml
+
+# =========================
+# Environment & Secrets
+# =========================
+.env
+.env.*
+!.env.example
+appsettings.Development.json
+appsettings.Local.json
+
+# =========================
+# OS Files
+# =========================
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# =========================
+# Editor / IDE
+# =========================
+*.swp
+*.swo
+*~
+.vscode/
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# =========================
+# Misc
+# =========================
+*.tmp
+*.temp
+*.bak
+*.orig
+coverage/
+TestResults/
