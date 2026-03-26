@@ -1,200 +1,520 @@
-# Feature Specification: MzansiLegal — Multilingual AI-Powered Legal & Financial Rights Assistant
+# Technical Specification: MzansiLegal Platform
 
-**Feature Branch**: `001-mzansi-legal-rag`
-**Created**: 2026-03-26
-**Status**: Draft
-**Input**: User description: "MzansiLegal — a multilingual AI-powered legal and financial rights assistant for South African citizens"
+## Document Control
+- Spec ID: 001-mzansi-legal-rag
+- Version: 2.0 (fresh rewrite)
+- Date: 2026-03-26
+- Status: Ready for implementation
+- Primary objective: Recreate the current React experience in Next.js + Ant Design while keeping domain, RAG, and accessibility rules intact.
 
-## User Scenarios & Testing *(mandatory)*
+## Source Alignment
+This specification is the implementation source of truth and is aligned to:
+- Product specification and domain intent.
+- Engineering standards and architecture guardrails.
+- GitHub delivery backlog (Issues #1-#31).
+- Current React reference UI for visual and interaction parity.
 
-### User Story 1 - Citizen Asks a Legal Question (Priority: P1)
+## Architecture Principles
+1. Backend: .NET 8 + ABP modular monolith + PostgreSQL.
+2. Frontend: Next.js 14 App Router + Ant Design + next-intl.
+3. AI: Retrieval-Augmented Generation (RAG), not model memory.
+4. Multilingual strategy: Translate-in, process, translate-out.
+5. Accessibility: WCAG 2.1 AA as an MVP requirement, not optional polish.
+6. Domain modeling: DDD with PartOf composition, RefList enums, StoredFile attachments.
+7. Security: Role-based access (Citizen, Admin) with private user data by default.
 
-A South African citizen visits MzansiLegal and types or speaks a question about their legal rights in their preferred language (English, isiZulu, Sesotho, or Afrikaans). The system responds with a plain-language answer that cites the specific Act name and section number from South African legislation, and optionally reads the answer aloud.
+## Epic and Issue Traceability Matrix
 
-**Why this priority**: This is the core value proposition of the platform — enabling any South African citizen to understand their legal rights without needing a lawyer, in their own language.
+| Epic | Issue Range | Spec Coverage |
+|---|---|---|
+| Project setup and data pipeline | #1-#9 | Backend scaffold, entities, ingestion, embeddings, seed, frontend scaffold |
+| RAG and multilingual Q&A | #10-#13 | RagService, LanguageService, Question API, persistence for analytics/history |
+| Frontend core UX, voice, contracts | #14-#19 | Home, Chat, Whisper input, TTS output, contract analysis pipeline and pages |
+| Explorer, admin, auth | #20-#24 | Rights explorer, admin dashboard, review workflow, auth, FAQ lifecycle |
+| Accessibility, polish, deploy | #25-#31 | ARIA/keyboard, dyslexia mode, i18n labels, disclaimers, responsive/error handling, CI/CD, demo readiness |
 
-**Independent Test**: Can be fully tested by submitting a question in any supported language and verifying that a response is returned with at least one legislation citation, with the response in the same language as the question.
+## Route Architecture (Next.js App Router)
 
-**Acceptance Scenarios**:
+### Public routes
+- / : Home dashboard.
+- /rights : My Rights explorer (public read mode).
+- /ask : Q&A entry route.
+- /chat : Alias redirect to /ask for compatibility with existing React references.
+- /auth/login : Login page.
+- /auth/register : Registration page.
 
-1. **Given** a citizen is on the Q&A chat page, **When** they type "What are my rights as a tenant?" in English and submit, **Then** they receive a plain-language answer citing the Rental Housing Act with specific section numbers, and a disclaimer about seeking legal advice appears.
-2. **Given** a citizen selects isiZulu as their language, **When** they type or speak a question about unfair dismissal, **Then** the answer is returned in isiZulu citing the Labour Relations Act (section numbers in English), with a voice playback option available.
-3. **Given** a citizen asks a question, **When** the system cannot find relevant legislation, **Then** the citizen sees a friendly message stating that no relevant information was found and is advised to consult a legal professional.
-4. **Given** a citizen is using voice input, **When** they speak their question, **Then** the spoken audio is transcribed, processed, and the answer is displayed with an option to play it back as audio.
+### Authenticated citizen routes
+- /contracts : Contract upload and analysis history.
+- /contracts/[id] : Contract analysis result view.
+- /contracts/[id]/chat : Follow-up chat scoped to contract context.
+- /history : Private conversation and contract interaction history.
+- /settings : Language, dyslexia mode, auto-play audio, and contrast preferences.
 
----
+### Admin routes
+- /admin/dashboard : Analytics overview.
+- /admin/review-queue : Answer quality review and moderation actions.
+- /admin/faqs : FAQ creation, generation, review, and publish flow.
 
-### User Story 2 - Citizen Uploads a Contract for Analysis (Priority: P2)
+## Frontend Rebuild Blueprint (React to Next.js + AntD)
 
-A citizen uploads a PDF or photo of a contract (employment, lease, credit, or service agreement). The system analyses the document, assigns a health score out of 100, identifies red flag clauses that may violate South African legislation, and provides a plain-language summary. The citizen can then ask follow-up questions about their specific contract.
+### Global shell
+- Sticky pill-shaped navbar with locale selector and auth state.
+- Organic background layer with soft gradient/blob atmosphere.
+- Design tokens:
+  - Moss green primary: #5D7052.
+  - Terracotta secondary: #C18C5D.
+  - Rice paper background: #FDFCF8.
+  - Accent and destructive states mapped to accessible contrast pairs.
+- Typography:
+  - Headings: Fraunces.
+  - Body/UI: Nunito.
+- Interaction style:
+  - Rounded pill buttons.
+  - Asymmetric card radii variants.
+  - Soft organic shadows.
 
-**Why this priority**: Contract analysis is the second most impactful feature — many citizens sign contracts without understanding their rights or identifying potentially illegal clauses.
+### Page component tree
 
-**Independent Test**: Can be fully tested by uploading a sample lease agreement PDF and verifying that a health score, at least one red/amber/green flag, and a plain-language summary are returned.
+#### Home (/)
+- HomePage
+  - HeroSection (headline, search, mic trigger, quick suggestions)
+  - LiveStatsRow (questions, acts, languages, contracts)
+  - PrimaryActions (Analyze Contract, Ask Question)
+  - CategoryGrid (9 cards, domain tags)
+  - TrendingQuestionsList (multilingual)
 
-**Acceptance Scenarios**:
+#### Ask (/ask)
+- ChatPage
+  - ConversationHeader (language and input method status)
+  - MessageList
+    - UserBubble
+    - AssistantCard
+      - AudioPlaybackBar
+      - CitationAccordion
+      - Domain disclaimer block
+      - RelatedQuestions list
+  - MessageComposer (text input, mic button, send button)
+  - EmptyState and LoadingState
 
-1. **Given** a citizen is on the contract analysis page, **When** they upload a PDF employment contract, **Then** the system displays a health score (0–100), a colour-coded breakdown of flags (red/amber/green), and a plain-language summary within a reasonable wait time.
-2. **Given** the contract contains a clause that violates the Basic Conditions of Employment Act, **Then** a red flag card appears citing the specific Act and section that is being violated, with the problematic clause text highlighted.
-3. **Given** the system successfully analyses the contract, **When** the citizen types a follow-up question about a specific clause, **Then** a relevant answer is provided using the contract's content and applicable legislation.
-4. **Given** the uploaded file is not a readable PDF or photo, **Then** the citizen receives a clear error message prompting them to upload a supported file format.
+#### Contracts list/upload (/contracts)
+- ContractsPage
+  - UploadDropzone
+  - UploadConstraintsHint
+  - ExistingAnalysesList
+  - EmptyState
 
----
+#### Contract result (/contracts/[id])
+- ContractAnalysisPage
+  - BackLink
+  - HealthScoreGauge (animated)
+  - ContractMetaPills
+  - PlainLanguageSummaryCard
+  - FlagBreakdownStats
+  - RedFlagSection
+  - AmberSection
+  - GreenSection
+  - FollowUpComposer
 
-### User Story 3 - Citizen Explores Their Rights by Category (Priority: P3)
+#### Rights explorer (/rights)
+- RightsExplorerPage
+  - IntroHeader
+  - KnowledgeScoreCard
+  - CategoryFilterTabs
+  - RightsCardGrid
+    - CollapsedRightsCard
+    - ExpandedRightsCard (actions: follow-up, listen, share)
 
-A citizen uses the "My Rights" explorer to browse their legal and financial rights by category (e.g., Employment, Housing, Consumer Protection). They can expand rights cards to read the full legislation text, listen to content in their preferred language, and see their gamified knowledge score increase as they engage.
+#### Admin dashboard (/admin/dashboard)
+- AdminDashboardPage
+  - StatCardsWithTrend
+  - QuestionsByCategoryChart
+  - LanguageDistributionPanel
+  - TopQuestionsList
+  - ReviewQueuePreview
 
-**Why this priority**: This is the discovery and education feature — it allows passive learning and builds civic awareness even for citizens who don't have a specific question.
+#### Review queue (/admin/review-queue)
+- ReviewQueuePage
+  - QueueFilters (status, language, category)
+  - QueueTable
+  - ReviewDrawer
+    - QuestionAnswerContext
+    - CitationComparisonPanel
+    - AccuracyDecisionActions
+    - AdminNotesEditor
 
-**Independent Test**: Can be fully tested by navigating to the My Rights explorer, selecting a category, expanding a rights card, and verifying that legislation content and action options appear.
+#### FAQ admin (/admin/faqs)
+- FaqManagementPage
+  - FaqCreateForm
+  - GeneratedAnswerPreview
+  - PublishWorkflowControls
+  - PublishedFaqList
 
-**Acceptance Scenarios**:
+#### Settings (/settings)
+- UserSettingsPage
+  - LanguagePreferenceSelect
+  - DyslexiaModeToggle
+  - AutoPlayToggle
+  - HighContrastToggle
 
-1. **Given** a citizen is on the My Rights explorer, **When** they click a category filter tab (e.g., "Employment"), **Then** only rights cards in that category are displayed, each showing a title and summary.
-2. **Given** a citizen expands a rights card, **Then** they see the full plain-language explanation, relevant legislation citation, and action buttons to ask a follow-up question, listen to the content, or share it.
-3. **Given** a citizen has engaged with at least one rights card, **Then** their gamified knowledge score increases and is visually displayed in a progress bar.
+#### History (/history)
+- HistoryPage
+  - ConversationHistoryList
+  - ContractHistoryList
+  - ResumeAction
+  - DeleteAction
 
----
+## Backend Service Architecture
 
-### User Story 4 - Admin Reviews Answer Quality (Priority: P4)
+### Core services
+1. PdfIngestionService
+   - Extract text from PDF using PdfPig.
+   - Chunk legislation by chapter and section heuristics.
+   - Fallback chunking when section parsing is weak.
+2. EmbeddingService
+   - Generate text-embedding-ada-002 vectors.
+   - Provide cosine similarity function.
+3. RagService
+   - Load chunk vectors in memory for MVP.
+   - Retrieve top-K chunks using cosine similarity.
+   - Build strict context-only prompt with citations.
+4. LanguageService
+   - Detect en, zu, st, af.
+   - Translate non-English to English for retrieval.
+   - Preserve response language requirement with English citations.
+5. ContractAnalysisService
+   - Extract contract text (PDF and OCR fallback).
+   - Detect contract type.
+   - Produce health score, summary, and structured flags.
+6. VoiceService
+   - Whisper transcription endpoint.
+   - TTS generation endpoint and optional caching.
 
-An admin user logs into the analytics dashboard, reviews the answer quality queue (questions flagged for review), marks individual answers as accurate or inaccurate, adds notes, and promotes curated Q&A pairs to the public FAQ section.
+### Interaction model
+- Question flow: API -> LanguageService -> RagService -> persistence -> optional VoiceService.
+- Contract flow: API upload -> extraction -> classification -> legislation retrieval -> analysis -> persistence -> optional follow-up chat.
+- Admin review flow: moderation endpoints update Answer accuracy fields and FAQ publication status.
 
-**Why this priority**: Trust and accuracy are critical for a legal information service — admin oversight ensures that citizens receive verified, high-quality answers.
+## Domain and Persistence Model
 
-**Independent Test**: Can be fully tested by logging in as an admin, viewing the review queue, marking an answer as accurate, and verifying that the conversation is promoted to the public FAQ.
+### Aggregates and entities
+1. Category
+   - Name, localized labels, Icon, Domain, SortOrder.
+2. Knowledge base aggregate
+   - LegalDocument (root): metadata, full text, file references, processed state.
+   - DocumentChunk (PartOf LegalDocument): chapter/section/content/token metadata.
+   - ChunkEmbedding (PartOf DocumentChunk): float[1536] vector.
+3. Conversation aggregate
+   - Conversation (root, PartOf AppUser): language, input method, IsPublicFaq, optional FAQ category.
+   - Question (PartOf Conversation): original and translated text, language, input method, optional audio.
+   - Answer (PartOf Question): response text, language, optional audio, moderation fields.
+   - AnswerCitation (PartOf Answer): section reference, excerpt, relevance score, chunk reference.
+4. Contract aggregate
+   - ContractAnalysis (root, PartOf AppUser): original file, extracted text, contract type, score, summary, language, timestamp.
+   - ContractFlag (PartOf ContractAnalysis): severity, description, clause text, citation, sort order.
+5. AppUser extension
+   - PreferredLanguage, DyslexiaMode, AutoPlayAudio, Role.
 
-**Acceptance Scenarios**:
+### Required indexes and constraints
+- Unique and indexed identifiers on all aggregate roots.
+- FK integrity for all PartOf relationships.
+- Check constraints:
+  - HealthScore between 0 and 100.
+  - Allowed enum values for language, input method, role, contract type, severity.
+- Indexes:
+  - Conversation by UserId and StartedAt.
+  - Question by ConversationId and created timestamp.
+  - Answer accuracy review fields for queue filtering.
+  - ContractAnalysis by UserId and AnalysedAt.
+  - Chunk metadata fields used in retrieval diagnostics.
 
-1. **Given** an admin is on the analytics dashboard, **When** they open the answer quality review queue, **Then** they see a list of recent answers with the question, the AI-generated answer, and options to mark it as accurate or inaccurate.
-2. **Given** an admin marks a conversation as accurate and sets IsPublicFaq to true, **Then** that Q&A pair appears on the home dashboard's trending questions section and in the My Rights explorer as a related question.
-3. **Given** an admin adds notes to an answer, **Then** those notes are saved and visible on subsequent review of the same answer.
+## API Endpoint Catalog
 
----
+### Auth and profile
+- POST /api/app/auth/register
+- POST /api/app/auth/login
+- POST /api/app/auth/logout
+- GET /api/app/user/me
+- PUT /api/app/user/preferences
 
-### User Story 5 - Citizen Uses Accessibility Features (Priority: P5)
+### Q&A and FAQs
+- POST /api/app/question/ask
+- GET /api/app/question/history
+- GET /api/app/question/popular
+- GET /api/app/question/faqs
 
-A citizen with a visual impairment or dyslexia uses the platform with screen reader support, dyslexia-friendly font mode, auto-play audio, or high contrast mode to access legal information without barriers.
+### Voice
+- POST /api/app/voice/transcribe
+- POST /api/app/voice/speak
 
-**Why this priority**: South Africa has a significant population with literacy and accessibility challenges — the platform must serve all citizens equitably.
+### Contracts
+- POST /api/app/contract/analyse
+- GET /api/app/contract/{id}
+- GET /api/app/contract/my
+- POST /api/app/contract/{id}/ask
 
-**Independent Test**: Can be fully tested by enabling dyslexia mode and verifying that font, spacing, and size change, then enabling auto-play audio and verifying answers are read aloud automatically.
+### Admin analytics and moderation
+- GET /api/app/admin/stats
+- GET /api/app/admin/questions-by-category
+- GET /api/app/admin/language-distribution
+- GET /api/app/admin/top-questions
+- GET /api/app/admin/review-queue
+- PUT /api/app/admin/answer/{id}/review
+- POST /api/app/admin/faq/create
+- PUT /api/app/admin/faq/{conversationId}/publish
 
-**Acceptance Scenarios**:
+### Knowledge base operations
+- POST /api/app/admin/document/upload
+- POST /api/app/admin/document/reindex
 
-1. **Given** a citizen enables dyslexia mode, **Then** the interface switches to a dyslexia-friendly font with increased letter spacing and font size.
-2. **Given** a citizen enables auto-play audio, **Then** every AI answer is automatically read aloud when it arrives without requiring the citizen to click a play button.
-3. **Given** a citizen is using a keyboard only, **Then** all interactive elements are reachable and operable via keyboard navigation, meeting WCAG 2.1 AA standards.
-4. **Given** a citizen's OS is set to high contrast mode, **Then** the application respects the OS preference and renders in high contrast without additional configuration.
+## Authentication and Authorization Rules
+1. Anonymous users:
+   - May browse Home and Rights explorer.
+   - May view public FAQ and trending content.
+   - On ask or contract submission attempt, redirect to login.
+2. Citizen users:
+   - Full access to personal Q&A, contracts, history, settings.
+   - No admin analytics or moderation access.
+3. Admin users:
+   - Full admin dashboard and moderation access.
+   - FAQ creation and publication rights.
+4. Data visibility:
+   - Conversations and contracts are private by default.
+   - Public FAQ content is explicitly published only.
 
----
+## Functional Requirements
 
-### Edge Cases
+### Q&A and multilingual pipeline
+- FR-001: Users must submit text questions in en, zu, st, af.
+- FR-002: Users must submit voice questions transcribed through Whisper.
+- FR-003: Answers must include at least one Act and section citation when context exists.
+- FR-004: Response language must match selected or detected user language.
+- FR-005: Citations must remain in English even when response language is non-English.
+- FR-006: Q&A answer cards must include expandable citation details.
+- FR-007: Related questions must be shown after each answer.
+- FR-008: Legal or financial disclaimers must appear with each answer in active locale.
+- FR-009: Empty retrieval must return a safe fallback and no fabricated legal claim.
 
-- What happens when a user submits a question in a language not supported (e.g., isiXhosa)? → System detects the language, informs the user it is not yet supported, and suggests English as an alternative.
-- What happens when no legislation chunk is sufficiently relevant to the question? → System responds that no relevant legislation was found and advises consulting a legal professional; no answer is fabricated.
-- What happens when the AI service is unavailable? → User sees a friendly error message indicating the service is temporarily unavailable and is prompted to try again later; no partial or corrupted answers are displayed.
-- What happens when an uploaded contract exceeds the maximum file size? → User sees an immediate validation message specifying the maximum allowed file size before any processing begins.
-- What happens when a contract is uploaded in a language other than English? → System detects the language, translates the content for analysis, and returns results in the user's preferred language.
-- What happens when a citizen with auto-play audio enabled navigates between pages? → Audio playback stops when they leave a page; it does not continue playing in the background unexpectedly.
-- What happens when an admin tries to access the analytics dashboard without admin role? → Access is denied and the user is redirected to the citizen home page.
+### Contracts
+- FR-010: Users must upload contract files (PDF, PNG, JPG).
+- FR-011: Upload view must show validation for unsupported type/size before processing.
+- FR-012: System must extract contract text with OCR fallback when extraction is weak.
+- FR-013: System must classify contract type as Employment, Lease, Credit, or Service.
+- FR-014: Contract analysis must return health score (0-100), summary, and flags.
+- FR-015: Flags must use severity Red, Amber, Green with legislation citations.
+- FR-016: Contract result page must provide a follow-up chat input.
+- FR-017: Follow-up answers must consider both contract text and legislation context.
 
-## Requirements *(mandatory)*
+### Home, rights explorer, and discovery
+- FR-018: Home must display live stats from API.
+- FR-019: Home must display category cards with domain tags.
+- FR-020: Home must display multilingual trending/public questions.
+- FR-021: Rights explorer must support category filtering.
+- FR-022: Rights explorer cards must support expanded/collapsed states.
+- FR-023: Expanded rights cards must include follow-up, listen, and share actions.
+- FR-024: Knowledge score must update when rights content is explored.
 
-### Functional Requirements
+### Admin
+- FR-025: Admin dashboard must show key platform metrics and trends.
+- FR-026: Admin dashboard must show question category distribution and language split.
+- FR-027: Review queue must list answers with pending or flagged moderation status.
+- FR-028: Admin must mark an answer as accurate or inaccurate and save notes.
+- FR-029: Flagged inaccurate answers must be excluded from FAQ publication.
+- FR-030: Admin must create FAQ candidates through the same RAG pipeline.
+- FR-031: Admin must publish approved FAQ items to public surfaces.
 
-**Q&A Chat:**
-- **FR-001**: Citizens MUST be able to submit legal or financial questions via text input in any of the 4 supported languages (English, isiZulu, Sesotho, Afrikaans).
-- **FR-002**: Citizens MUST be able to submit questions via voice input, which is transcribed to text before processing.
-- **FR-003**: Every AI-generated answer MUST cite at least one specific Act name and section number from the indexed South African legislation.
-- **FR-004**: Answers MUST be returned in the same language as the question (or the citizen's selected language preference).
-- **FR-005**: Every answer MUST include a legal disclaimer in the citizen's language stating the answer is informational and not legal advice.
-- **FR-006**: Citizens MUST be able to play answers as audio via a voice playback control.
-- **FR-007**: The system MUST display related questions alongside each answer.
-- **FR-008**: Citizens MUST be able to expand citation cards to view the specific legislation excerpt and section reference.
+### Authentication, profile, and history
+- FR-032: Users must register and login with email and password.
+- FR-033: Role-based access must enforce Citizen versus Admin capabilities.
+- FR-034: History page must list prior conversations and contract analyses.
+- FR-035: Users must resume history entries from History page.
+- FR-036: Users must manage language and accessibility preferences in Settings.
+- FR-037: Preferences must persist across sessions.
 
-**Contract Analysis:**
-- **FR-009**: Citizens MUST be able to upload a contract as a PDF or image (JPEG/PNG).
-- **FR-010**: The system MUST extract and analyse the text of the uploaded contract.
-- **FR-011**: The system MUST assign a health score from 0 to 100, where higher scores indicate fewer concerning clauses.
-- **FR-012**: The system MUST generate a plain-language summary of the contract.
-- **FR-013**: The system MUST identify and categorise flag items as Red (serious violation), Amber (concern), or Green (compliant/positive clause), each citing relevant legislation.
-- **FR-014**: Citizens MUST be able to ask follow-up questions about the analysed contract.
+### Accessibility, i18n, and responsive behavior
+- FR-038: All interactive controls must be keyboard accessible.
+- FR-039: App must include ARIA labels and semantic landmarks.
+- FR-040: Chat responses must announce updates for screen readers.
+- FR-041: Dyslexia mode must switch font and increase spacing/readability metrics.
+- FR-042: Auto-play audio preference must trigger answer playback when enabled.
+- FR-043: High contrast mode must respect OS-level preference.
+- FR-044: Locale switching must update all static UI labels through next-intl.
+- FR-045: Mobile layout must support primary flows with minimum 44x44 touch targets.
+- FR-046: Friendly loading, empty, and error states must be provided on all data views.
 
-**My Rights Explorer:**
-- **FR-015**: Citizens MUST be able to browse rights cards organised by category.
-- **FR-016**: Citizens MUST be able to filter rights cards by category using filter tabs.
-- **FR-017**: Citizens MUST be able to expand rights cards to view full legislation text.
-- **FR-018**: Citizens MUST be able to trigger audio playback of rights card content.
-- **FR-019**: The system MUST track and display each citizen's knowledge score, which increases as they engage with rights cards.
+### DevOps and release readiness
+- FR-047: CI pipeline must build backend and frontend and run test stages.
+- FR-048: CD pipeline must deploy backend and frontend to Azure targets.
+- FR-049: Environment secrets must be externalized and not hardcoded.
+- FR-050: Deployment docs must support repeatable staging setup and demo execution.
 
-**Home Dashboard:**
-- **FR-020**: The home page MUST display live aggregate statistics: total questions answered, contracts analysed, supported languages, and Acts indexed.
-- **FR-021**: The home page MUST display category cards with domain tags (Legal/Financial).
-- **FR-022**: The home page MUST display trending/public FAQ questions sourced from admin-curated conversations.
-- **FR-023**: The home page MUST provide a search bar with a microphone button to initiate a Q&A session.
+## Non-Functional Requirements
+1. API latency targets:
+   - Text Q&A median <= 8s.
+   - Voice Q&A median <= 12s.
+   - Contract analysis <= 30s for typical uploads.
+2. Reliability:
+   - Graceful fallback for AI provider failures.
+   - Retries with bounded attempts for transient provider errors.
+3. Security:
+   - JWT authentication for protected endpoints.
+   - Private user data isolation.
+4. Observability:
+   - Structured logs for AI calls, retrieval quality, and moderation actions.
+5. Accessibility:
+   - No critical WCAG 2.1 AA violations in primary flows.
 
-**Admin Analytics:**
-- **FR-024**: Admin users MUST be able to view a dashboard showing question trends, language distribution (with voice/text split), and top questions.
-- **FR-025**: Admin users MUST be able to review AI-generated answers in a quality review queue.
-- **FR-026**: Admin users MUST be able to mark answers as accurate or inaccurate and add review notes.
-- **FR-027**: Admin users MUST be able to promote a conversation to public FAQ status, making it visible on the home page and My Rights explorer.
+## RAG Pipeline Flow (Detailed)
+1. User submits text or transcribed voice input.
+2. LanguageService detects language (en, zu, st, af).
+3. If non-English, text is translated to English for retrieval.
+4. EmbeddingService creates query vector.
+5. RagService computes cosine similarity against indexed chunk embeddings.
+6. Top 5 chunks above threshold are selected.
+7. Prompt is built with strict context-only and citation rules.
+8. GPT-4o generates answer in user language with English citations.
+9. Answer, citations, and moderation metadata are stored.
+10. Disclaimer is attached and returned to client.
+11. Optional TTS is generated for playback.
 
-**Knowledge Base:**
-- **FR-028**: The system MUST support ingestion of South African legislation PDFs, extracting text and indexing it for retrieval.
-- **FR-029**: The system MUST store 13 pre-seeded legislation documents (7 Legal, 6 Financial) as the initial knowledge base.
+## Contract Analysis Pipeline Flow (Detailed)
+1. Authenticated user uploads contract file.
+2. File validation checks type and size.
+3. Text extraction runs via PdfPig.
+4. If extraction is weak, OCR fallback runs via vision model.
+5. Type detection classifies Employment, Lease, Credit, or Service.
+6. Relevant legal chunks are retrieved for context.
+7. Analysis prompt requests strict JSON output: score, summary, flags.
+8. Response is parsed and validated.
+9. ContractAnalysis and ContractFlag entities are saved.
+10. Structured result is returned to frontend.
+11. Follow-up questions reuse contract and legislation context.
 
-**Accessibility:**
-- **FR-030**: The system MUST provide a dyslexia-friendly mode that changes to an accessible font with increased spacing and font size.
-- **FR-031**: The system MUST provide an auto-play audio option that reads answers aloud automatically.
-- **FR-032**: All interactive elements MUST be operable via keyboard navigation.
-- **FR-033**: The system MUST comply with WCAG 2.1 AA accessibility standards, including full ARIA labels and roles.
-- **FR-034**: All touch/click targets MUST be a minimum of 44×44 pixels.
-- **FR-035**: The system MUST respect the user's OS-level high contrast setting.
+## Error Handling Strategy
+1. AI provider timeout/rate limit:
+   - Return user-safe message and retry option.
+   - Log provider failure category for monitoring.
+2. Unsupported language:
+   - Return explicit unsupported-language guidance and supported list.
+3. Empty retrieval set:
+   - Return no-context fallback, never fabricate law.
+4. Upload failures:
+   - Return friendly validation errors for type, size, unreadable content.
+5. Translation failure:
+   - Fail safely with fallback prompt to retry in English.
 
-**Authentication:**
-- **FR-036**: Citizens MUST be able to register and log in with an email address and password.
-- **FR-037**: The system MUST support two roles: Citizen and Admin, with role-based access control.
-- **FR-038**: Citizens' conversation histories and contract analyses MUST be private and only visible to the individual citizen and Admin users.
+## Data Seeding Strategy
+1. Seed Category records first.
+2. Seed 13 documents:
+   - Legal: Constitution, BCEA, CPA, LRA, POPIA, Rental Housing Act, Protection from Harassment Act.
+   - Financial: NCA, FAIS, Tax Administration Act, Pension Funds Act, SARS guides, FSCA materials.
+3. For each document:
+   - Store metadata and original file reference.
+   - Chunk by section.
+   - Generate embeddings.
+   - Mark document processed.
+4. Seed baseline public FAQ items for explorer and home trends.
+5. Seed admin account for moderation workflows.
 
-### Key Entities
+## CI/CD and Deployment Architecture
+1. CI stages:
+   - Restore dependencies.
+   - Build backend and frontend.
+   - Run tests.
+   - Publish artifacts.
+2. CD stages:
+   - Deploy backend to Azure App Service.
+   - Deploy frontend to Azure Static Web Apps or App Service.
+   - Run smoke checks.
+3. Required environment variables:
+   - OpenAI key and model config.
+   - Database connection string.
+   - JWT/auth settings.
+   - Storage settings for file/audio artifacts.
+4. Release governance:
+   - Staging verification before production promotion.
+   - Rollback procedure documented.
 
-- **Category**: Represents a thematic grouping of legal or financial rights (e.g., Employment, Housing, Consumer Protection). Has a domain (Legal or Financial) and a display order.
-- **Legal Document**: Represents a piece of South African legislation (e.g., the Basic Conditions of Employment Act). Contains the full text and metadata (Act number, year, category). Has a processing status to indicate whether it has been indexed.
-- **Document Chunk**: A section-level fragment of a Legal Document. Contains the chapter, section number, section title, and text content. Used as the retrieval unit in the RAG pipeline.
-- **Conversation**: A session of questions and answers between a citizen and the system, in a specific language. Can be flagged as a public FAQ by an admin.
-- **Question**: A single question within a conversation, with the original text (in the citizen's language) and the translated text (in English for retrieval).
-- **Answer**: The AI-generated response to a question, stored with its language, citations, and an optional audio file. Admins can mark it as accurate and add notes.
-- **Answer Citation**: A reference linking an answer to a specific Document Chunk, including the relevance score and an excerpt of the legislation used.
-- **Contract Analysis**: The result of analysing an uploaded contract. Contains the extracted text, a health score, a summary, and a list of flags.
-- **Contract Flag**: An individual finding from a contract analysis (Red/Amber/Green severity), with a description and the specific legislation that was applied.
-- **App User**: A citizen or admin who uses the platform, with preferences for language, dyslexia mode, and audio auto-play.
-
-## Success Criteria *(mandatory)*
-
-### Measurable Outcomes
-
-- **SC-001**: Citizens receive a complete answer with at least one legislation citation for 90% of questions asked about topics covered by the 13 indexed Acts.
-- **SC-002**: Citizens receive an answer within 10 seconds of submitting a text question under normal system load.
-- **SC-003**: Contract analysis results (health score, flags, summary) are returned within 30 seconds of a valid contract upload.
-- **SC-004**: Citizens using any of the 4 supported languages receive answers in that language, verified for 100% of test cases across all 4 languages.
-- **SC-005**: The platform is usable by keyboard-only users for all primary flows, with zero critical WCAG 2.1 AA violations.
-- **SC-006**: Enabling dyslexia mode visibly changes the font and spacing within 1 second of toggling the setting.
-- **SC-007**: Admin review actions (mark accurate, promote to FAQ) are reflected on the home page within 60 seconds.
-- **SC-008**: All 13 legislation documents are fully indexed and retrievable before the platform launches.
-- **SC-009**: The platform works correctly on modern mobile and desktop browsers without layout breakage, tested across at least 3 browser/device combinations.
-- **SC-010**: Citizens who cannot be helped (no relevant legislation found) receive a graceful fallback message in 100% of such cases, with no blank screens or technical error messages shown.
+## Success Criteria
+- SC-001: 90% of in-scope questions return cited answers.
+- SC-002: Text answers are returned within 10 seconds under normal load.
+- SC-003: Contract analysis returns score, summary, flags within 30 seconds.
+- SC-004: All four supported languages return localized answers and UI labels.
+- SC-005: Keyboard-only navigation passes all primary flow tests.
+- SC-006: Dyslexia mode visibly applies within 1 second and persists after reload.
+- SC-007: Admin moderation action reflects in review queue and FAQ visibility within 60 seconds.
+- SC-008: All 13 seed documents are indexed and retrievable before launch.
+- SC-009: Mobile experience works on small viewport without layout break in primary flows.
+- SC-010: Empty-context and provider-error responses never expose raw technical errors.
+- SC-011: Language preference changes apply globally within one page transition.
+- SC-012: Review workflow cycle (open -> decide -> note -> save) completes in under 60 seconds.
+- SC-013: Upload validation feedback appears in <= 2 seconds after file selection.
+- SC-014: Route protection blocks unauthorized access to admin endpoints 100% of tests.
 
 ## Assumptions
+1. Anonymous users can browse public pages but cannot submit private interactions.
+2. Email/password authentication is sufficient for MVP.
+3. In-memory vector search is acceptable for MVP scale and migrates to pgvector for production.
+4. Translations are AI-assisted and reviewed for critical legal disclaimers.
+5. Legislation update automation is outside v1 scope.
 
-- Citizens are assumed to have access to a modern web browser on either a mobile phone or a desktop/laptop device.
-- Voice input assumes the device has a microphone and the browser supports audio capture.
-- All 13 legislation documents are publicly available from South African government sources and can be legally indexed and used for informational purposes.
-- The knowledge base is seeded with legislation as of the project start date; keeping legislation up to date is out of scope for v1.
-- Anonymous browsing of the home page, My Rights explorer, and public FAQs is supported; account creation is required only for conversation history and contract analysis.
-- The admin role is assigned manually by a system administrator; self-service admin registration is out of scope.
-- The gamified knowledge score is tracked per user session; cross-session persistence of the knowledge score requires a logged-in account.
-- Email/password authentication is the only login method for v1; social login (e.g., Google) is out of scope.
-- The platform is deployed to a single Azure region for v1; multi-region redundancy is out of scope.
-- The Afrikaans and Sesotho translations produced by the AI are assumed to be accurate enough for informational purposes; professional translation review is out of scope for v1.
+## Out of Scope (v1)
+1. Native mobile apps.
+2. Real-time streaming response transport.
+3. Multi-region high availability.
+4. Social login providers.
+5. Automated legal source update crawler.
+
+## Implementation Order (Issue-Driven)
+1. Foundation and data pipeline (#1-#9).
+2. RAG and multilingual API core (#10-#13).
+3. Core frontend and contract flows (#14-#19).
+4. Explorer, admin moderation, auth, FAQ tooling (#20-#24).
+5. Accessibility, localization completion, resilient UX, deployment, demo prep (#25-#31).
+
+## Completion Checklist
+- [ ] Route architecture implemented in Next.js App Router.
+- [ ] API and domain entities delivered with migrations.
+- [ ] RAG and contract pipelines operational with citations.
+- [ ] Accessibility and i18n validated in all primary paths.
+- [ ] Admin moderation and FAQ publish flow live.
+- [ ] CI/CD deployment successful and documented.
+
+## Appendix A: Issue to Requirement Traceability
+
+| Issue | Title | FR Mapping | SC Mapping |
+|---|---|---|---|
+| #1 | ABP Backend Project Scaffold | FR-047, FR-048, FR-049 | SC-014 |
+| #2 | Domain Entities — Knowledge Base Aggregate | FR-003, FR-009, FR-050 | SC-001, SC-008 |
+| #3 | Domain Entities — Conversation Aggregate | FR-001, FR-002, FR-006, FR-034 | SC-001, SC-010 |
+| #4 | Domain Entities — Contract Analysis Aggregate | FR-014, FR-015, FR-017 | SC-003 |
+| #5 | Domain Entities — AppUser Extension | FR-033, FR-036, FR-037, FR-041, FR-042 | SC-006, SC-011 |
+| #6 | PDF Ingestion Service — Text Extraction and Smart Chunking | FR-012, FR-050 | SC-008 |
+| #7 | Embedding Service — OpenAI Integration | FR-003, FR-009, FR-050 | SC-001, SC-008 |
+| #8 | Seed Database with Legislation | FR-018, FR-019, FR-050 | SC-008 |
+| #9 | Next.js Frontend Scaffold | FR-018, FR-020, FR-044, FR-045 | SC-004, SC-009 |
+| #10 | RAG Service — Core Q&A Pipeline | FR-003, FR-005, FR-009 | SC-001, SC-002, SC-010 |
+| #11 | Language Detection and Translation Layer | FR-001, FR-004, FR-005, FR-044 | SC-004, SC-011 |
+| #12 | Q&A API Endpoint | FR-001, FR-006, FR-007, FR-034 | SC-001, SC-002 |
+| #13 | Store Q&A Data for History and Analytics | FR-024, FR-025, FR-034, FR-035 | SC-007, SC-012 |
+| #14 | Home Dashboard Page | FR-018, FR-019, FR-020 | SC-009 |
+| #15 | Q&A Chat Interface | FR-006, FR-007, FR-008, FR-046 | SC-002, SC-010 |
+| #16 | Voice Input — Whisper API Integration | FR-002, FR-040, FR-045 | SC-002, SC-009 |
+| #17 | Voice Output — TTS API Integration | FR-042, FR-046 | SC-002 |
+| #18 | Contract Upload and Analysis Pipeline | FR-010, FR-011, FR-012, FR-013, FR-014, FR-015, FR-017 | SC-003, SC-013 |
+| #19 | Contract Analysis Results Page | FR-014, FR-015, FR-016, FR-046 | SC-003, SC-009 |
+| #20 | My Rights Explorer Page | FR-021, FR-022, FR-023, FR-024 | SC-009 |
+| #21 | Admin Analytics Dashboard | FR-025, FR-026, FR-027 | SC-007, SC-012 |
+| #22 | Answer Quality Review System | FR-027, FR-028, FR-029 | SC-007, SC-012 |
+| #23 | User Authentication | FR-032, FR-033, FR-034, FR-036 | SC-014 |
+| #24 | FAQ Creation System (Admin) | FR-030, FR-031 | SC-007 |
+| #25 | Accessibility — Screen Reader and Keyboard Navigation | FR-038, FR-039, FR-040 | SC-005 |
+| #26 | Dyslexia-Friendly Mode | FR-041, FR-036, FR-037 | SC-006 |
+| #27 | Multilingual UI Label Files | FR-044 | SC-004, SC-011 |
+| #28 | Disclaimers Integration | FR-008, FR-046 | SC-010 |
+| #29 | Responsive Design and Error Handling | FR-045, FR-046 | SC-009, SC-010 |
+| #30 | Azure DevOps CI/CD Pipeline and Deployment | FR-047, FR-048, FR-049, FR-050 | SC-014 |
+| #31 | Demo Preparation and Documentation | FR-050 | SC-009 |
+
+### Traceability Notes
+1. Multiple issues map to shared FR/SC items by design because several backlog tasks contribute to the same outcome.
+2. Any future issue added to the backlog must include at least one FR and one SC linkage in this appendix before implementation starts.
