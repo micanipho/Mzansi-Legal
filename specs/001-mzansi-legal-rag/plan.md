@@ -4,11 +4,11 @@
 **Input**: Feature specification for MzansiLegal — a multilingual AI-powered legal and financial rights assistant.
 
 ## Summary
-Build MzansiLegal, a full-stack RAG-based platform using .NET 8 (ABP Framework) and Next.js 14. The platform will provide multilingual legal/financial Q&A, voice interaction, contract analysis, and an admin moderation workflow. The technical approach leverages OpenAI for embeddings, generation, and speech services, with structured PDF ingestion using PdfPig and in-memory vector search for the MVP.
+Build MzansiLegal, a full-stack RAG-based platform using .NET 9 (ABP Framework) and Next.js 16. The platform will provide multilingual legal/financial Q&A, voice interaction, contract analysis, and an admin moderation workflow. The technical approach leverages OpenAI for embeddings, generation, and speech services, with structured PDF ingestion using PdfPig and in-memory vector search for the MVP.
 
 ## Technical Context
 
-**Language/Version**: .NET 8 (Backend), TypeScript / Next.js 14 (Frontend)
+**Language/Version**: .NET 9 (Backend), TypeScript / Next.js 16 (Frontend)
 **Primary Dependencies**: ABP Framework, Next.js, Ant Design, next-intl, OpenAI SDK, PdfPig
 **Storage**: PostgreSQL
 **Testing**: xUnit (Backend), Jest/Playwright (Frontend)

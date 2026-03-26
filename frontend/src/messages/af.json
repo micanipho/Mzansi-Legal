@@ -1,0 +1,99 @@
+{
+  "common": {
+    "appName": "MzansiLegal",
+    "tagline": "Jou KI-aangedrewe regsassistent",
+    "loading": "Laai tans...",
+    "error": "Iets het verkeerd gegaan. Probeer asseblief weer.",
+    "disclaimer": "Hierdie inligting is slegs vir leiding en verteenwoordig nie regsadvies nie. Raadpleeg altyd 'n gekwalifiseerde regsdeskundige."
+  },
+  "nav": {
+    "home": "Tuis",
+    "chat": "Stel 'n Vraag",
+    "rights": "My Regte",
+    "contracts": "Kontraktoets",
+    "history": "Geskiedenis",
+    "settings": "Instellings",
+    "admin": "Admin",
+    "login": "Meld aan",
+    "register": "Registreer",
+    "logout": "Meld af"
+  },
+  "home": {
+    "title": "Ken Jou Regte",
+    "subtitle": "Stel regsvrae in jou taal — kry duidelike, gesiteerde antwoorde.",
+    "askPlaceholder": "Tik jou vraag hier...",
+    "askButton": "Vra Nou",
+    "trendingTitle": "Gewilde Vrae",
+    "categoriesTitle": "Blaai per Kategorie"
+  },
+  "chat": {
+    "title": "Regs V&A",
+    "inputPlaceholder": "Stel 'n regs- of finansiële regtevraag...",
+    "sendButton": "Stuur",
+    "voiceButton": "Spraakinvoer",
+    "stopButton": "Stop Opname",
+    "citationsTitle": "Bronne",
+    "newConversation": "Nuwe Gesprek"
+  },
+  "rights": {
+    "title": "My Regte-Verkenner",
+    "searchPlaceholder": "Soek regte...",
+    "allCategories": "Alles",
+    "learnMore": "Leer Meer",
+    "askAboutThis": "Vra hieroor"
+  },
+  "contracts": {
+    "title": "Kontrak Gesondheidstoets",
+    "uploadTitle": "Laai Jou Kontrak Op",
+    "uploadHint": "Laai 'n PDF-kontrak op om vir risiko's en rooi vlae te ontleed.",
+    "uploadButton": "Laai Op & Ontleed",
+    "healthScore": "Gesondheidstelling",
+    "redFlags": "Rooi Vlae",
+    "summary": "Opsomming",
+    "followUp": "Stel 'n opvolgvraag oor hierdie kontrak"
+  },
+  "history": {
+    "title": "My Gespreksgeskiedenis",
+    "empty": "Nog geen gesprekke nie.",
+    "viewConversation": "Bekyk"
+  },
+  "settings": {
+    "title": "Instellings",
+    "language": "Voorkeur Taal",
+    "dyslexiaMode": "Disleksie-Vriendelike Modus",
+    "autoPlayAudio": "Speel Outomaties Klankresponse",
+    "saveButton": "Stoor Voorkeure"
+  },
+  "auth": {
+    "loginTitle": "Meld Aan",
+    "registerTitle": "Skep Rekening",
+    "emailLabel": "E-posadres",
+    "passwordLabel": "Wagwoord",
+    "nameLabel": "Volle Naam",
+    "loginButton": "Meld Aan",
+    "registerButton": "Registreer",
+    "switchToRegister": "Het jy nie 'n rekening nie? Registreer",
+    "switchToLogin": "Het jy al 'n rekening? Meld Aan"
+  },
+  "admin": {
+    "dashboardTitle": "Admin-kontroleskerm",
+    "totalQuestions": "Totale Vrae",
+    "totalUsers": "Totale Gebruikers",
+    "pendingReview": "Wag vir Hersiening",
+    "publishedFaqs": "Gepubliseerde Gewilde Vrae",
+    "reviewQueueTitle": "Hersieningswagry",
+    "markAccurate": "Merk as Akkuraat",
+    "markInaccurate": "Merk as Onakkuraat",
+    "publishAsFaq": "Publiseer as Gewilde Vraag",
+    "adminNotes": "Admin-notas"
+  },
+  "categories": {
+    "legal": "Regsregte",
+    "financial": "Finansiële Regte",
+    "employment": "Indiensneming",
+    "housing": "Behuising",
+    "consumer": "Verbruikersregte",
+    "family": "Familiereg",
+    "criminal": "Strafreg"
+  }
+}

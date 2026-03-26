@@ -1,6 +1,6 @@
 # Quickstart: MzansiLegal Platform
 
-## Backend Setup (.NET 8 + ABP)
+## Backend Setup (.NET 9 + ABP)
 1.  **Prerequisites**: .NET 8 SDK, PostgreSQL, OpenAI API Key.
 2.  **Configuration**: Update `appsettings.json` with `ConnectionStrings:Default` and `OpenAI:ApiKey`.
 3.  **Migrations**: Run `dotnet ef database update` in the `EntityFrameworkCore` project.

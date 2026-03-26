@@ -15,12 +15,9 @@
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001 [P] Scaffold ABP Backend project in ackend/ (#1)
-- [ ] T002 [P] Scaffold Next.js Frontend project in rontend/ (#9)
-- [ ] T003 [P] Configure next-intl for multilingual support in rontend/src/messages/ (#27)
-- [ ] T004 [P] Configure Ant Design theme and design tokens in rontend/src/styles/ (#9)
+- [X] T002 [P] Scaffold Next.js Frontend project in frontend/ (#9)
+- [X] T003 [P] Configure next-intl for multilingual support in frontend/src/messages/ (#27)
+- [X] T004 [P] Configure Ant Design theme and design tokens in frontend/src/styles/ (#9)
 
 ---
 
@@ -51,10 +48,10 @@
 - [ ] T014 [US1] Implement RagService core Q&A pipeline in ackend/src/MzansiLegal.Application/ (#10)
 - [ ] T015 [US1] Implement LanguageService for detection and translation in ackend/src/MzansiLegal.Application/ (#11)
 - [ ] T016 [US1] Implement Q&A API Endpoint in ackend/src/MzansiLegal.HttpApi/ (#12)
-- [ ] T017 [P] [US1] Create Home Dashboard UI in rontend/src/app/page.tsx (#14)
-- [ ] T018 [P] [US1] Create Q&A Chat Interface in rontend/src/app/chat/page.tsx (#15)
-- [ ] T019 [US1] Integrate Whisper API for voice input in rontend/src/components/chat/VoiceInput.tsx (#16)
-- [ ] T020 [US1] Integrate TTS API for voice output in rontend/src/components/chat/VoiceOutput.tsx (#17)
+- [ ] T017 [P] [US1] Create Home Dashboard UI in frontend/src/app/page.tsx (#14)
+- [ ] T018 [P] [US1] Create Q&A Chat Interface in frontend/src/app/chat/page.tsx (#15)
+- [ ] T019 [US1] Integrate Whisper API for voice input in frontend/src/components/chat/VoiceInput.tsx (#16)
+- [ ] T020 [US1] Integrate TTS API for voice output in frontend/src/components/chat/VoiceOutput.tsx (#17)
 
 **Checkpoint**: User Story 1 (MVP) is fully functional.
 
@@ -69,9 +66,9 @@
 - [ ] T021 [P] [US2] Create ContractAnalysis and ContractFlag entities in ackend/src/MzansiLegal.Domain/ (#4)
 - [ ] T022 [US2] Implement ContractAnalysisService with OCR fallback in ackend/src/MzansiLegal.Application/ (#18)
 - [ ] T023 [US2] Implement Contract Analysis API Endpoints in ackend/src/MzansiLegal.HttpApi/ (#18)
-- [ ] T024 [P] [US2] Create Contract Upload UI in rontend/src/app/contracts/page.tsx (#18)
-- [ ] T025 [P] [US2] Create Contract Analysis Results Page in rontend/src/app/contracts/[id]/page.tsx (#19)
-- [ ] T026 [US2] Implement Follow-up chat scoped to contract in rontend/src/components/contracts/FollowUpChat.tsx (#18)
+- [ ] T024 [P] [US2] Create Contract Upload UI in frontend/src/app/contracts/page.tsx (#18)
+- [ ] T025 [P] [US2] Create Contract Analysis Results Page in frontend/src/app/contracts/[id]/page.tsx (#19)
+- [ ] T026 [US2] Implement Follow-up chat scoped to contract in frontend/src/components/contracts/FollowUpChat.tsx (#18)
 
 **Checkpoint**: Contract analysis flow is fully functional.
 
@@ -83,10 +80,10 @@
 
 **Independent Test**: Filter rights by 'Employment' category and verify correct cards are shown.
 
-- [ ] T027 [US3] Create My Rights Explorer Page in rontend/src/app/rights/page.tsx (#20)
-- [ ] T028 [P] [US3] Implement Category Filter tabs in rontend/src/components/rights/CategoryFilters.tsx (#20)
-- [ ] T029 [P] [US3] Implement Expandable Rights Cards in rontend/src/components/rights/RightsCard.tsx (#20)
-- [ ] T030 [US3] Implement Trending Questions list on Home Page in rontend/src/components/home/TrendingQuestions.tsx (#14)
+- [ ] T027 [US3] Create My Rights Explorer Page in frontend/src/app/rights/page.tsx (#20)
+- [ ] T028 [P] [US3] Implement Category Filter tabs in frontend/src/components/rights/CategoryFilters.tsx (#20)
+- [ ] T029 [P] [US3] Implement Expandable Rights Cards in frontend/src/components/rights/RightsCard.tsx (#20)
+- [ ] T030 [US3] Implement Trending Questions list on Home Page in frontend/src/components/home/TrendingQuestions.tsx (#14)
 
 ---
 
@@ -97,10 +94,10 @@
 **Independent Test**: Mark an answer as accurate in the review queue and verify it becomes eligible for FAQ.
 
 - [ ] T031 [US4] Implement Admin Stats API in ackend/src/MzansiLegal.Application/ (#21)
-- [ ] T032 [US4] Create Admin Dashboard Page in rontend/src/app/admin/dashboard/page.tsx (#21)
-- [ ] T033 [US4] Create Review Queue UI in rontend/src/app/admin/review-queue/page.tsx (#22)
+- [ ] T032 [US4] Create Admin Dashboard Page in frontend/src/app/admin/dashboard/page.tsx (#21)
+- [ ] T033 [US4] Create Review Queue UI in frontend/src/app/admin/review-queue/page.tsx (#22)
 - [ ] T034 [US4] Implement Moderation API Endpoints in ackend/src/MzansiLegal.HttpApi/ (#22)
-- [ ] T035 [US4] Implement FAQ Publishing workflow in rontend/src/app/admin/faqs/page.tsx (#24)
+- [ ] T035 [US4] Implement FAQ Publishing workflow in frontend/src/app/admin/faqs/page.tsx (#24)
 
 ---
 
@@ -110,10 +107,10 @@
 
 **Independent Test**: Login as a citizen and verify previous conversations are listed on the history page.
 
-- [ ] T036 [US5] Implement User Registration and Login UI in rontend/src/app/auth/ (#23)
-- [ ] T037 [US5] Implement User History Page in rontend/src/app/history/page.tsx (#34)
-- [ ] T038 [US5] Implement User Settings and Preferences UI in rontend/src/app/settings/page.tsx (#36)
-- [ ] T039 [US5] Enforce Role-Based Access Control on Admin routes in rontend/src/middleware.ts (#23)
+- [ ] T036 [US5] Implement User Registration and Login UI in frontend/src/app/auth/ (#23)
+- [ ] T037 [US5] Implement User History Page in frontend/src/app/history/page.tsx (#34)
+- [ ] T038 [US5] Implement User Settings and Preferences UI in frontend/src/app/settings/page.tsx (#36)
+- [ ] T039 [US5] Enforce Role-Based Access Control on Admin routes in frontend/src/middleware.ts (#23)
 
 ---
 
@@ -121,9 +118,9 @@
 
 **Purpose**: Accessibility, error handling, and deployment.
 
-- [ ] T040 [P] Implement Dyslexia-Friendly Mode toggle and styles in rontend/src/components/settings/Accessibility.tsx (#26)
+- [ ] T040 [P] Implement Dyslexia-Friendly Mode toggle and styles in frontend/src/components/settings/Accessibility.tsx (#26)
 - [ ] T041 [P] Perform ARIA and Keyboard Navigation audit across all pages (#25)
-- [ ] T042 [P] Implement global Error and Loading states in rontend/src/app/ (#29)
+- [ ] T042 [P] Implement global Error and Loading states in frontend/src/app/ (#29)
 - [ ] T043 [P] Configure Azure DevOps CI/CD Pipelines in .github/workflows/ (#30)
 - [ ] T044 Final run of quickstart.md validation (#31)
 

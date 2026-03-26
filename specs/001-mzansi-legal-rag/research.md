@@ -2,8 +2,8 @@
 
 ## Phase 0: Outline & Research
 
-### Task 1: Research OpenAI SDK and Embedding Patterns in .NET 8
-**Decision**: Use the new official `OpenAI` library (v2+) for OpenAI-compatible services. For the RAG pipeline, use `Azure.AI.OpenAI` or the standard `OpenAI` client if targeting standard OpenAI endpoints. Given the .NET 8 stack, `Microsoft.Extensions.AI` (preview) can be considered for abstraction, but for stability, the official OpenAI client is preferred.
+### Task 1: Research OpenAI SDK and Embedding Patterns in .NET 9
+**Decision**: Use the new official `OpenAI` library (v2+) for OpenAI-compatible services. For the RAG pipeline, use `Azure.AI.OpenAI` or the standard `OpenAI` client if targeting standard OpenAI endpoints. Given the .NET 9 stack, `Microsoft.Extensions.AI` (GA in .NET 9) can be used for abstraction alongside the official OpenAI client for stability.
 **Rationale**: These libraries are modern, provide clean async/await patterns, and support the required `text-embedding-ada-002` and `gpt-4o` models with high reliability.
 
 ### Task 2: Research PdfPig Section-Level Chunking for SA Legislation
@@ -14,7 +14,7 @@
 **Decision**: Implement `VoiceAppService` in the backend. Use `multipart/form-data` for Whisper transcription and `FileStreamResult` with the appropriate MIME type (e.g., `audio/mpeg`) for TTS playback. TTS output should be cached in local storage or Azure Blob Storage to minimize API costs for repeated common phrases.
 **Rationale**: This pattern provides a clean separation of concerns and leverages standard ASP.NET Core file handling features.
 
-### Task 4: Research Next.js 14 Multilingual Voice Interaction
+### Task 4: Research Next.js 16 Multilingual Voice Interaction
 **Decision**: Use the `MediaRecorder` API for audio capture on the client side. Integrate with `next-intl` to manage locale-specific labels and labels for accessibility (ARIA). For the dyslexia mode, use CSS custom properties to switch to the `OpenDyslexic` font and adjust `letter-spacing` globally.
 **Rationale**: Native browser APIs provide better performance and compatibility. CSS custom properties allow for a near-instant UI shift without a full reload.
 
