@@ -7,12 +7,12 @@ public static class backendDbContextConfigurer
 {
     public static void Configure(DbContextOptionsBuilder<backendDbContext> builder, string connectionString)
     {
-        builder.UseNpgsql(connectionString);
+        builder.UseSqlServer(connectionString);
     }
 
     public static void Configure(DbContextOptionsBuilder<backendDbContext> builder, DbConnection connection)
     {
-        builder.UseNpgsql(connection);
+        builder.UseSqlServer(connection);
     }
 }
 

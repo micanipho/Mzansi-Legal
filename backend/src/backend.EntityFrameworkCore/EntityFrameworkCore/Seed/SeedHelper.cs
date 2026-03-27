@@ -27,9 +27,6 @@ public static class SeedHelper
         // Default tenant seed (in host database).
         new DefaultTenantBuilder(context).Create();
         new TenantRoleAndUserBuilder(context, 1).Create();
-
-        // MzansiLegal seed — categories and 13 legislation document stubs
-        new MzansiLegalDataSeeder(context).Create();
     }
 
     private static void WithDbContext<TDbContext>(IIocResolver iocResolver, Action<TDbContext> contextAction)

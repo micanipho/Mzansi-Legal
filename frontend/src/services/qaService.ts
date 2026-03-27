@@ -41,12 +41,13 @@ export async function askQuestion(
     body: JSON.stringify(input),
   });
 
+  const json = await res.json();
+
   if (!res.ok) {
-    const err = await res.text();
-    throw new Error(err || "Failed to get answer");
+    throw new Error(json?.error?.message || "Failed to get answer");
   }
 
-  return res.json();
+  return json.result;
 }
 
 export async function transcribeAudio(
@@ -62,8 +63,9 @@ export async function transcribeAudio(
     body: formData,
   });
 
-  if (!res.ok) throw new Error("Transcription failed");
-  return res.json();
+  const json = await res.json();
+  if (!res.ok) throw new Error(json?.error?.message || "Transcription failed");
+  return json.result;
 }
 
 export async function textToSpeech(

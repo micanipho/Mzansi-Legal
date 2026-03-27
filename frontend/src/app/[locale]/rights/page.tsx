@@ -1,87 +1,58 @@
 "use client";
 
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Minus, Plus, Share2, Play } from "lucide-react";
 import { C, R, shadowOrganic, fontSerif, fontSans } from "@/styles/theme";
 
+// Filter values are kept as stable English keys for category matching
 const FILTERS = ["All", "Employment", "Housing", "Consumer", "Debt & Credit", "Tax", "Privacy"];
 
+// Filter value → categories translation key
+const FILTER_CAT_KEYS: Record<string, string> = {
+  Employment: "employment",
+  Housing: "housing",
+  Consumer: "consumer",
+  "Debt & Credit": "debtCredit",
+  Tax: "tax",
+  Privacy: "privacy",
+};
+
 interface RightCard {
-  title: string;
-  cite: string;
-  desc: string;
-  detail: string;
-  quote: string;
+  id: string;
   category: string;
   r: string;
+  hasQuote: boolean;
 }
 
 const CARDS: RightCard[] = [
-  {
-    title: "You cannot be evicted without a court order",
-    cite: "Constitution, Section 26(3)",
-    desc: "A landlord cannot remove you without a court order under the PIE Act.",
-    detail:
-      "Even if you are behind on rent, a landlord cannot simply lock you out, change the locks, cut off your water or electricity, or remove your belongings. They must apply for an eviction order through a court under the Prevention of Illegal Eviction (PIE) Act. The court will consider all circumstances, including whether you have alternative accommodation, before granting an order.",
-    quote:
-      "\"No one may be evicted from their home, or have their home demolished, without an order of court made after considering all the relevant circumstances. No legislation may permit arbitrary evictions.\"",
-    category: "Housing",
-    r: R.o1,
-  },
-  {
-    title: "Your employer must give you a payslip",
-    cite: "BCEA, Section 33",
-    desc: "You have the right to written particulars of your payment.",
-    detail: "Every employer must give each employee a payslip when paying remuneration. It must include the employer's details, period covered, remuneration in money, deductions, and actual amount paid.",
-    quote: "",
-    category: "Employment",
-    r: R.o2,
-  },
-  {
-    title: "You can return defective goods within 6 months",
-    cite: "CPA, Section 56",
-    desc: "Suppliers must repair, replace, or refund unsafe or defective goods.",
-    detail: "If goods are unsafe, defective or fail to meet quality standards within 6 months of delivery, you can return them without penalty and at the supplier's risk and expense, and demand a full refund, replacement, or repair.",
-    quote: "",
-    category: "Consumer",
-    r: R.o3,
-  },
-  {
-    title: "Maximum interest rates on loans are capped",
-    cite: "NCA, Section 105",
-    desc: "Credit providers cannot charge interest exceeding the prescribed limits.",
-    detail: "The National Credit Regulator sets maximum interest rates for different credit products. No credit agreement may charge more than the prescribed rate, and any excess charge is void and unenforceable.",
-    quote: "",
-    category: "Debt & Credit",
-    r: R.o4,
-  },
-  {
-    title: "You can't be fired without a hearing",
-    cite: "LRA, Section 188",
-    desc: "Dismissals must be substantively and procedurally fair.",
-    detail: "A dismissal is unfair if the employer fails to prove that it was for a fair reason and that a fair procedure was followed. You have the right to be told the reasons for a proposed dismissal and the right to respond.",
-    quote: "",
-    category: "Employment",
-    r: R.o1,
-  },
-  {
-    title: "Companies must get consent to use your data",
-    cite: "POPIA, Section 11",
-    desc: "Personal information may only be processed with your consent.",
-    detail: "Personal information may only be processed if you consent, if it is necessary to carry out a contract, or if required by law. You can withdraw consent at any time, and the responsible party must stop processing.",
-    quote: "",
-    category: "Privacy",
-    r: R.o2,
-  },
+  { id: "eviction",        category: "Housing",      r: R.o1, hasQuote: true  },
+  { id: "payslip",         category: "Employment",   r: R.o2, hasQuote: false },
+  { id: "defectiveGoods",  category: "Consumer",     r: R.o3, hasQuote: false },
+  { id: "interestRates",   category: "Debt & Credit",r: R.o4, hasQuote: false },
+  { id: "unfairDismissal", category: "Employment",   r: R.o1, hasQuote: false },
+  { id: "dataConsent",     category: "Privacy",      r: R.o2, hasQuote: false },
 ];
+
+const LOCALE_NAMES: Record<string, string> = {
+  en: "English",
+  zu: "isiZulu",
+  st: "Sesotho",
+  af: "Afrikaans",
+};
 
 export default function MyRightsPage() {
   const locale = useLocale();
   const router = useRouter();
+  const t  = useTranslations("rights");
+  const tc = useTranslations("categories");
+  const tChat = useTranslations("chat");
   const [activeFilter, setActiveFilter] = useState("All");
-  const [expanded, setExpanded]         = useState<string | null>(CARDS[0].title);
+  const [expanded, setExpanded]         = useState<string | null>(CARDS[0].id);
+
+  const getFilterLabel = (f: string) =>
+    f === "All" ? t("allCategories") : tc(FILTER_CAT_KEYS[f] as Parameters<typeof tc>[0] ?? f);
 
   const filtered = activeFilter === "All"
     ? CARDS
@@ -106,10 +77,10 @@ export default function MyRightsPage() {
       {/* Header */}
       <section style={{ textAlign: "center", maxWidth: 640, margin: "0 auto" }}>
         <h1 style={{ fontFamily: fontSerif, fontSize: "clamp(2rem,5vw,3rem)", fontWeight: 700, color: C.fg, marginBottom: 16 }}>
-          Know your rights
+          {t("title")}
         </h1>
         <p style={{ fontSize: 17, color: C.mutedFg }}>
-          Explore your legal and financial rights by topic. Tap any card to learn more.
+          {t("headerDesc")}
         </p>
       </section>
 
@@ -130,7 +101,7 @@ export default function MyRightsPage() {
       >
         <div style={{ flex: 1, minWidth: 200 }}>
           <h2 style={{ fontSize: 17, fontWeight: 700, color: C.fg, marginBottom: 16, fontFamily: fontSans }}>
-            Your knowledge score — you&rsquo;ve explored 7 of 20 rights topics
+            {t("knowledgeScore", { explored: 7, total: 20 })}
           </h2>
           <div style={{ height: 16, background: C.border, borderRadius: 9999, overflow: "hidden" }}>
             <div style={{ height: "100%", background: C.primary, borderRadius: 9999, width: "35%", transition: "width 1s ease" }} />
@@ -143,15 +114,10 @@ export default function MyRightsPage() {
 
       {/* Filter tabs */}
       <section
-        style={{
-          display: "flex",
-          gap: 12,
-          overflowX: "auto",
-          paddingBottom: 4,
-        }}
+        style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 4 }}
         className="hide-scrollbar"
       >
-        {FILTERS.map((f, i) => (
+        {FILTERS.map((f) => (
           <button
             key={f}
             onClick={() => setActiveFilter(f)}
@@ -168,7 +134,7 @@ export default function MyRightsPage() {
               fontFamily: fontSans,
             }}
           >
-            {f}
+            {getFilterLabel(f)}
           </button>
         ))}
       </section>
@@ -176,10 +142,16 @@ export default function MyRightsPage() {
       {/* Rights grid */}
       <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 24 }}>
         {filtered.map((card) => {
-          const isExpanded = expanded === card.title;
+          const isExpanded = expanded === card.id;
+          const titleKey  = `${card.id}Title`  as Parameters<typeof t>[0];
+          const citeKey   = `${card.id}Cite`   as Parameters<typeof t>[0];
+          const descKey   = `${card.id}Desc`   as Parameters<typeof t>[0];
+          const detailKey = `${card.id}Detail` as Parameters<typeof t>[0];
+          const quoteKey  = `${card.id}Quote`  as Parameters<typeof t>[0];
+
           return (
             <div
-              key={card.title}
+              key={card.id}
               style={{
                 gridColumn: isExpanded ? "1 / -1" : undefined,
                 background: C.card,
@@ -191,7 +163,7 @@ export default function MyRightsPage() {
             >
               {/* Card header */}
               <div
-                onClick={() => setExpanded(isExpanded ? null : card.title)}
+                onClick={() => setExpanded(isExpanded ? null : card.id)}
                 style={{
                   padding: "24px 32px",
                   display: "flex",
@@ -202,6 +174,21 @@ export default function MyRightsPage() {
                 }}
               >
                 <div>
+                  <span
+                    style={{
+                      display: "inline-block",
+                      fontSize: 11,
+                      fontWeight: 700,
+                      padding: "3px 10px",
+                      borderRadius: 9999,
+                      background: `rgba(93,112,82,0.1)`,
+                      color: C.primary,
+                      marginBottom: 10,
+                      fontFamily: fontSans,
+                    }}
+                  >
+                    {tc(FILTER_CAT_KEYS[card.category] as Parameters<typeof tc>[0] ?? card.category)}
+                  </span>
                   <h3
                     style={{
                       fontFamily: fontSans,
@@ -212,11 +199,13 @@ export default function MyRightsPage() {
                       lineHeight: 1.3,
                     }}
                   >
-                    {card.title}
+                    {t(titleKey)}
                   </h3>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: C.primary }}>{card.cite}</span>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: C.primary }}>{t(citeKey)}</span>
                   {!isExpanded && (
-                    <p style={{ fontSize: 14, color: C.mutedFg, margin: "8px 0 0", lineHeight: 1.5 }}>{card.desc}</p>
+                    <p style={{ fontSize: 14, color: C.mutedFg, margin: "8px 0 0", lineHeight: 1.5 }}>
+                      {t(descKey)}
+                    </p>
                   )}
                 </div>
                 <button
@@ -242,10 +231,10 @@ export default function MyRightsPage() {
               {isExpanded && (
                 <div style={{ borderTop: `1px solid ${C.border}`, padding: "24px 32px", background: C.card }}>
                   <p style={{ fontSize: 17, color: C.fg, lineHeight: 1.7, marginBottom: 24 }}>
-                    {card.detail}
+                    {t(detailKey)}
                   </p>
 
-                  {card.quote && (
+                  {card.hasQuote && (
                     <div
                       style={{
                         background: C.muted,
@@ -256,14 +245,14 @@ export default function MyRightsPage() {
                       }}
                     >
                       <p style={{ fontFamily: fontSerif, fontSize: 17, color: C.mutedFg, fontStyle: "italic", margin: 0 }}>
-                        {card.quote}
+                        {t(quoteKey)}
                       </p>
                     </div>
                   )}
 
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
                     <button
-                      onClick={() => router.push(`/${locale}/chat?q=${encodeURIComponent(`Tell me more about: ${card.title}`)}`)}
+                      onClick={() => router.push(`/${locale}/chat?q=${encodeURIComponent(`Tell me more about: ${t(titleKey)}`)}`)}
                       style={{
                         background: C.primary,
                         color: C.primaryFg,
@@ -276,7 +265,7 @@ export default function MyRightsPage() {
                         fontFamily: fontSans,
                       }}
                     >
-                      Ask a follow-up
+                      {t("askFollowUp")}
                     </button>
                     <button
                       style={{
@@ -294,7 +283,7 @@ export default function MyRightsPage() {
                         fontFamily: fontSans,
                       }}
                     >
-                      <Play size={16} /> Listen in isiZulu
+                      <Play size={16} /> {tChat("listenIn", { language: LOCALE_NAMES[locale] ?? locale })}
                     </button>
                     <button
                       style={{
@@ -312,7 +301,7 @@ export default function MyRightsPage() {
                         fontFamily: fontSans,
                       }}
                     >
-                      <Share2 size={16} /> Share
+                      <Share2 size={16} /> {t("share")}
                     </button>
                   </div>
                 </div>

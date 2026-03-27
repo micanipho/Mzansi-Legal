@@ -31,7 +31,15 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+Verify all gates from the constitution (`/.specify/memory/constitution.md`):
+
+- [ ] **Layer Gate**: Every new entity is in the correct DDD layer per `docs/BACKEND_STRUCTURE.md`
+- [ ] **Naming Gate**: Services, DTOs, and controllers follow naming conventions in `docs/BACKEND_STRUCTURE.md`
+- [ ] **Coding Standards Gate**: Planned approach complies with `docs/RULES.md` (length, nesting, guard clauses, naming)
+- [ ] **Skill Gate**: Relevant skills from the Skill Usage Policy identified for this feature's tasks
+- [ ] **Multilingual Gate**: All user-facing outputs planned for EN, isiZulu, Sesotho, Afrikaans
+- [ ] **Citation Gate**: AI-facing endpoints define RAG contract, citation format, and fallback behavior
+- [ ] **Accessibility Gate**: Keyboard navigation and screen reader semantics planned for new frontend components
 
 ## Project Structure
 

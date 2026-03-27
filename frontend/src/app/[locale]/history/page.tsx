@@ -25,7 +25,7 @@ export default function HistoryPage() {
           {t("empty")}
         </Title>
         <Text style={{ color: "#6B7280", fontSize: 14, display: "block", marginBottom: 24 }}>
-          Your past conversations will appear here once you sign in.
+          {t("signInPrompt")}
         </Text>
         <Space>
           <Button
@@ -33,13 +33,13 @@ export default function HistoryPage() {
             onClick={() => router.push(`/${locale}/chat`)}
             style={{ background: brand.dark, borderColor: brand.dark, borderRadius: 20, fontWeight: 600 }}
           >
-            Ask a question
+            {t("askQuestion")}
           </Button>
           <Button
             href={`/${locale}/auth`}
             style={{ borderRadius: 20, borderColor: brand.border, color: brand.dark, fontWeight: 600 }}
           >
-            Sign in
+            {t("signIn")}
           </Button>
         </Space>
       </div>

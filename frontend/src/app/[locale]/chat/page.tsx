@@ -4,8 +4,9 @@ import { useSearchParams } from "next/navigation";
 import { useLocale } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import { Send, Mic, Play, Book, Info, ChevronDown, ChevronUp } from "lucide-react";
-import { C, R, shadowOrganic, fontSerif, fontSans } from "@/styles/theme";
-import { askQuestion, type QuestionWithAnswerDto } from "@/services/qaService";
+import { useTranslations } from "next-intl";
+import { C, R, shadowOrganic, fontSans } from "@/styles/theme";
+import { askQuestion, transcribeAudio, textToSpeech, type QuestionWithAnswerDto } from "@/services/qaService";
 
 interface ChatMessage {
   role: "user" | "assistant";
@@ -17,9 +18,47 @@ interface ChatMessage {
 
 const WAVEFORM_HEIGHTS = [40, 70, 40, 100, 60, 30, 80, 50, 90, 60, 40, 70, 30, 50, 80, 40, 60, 30, 90, 50];
 
-function AssistantMessage({ msg }: { msg: ChatMessage }) {
+function getLanguageLabel(language?: string) {
+  switch (language) {
+    case "zu":
+      return "isiZulu";
+    case "st":
+      return "Sesotho";
+    case "af":
+      return "Afrikaans";
+    case "en":
+      return "English";
+    default:
+      return language ?? "English";
+  }
+}
+
+function AssistantMessage({ msg, onAskFollowUp }: { msg: ChatMessage; onAskFollowUp: (question: string) => void }) {
+  const t = useTranslations("chat");
   const [citationsOpen, setCitationsOpen] = useState(false);
+  const [playing, setPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const citations = msg.answer?.citations ?? [];
+  const languageLabel = getLanguageLabel(msg.language);
+
+  const handlePlay = async () => {
+    if (playing) {
+      audioRef.current?.pause();
+      setPlaying(false);
+      return;
+    }
+    try {
+      const blob = await textToSpeech(msg.text, msg.language ?? "en");
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      audioRef.current = audio;
+      audio.onended = () => { setPlaying(false); URL.revokeObjectURL(url); };
+      await audio.play();
+      setPlaying(true);
+    } catch {
+      setPlaying(false);
+    }
+  };
 
   return (
     <div style={{ display: "flex", justifyContent: "flex-start" }}>
@@ -46,10 +85,11 @@ function AssistantMessage({ msg }: { msg: ChatMessage }) {
           }}
         >
           <button
+            onClick={handlePlay}
             style={{
               width: 40, height: 40,
               borderRadius: 9999,
-              background: C.primary,
+              background: playing ? C.fg : C.primary,
               border: "none",
               cursor: "pointer",
               display: "flex",
@@ -58,7 +98,7 @@ function AssistantMessage({ msg }: { msg: ChatMessage }) {
               color: C.primaryFg,
               flexShrink: 0,
             }}
-            aria-label="Play audio"
+            aria-label={playing ? "Stop audio" : "Play audio"}
           >
             <Play size={16} style={{ marginLeft: 2 }} />
           </button>
@@ -76,13 +116,13 @@ function AssistantMessage({ msg }: { msg: ChatMessage }) {
             ))}
           </div>
           <span style={{ fontSize: 13, fontWeight: 500, color: C.mutedFg, whiteSpace: "nowrap", fontFamily: fontSans }}>
-            Listen in {msg.language ?? "English"}
+            {t("listenIn", { language: languageLabel })}
           </span>
         </div>
 
         {/* Answer text */}
         <div style={{ padding: "24px 32px", display: "flex", flexDirection: "column", gap: 16 }}>
-          <p style={{ fontSize: 17, color: C.fg, lineHeight: 1.7, margin: 0, fontFamily: fontSans }}>
+          <p style={{ fontSize: 17, color: C.fg, lineHeight: 1.7, margin: 0, fontFamily: fontSans, whiteSpace: "pre-wrap" }}>
             {msg.text}
           </p>
 
@@ -105,7 +145,7 @@ function AssistantMessage({ msg }: { msg: ChatMessage }) {
               >
                 <div style={{ display: "flex", alignItems: "center", gap: 8, color: C.fg, fontWeight: 500, fontSize: 14 }}>
                   <Book size={16} color={C.primary} />
-                  Sources ({citations.length} sections cited)
+                  {t("citationsTitle")} ({citations.length} sections cited)
                 </div>
                 {citationsOpen
                   ? <ChevronUp size={16} color={C.mutedFg} />
@@ -174,16 +214,17 @@ function AssistantMessage({ msg }: { msg: ChatMessage }) {
           {/* Related questions */}
           <div style={{ marginTop: 16, paddingTop: 16, borderTop: `1px solid ${C.border}` }}>
             <h4 style={{ fontSize: 11, fontWeight: 700, color: C.mutedFg, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12, fontFamily: fontSans }}>
-              Related questions
+              {t("relatedQuestions")}
             </h4>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {[
+              {[ 
                 "Ngingenza njani uma umnikazi wendlu evala ugesi wami?",
                 "How long does a legal eviction process take?",
                 "Where is my nearest Rental Housing Tribunal?",
               ].map((q) => (
                 <button
                   key={q}
+                  onClick={() => onAskFollowUp(q)}
                   style={{
                     textAlign: "left",
                     color: C.primary,
@@ -209,6 +250,8 @@ function AssistantMessage({ msg }: { msg: ChatMessage }) {
 
 export default function ChatPage() {
   const locale      = useLocale();
+  const t           = useTranslations("chat");
+  const tc          = useTranslations("common");
   const searchParams = useSearchParams();
   const initialQ    = searchParams.get("q") ?? "";
 
@@ -216,7 +259,36 @@ export default function ChatPage() {
   const [messages,       setMessages]       = useState<ChatMessage[]>([]);
   const [loading,        setLoading]        = useState(false);
   const [conversationId, setConversationId] = useState<string | undefined>();
-  const bottomRef = useRef<HTMLDivElement | null>(null);
+  const [recording,      setRecording]      = useState(false);
+  const bottomRef      = useRef<HTMLDivElement | null>(null);
+  const mediaRecorder  = useRef<MediaRecorder | null>(null);
+  const audioChunks    = useRef<Blob[]>([]);
+
+  const handleVoice = async () => {
+    if (recording) {
+      mediaRecorder.current?.stop();
+      setRecording(false);
+      return;
+    }
+    if (!navigator.mediaDevices?.getUserMedia) return;
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      audioChunks.current = [];
+      recorder.ondataavailable = (e) => { if (e.data.size > 0) audioChunks.current.push(e.data); };
+      recorder.onstop = async () => {
+        stream.getTracks().forEach((t) => t.stop());
+        const blob = new Blob(audioChunks.current, { type: "audio/webm" });
+        try {
+          const result = await transcribeAudio(blob);
+          handleSend(result.text);
+        } catch { /* ignore */ }
+      };
+      recorder.start();
+      mediaRecorder.current = recorder;
+      setRecording(true);
+    } catch { /* microphone denied */ }
+  };
 
   useEffect(() => {
     if (initialQ) handleSend(initialQ);
@@ -251,7 +323,7 @@ export default function ChatPage() {
     } catch {
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", text: "Sorry, something went wrong. Please try again." },
+        { role: "assistant", text: tc("error") },
       ]);
     } finally {
       setLoading(false);
@@ -278,7 +350,7 @@ export default function ChatPage() {
     >
       {messages.length === 0 && !loading && (
         <div style={{ textAlign: "center", color: C.mutedFg, marginTop: 48 }}>
-          <p style={{ fontSize: 16, fontFamily: fontSans }}>Ask a legal or financial rights question in any language.</p>
+          <p style={{ fontSize: 16, fontFamily: fontSans }}>{t("emptyState")}</p>
         </div>
       )}
 
@@ -301,7 +373,7 @@ export default function ChatPage() {
               </div>
             </div>
           ) : (
-            <AssistantMessage msg={msg} />
+            <AssistantMessage msg={msg} onAskFollowUp={handleSend} />
           )}
         </div>
       ))}
@@ -365,7 +437,7 @@ export default function ChatPage() {
           >
             <input
               type="text"
-              placeholder="Buza umbuzo..."
+              placeholder={t("inputPlaceholder")}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSend()}
@@ -384,18 +456,21 @@ export default function ChatPage() {
             />
             <div style={{ position: "absolute", right: 8, display: "flex", alignItems: "center", gap: 8 }}>
               <button
+                onClick={handleVoice}
+                disabled={loading}
                 style={{
                   width: 40, height: 40,
                   borderRadius: 9999,
-                  background: C.muted,
+                  background: recording ? "#FEE2E2" : C.muted,
                   border: "none",
-                  cursor: "pointer",
+                  cursor: loading ? "not-allowed" : "pointer",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  color: C.primary,
+                  color: recording ? "#DC2626" : C.primary,
                 }}
-                aria-label="Voice input"
+                aria-label={recording ? "Stop recording" : "Voice input"}
+                aria-pressed={recording}
               >
                 <Mic size={20} />
               </button>
@@ -421,7 +496,7 @@ export default function ChatPage() {
             </div>
           </div>
           <p style={{ textAlign: "center", fontSize: 12, color: C.mutedFg, marginTop: 12, fontFamily: fontSans, fontWeight: 500 }}>
-            MzansiLegal provides legal information, not legal advice.
+            {t("disclaimer")}
           </p>
         </div>
       </div>

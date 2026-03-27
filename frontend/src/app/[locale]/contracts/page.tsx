@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import {
   ArrowLeft, FileText, AlertCircle, AlertTriangle,
@@ -65,6 +65,7 @@ const DEMO: AnalysisResult = {
 
 export default function ContractsPage() {
   const locale = useLocale();
+  const t = useTranslations("contracts");
   const [result, setResult]   = useState<AnalysisResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [followUp, setFollowUp] = useState("");
@@ -118,10 +119,10 @@ export default function ContractsPage() {
             <FileText size={28} />
           </div>
           <h1 style={{ fontFamily: fontSerif, fontSize: 28, fontWeight: 700, color: C.fg, margin: "0 0 12px" }}>
-            Upload your contract
+            {t("uploadTitle")}
           </h1>
           <p style={{ color: C.mutedFg, marginBottom: 32, fontSize: 15 }}>
-            Upload a lease, employment, or credit agreement to analyse for risks and red flags.
+            {t("uploadHint")}
           </p>
           <label
             style={{
@@ -140,11 +141,11 @@ export default function ContractsPage() {
             }}
           >
             <UploadCloud size={20} />
-            {loading ? "Analysing…" : "Upload & Analyse"}
+            {loading ? t("loading") : t("uploadButton")}
             <input type="file" accept=".pdf" style={{ display: "none" }} onChange={handleUpload} />
           </label>
           <p style={{ fontSize: 12, color: C.mutedFg, marginTop: 16 }}>
-            PDF up to 10 MB · Lease, employment, credit, or service agreement
+            {t("pdfLimit")}
           </p>
         </div>
       </main>
@@ -186,7 +187,7 @@ export default function ContractsPage() {
         }}
       >
         <ArrowLeft size={16} />
-        Back to contracts
+        {t("backToContracts")}
       </button>
 
       {/* Header */}
@@ -249,7 +250,7 @@ export default function ContractsPage() {
       >
         <h2 style={{ fontFamily: fontSerif, fontSize: 20, fontWeight: 700, color: C.fg, margin: "0 0 12px", display: "flex", alignItems: "center", gap: 8 }}>
           <FileText size={20} color={C.secondary} />
-          Plain-language summary
+          {t("plainSummary")}
         </h2>
         <p style={{ color: C.fg, lineHeight: 1.7, margin: 0, fontSize: 15 }}>{result.summary}</p>
       </section>
@@ -258,22 +259,22 @@ export default function ContractsPage() {
       <section style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
         <div style={{ background: `rgba(168,84,72,0.05)`, border: `1px solid rgba(168,84,72,0.2)`, borderRadius: R.o2, padding: 24, textAlign: "center" }}>
           <span style={{ fontFamily: fontSerif, fontSize: 36, fontWeight: 700, color: C.destructive, display: "block", marginBottom: 4 }}>3</span>
-          <span style={{ fontSize: 14, fontWeight: 500, color: C.destructive }}>Red flags</span>
+          <span style={{ fontSize: 14, fontWeight: 500, color: C.destructive }}>{t("redFlags")}</span>
         </div>
         <div style={{ background: `rgba(193,140,93,0.05)`, border: `1px solid rgba(193,140,93,0.2)`, borderRadius: R.o3, padding: 24, textAlign: "center" }}>
           <span style={{ fontFamily: fontSerif, fontSize: 36, fontWeight: 700, color: C.secondary, display: "block", marginBottom: 4 }}>4</span>
-          <span style={{ fontSize: 14, fontWeight: 500, color: C.secondary }}>Caution</span>
+          <span style={{ fontSize: 14, fontWeight: 500, color: C.secondary }}>{t("caution")}</span>
         </div>
         <div style={{ background: `rgba(93,112,82,0.05)`, border: `1px solid rgba(93,112,82,0.2)`, borderRadius: R.o4, padding: 24, textAlign: "center" }}>
           <span style={{ fontFamily: fontSerif, fontSize: 36, fontWeight: 700, color: C.primary, display: "block", marginBottom: 4 }}>{result.standardCount}</span>
-          <span style={{ fontSize: 14, fontWeight: 500, color: C.primary }}>Standard</span>
+          <span style={{ fontSize: 14, fontWeight: 500, color: C.primary }}>{t("standard")}</span>
         </div>
       </section>
 
       {/* Red Flags */}
       <section style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-          <h2 style={{ fontFamily: fontSerif, fontSize: 24, fontWeight: 700, color: C.fg, margin: 0 }}>Red flags</h2>
+          <h2 style={{ fontFamily: fontSerif, fontSize: 24, fontWeight: 700, color: C.fg, margin: 0 }}>{t("redFlags")}</h2>
           <span style={{ background: C.destructive, color: "#fff", fontSize: 12, fontWeight: 700, padding: "3px 12px", borderRadius: 9999 }}>
             {result.red.length} issues
           </span>
@@ -306,7 +307,7 @@ export default function ContractsPage() {
       {/* Caution */}
       <section style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-          <h2 style={{ fontFamily: fontSerif, fontSize: 24, fontWeight: 700, color: C.fg, margin: 0 }}>Caution</h2>
+          <h2 style={{ fontFamily: fontSerif, fontSize: 24, fontWeight: 700, color: C.fg, margin: 0 }}>{t("caution")}</h2>
           <span style={{ background: C.secondary, color: "#fff", fontSize: 12, fontWeight: 700, padding: "3px 12px", borderRadius: 9999 }}>
             {result.caution.length} items
           </span>
@@ -333,7 +334,7 @@ export default function ContractsPage() {
 
       {/* Standard */}
       <section style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        <h2 style={{ fontFamily: fontSerif, fontSize: 24, fontWeight: 700, color: C.fg, margin: "0 0 8px" }}>Standard clauses</h2>
+        <h2 style={{ fontFamily: fontSerif, fontSize: 24, fontWeight: 700, color: C.fg, margin: "0 0 8px" }}>{t("standardClauses")}</h2>
         <div
           style={{
             background: `rgba(93,112,82,0.05)`,
@@ -347,7 +348,7 @@ export default function ContractsPage() {
         >
           <CheckCircle size={24} color={C.primary} style={{ flexShrink: 0 }} />
           <div>
-            <h3 style={{ fontSize: 17, fontWeight: 700, color: C.primary, margin: "0 0 4px" }}>All standard clauses are in order</h3>
+            <h3 style={{ fontSize: 17, fontWeight: 700, color: C.primary, margin: "0 0 4px" }}>{t("allStandard")}</h3>
             <p style={{ color: C.fg, margin: 0, lineHeight: 1.6 }}>
               {result.standardCount} clauses cover standard definitions, jurisdiction, and severability. Nothing unusual detected.
             </p>
@@ -382,7 +383,7 @@ export default function ContractsPage() {
           >
             <input
               type="text"
-              placeholder="Ask about this contract..."
+              placeholder={t("followUp")}
               value={followUp}
               onChange={(e) => setFollowUp(e.target.value)}
               onKeyDown={(e) => {
