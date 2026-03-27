@@ -25,13 +25,13 @@
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
-- [ ] T005 Setup PostgreSQL database and migrations in ackend/src/MzansiLegal.EntityFrameworkCore/ (#2)
-- [ ] T006 Implement Category entity and RefLists in ackend/src/MzansiLegal.Domain/ (#2)
-- [ ] T007 Implement Knowledge Base entities (LegalDocument, DocumentChunk, ChunkEmbedding) in ackend/src/MzansiLegal.Domain/ (#2)
-- [ ] T008 Implement PdfIngestionService for structured text extraction in ackend/src/MzansiLegal.Application/ (#6)
-- [ ] T009 Implement EmbeddingService with OpenAI integration in ackend/src/MzansiLegal.Application/ (#7)
-- [ ] T010 Implement cosine similarity logic for vector search in ackend/src/MzansiLegal.Application/ (#7)
-- [ ] T011 Seed database with 13 legislation documents in ackend/src/MzansiLegal.DbMigrator/ (#8)
+- [ ] T005 Setup PostgreSQL database and migrations in backend/src/MzansiLegal.EntityFrameworkCore/ (#2)
+- [ ] T006 Implement Category entity and RefLists in backend/src/MzansiLegal.Domain/ (#2)
+- [ ] T007 Implement Knowledge Base entities (LegalDocument, DocumentChunk, ChunkEmbedding) in backend/src/MzansiLegal.Domain/ (#2)
+- [ ] T008 Implement PdfIngestionService for structured text extraction in backend/src/MzansiLegal.Application/ (#6)
+- [ ] T009 Implement EmbeddingService with OpenAI integration in backend/src/MzansiLegal.Application/ (#7)
+- [ ] T010 Implement cosine similarity logic for vector search in backend/src/MzansiLegal.Application/ (#7)
+- [ ] T011 Seed database with 13 legislation documents in backend/src/MzansiLegal.DbMigrator/ (#8)
 
 **Checkpoint**: Foundation ready - knowledge base is indexed and searchable.
 
@@ -43,11 +43,11 @@
 
 **Independent Test**: Submit a question in isiZulu via the chat UI and verify the answer is in isiZulu with English citations.
 
-- [ ] T012 [P] [US1] Create Conversation and Question entities in ackend/src/MzansiLegal.Domain/ (#3)
-- [ ] T013 [P] [US1] Create Answer and AnswerCitation entities in ackend/src/MzansiLegal.Domain/ (#3)
-- [ ] T014 [US1] Implement RagService core Q&A pipeline in ackend/src/MzansiLegal.Application/ (#10)
-- [ ] T015 [US1] Implement LanguageService for detection and translation in ackend/src/MzansiLegal.Application/ (#11)
-- [ ] T016 [US1] Implement Q&A API Endpoint in ackend/src/MzansiLegal.HttpApi/ (#12)
+- [ ] T012 [P] [US1] Create Conversation and Question entities in backend/src/MzansiLegal.Domain/ (#3)
+- [ ] T013 [P] [US1] Create Answer and AnswerCitation entities in backend/src/MzansiLegal.Domain/ (#3)
+- [ ] T014 [US1] Implement RagService core Q&A pipeline in backend/src/MzansiLegal.Application/ (#10)
+- [ ] T015 [US1] Implement LanguageService for detection and translation in backend/src/MzansiLegal.Application/ (#11)
+- [ ] T016 [US1] Implement Q&A API Endpoint in backend/src/MzansiLegal.HttpApi/ (#12)
 - [ ] T017 [P] [US1] Create Home Dashboard UI in frontend/src/app/page.tsx (#14)
 - [ ] T018 [P] [US1] Create Q&A Chat Interface in frontend/src/app/chat/page.tsx (#15)
 - [ ] T019 [US1] Integrate Whisper API for voice input in frontend/src/components/chat/VoiceInput.tsx (#16)
@@ -63,9 +63,9 @@
 
 **Independent Test**: Upload a sample lease PDF and verify the health score gauge and red flag list appear.
 
-- [ ] T021 [P] [US2] Create ContractAnalysis and ContractFlag entities in ackend/src/MzansiLegal.Domain/ (#4)
-- [ ] T022 [US2] Implement ContractAnalysisService with OCR fallback in ackend/src/MzansiLegal.Application/ (#18)
-- [ ] T023 [US2] Implement Contract Analysis API Endpoints in ackend/src/MzansiLegal.HttpApi/ (#18)
+- [ ] T021 [P] [US2] Create ContractAnalysis and ContractFlag entities in backend/src/MzansiLegal.Domain/ (#4)
+- [ ] T022 [US2] Implement ContractAnalysisService with OCR fallback in backend/src/MzansiLegal.Application/ (#18)
+- [ ] T023 [US2] Implement Contract Analysis API Endpoints in backend/src/MzansiLegal.HttpApi/ (#18)
 - [ ] T024 [P] [US2] Create Contract Upload UI in frontend/src/app/contracts/page.tsx (#18)
 - [ ] T025 [P] [US2] Create Contract Analysis Results Page in frontend/src/app/contracts/[id]/page.tsx (#19)
 - [ ] T026 [US2] Implement Follow-up chat scoped to contract in frontend/src/components/contracts/FollowUpChat.tsx (#18)
@@ -93,10 +93,10 @@
 
 **Independent Test**: Mark an answer as accurate in the review queue and verify it becomes eligible for FAQ.
 
-- [ ] T031 [US4] Implement Admin Stats API in ackend/src/MzansiLegal.Application/ (#21)
+- [ ] T031 [US4] Implement Admin Stats API in backend/src/MzansiLegal.Application/ (#21)
 - [ ] T032 [US4] Create Admin Dashboard Page in frontend/src/app/admin/dashboard/page.tsx (#21)
 - [ ] T033 [US4] Create Review Queue UI in frontend/src/app/admin/review-queue/page.tsx (#22)
-- [ ] T034 [US4] Implement Moderation API Endpoints in ackend/src/MzansiLegal.HttpApi/ (#22)
+- [ ] T034 [US4] Implement Moderation API Endpoints in backend/src/MzansiLegal.HttpApi/ (#22)
 - [ ] T035 [US4] Implement FAQ Publishing workflow in frontend/src/app/admin/faqs/page.tsx (#24)
 
 ---
