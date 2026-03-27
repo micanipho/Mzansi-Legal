@@ -25,13 +25,13 @@
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
-- [ ] T005 Setup PostgreSQL database and migrations in backend/src/MzansiLegal.EntityFrameworkCore/ (#2)
-- [ ] T006 Implement Category entity and RefLists in backend/src/MzansiLegal.Domain/ (#2)
-- [ ] T007 Implement Knowledge Base entities (LegalDocument, DocumentChunk, ChunkEmbedding) in backend/src/MzansiLegal.Domain/ (#2)
-- [ ] T008 Implement PdfIngestionService for structured text extraction in backend/src/MzansiLegal.Application/ (#6)
-- [ ] T009 Implement EmbeddingService with OpenAI integration in backend/src/MzansiLegal.Application/ (#7)
-- [ ] T010 Implement cosine similarity logic for vector search in backend/src/MzansiLegal.Application/ (#7)
-- [ ] T011 Seed database with 13 legislation documents in backend/src/MzansiLegal.DbMigrator/ (#8)
+- [X] T005 Setup PostgreSQL database and migrations in backend/src/MzansiLegal.EntityFrameworkCore/ (#2)
+- [X] T006 Implement Category entity and RefLists in backend/src/MzansiLegal.Domain/ (#2)
+- [X] T007 Implement Knowledge Base entities (LegalDocument, DocumentChunk, ChunkEmbedding) in backend/src/MzansiLegal.Domain/ (#2)
+- [X] T008 Implement PdfIngestionService for structured text extraction in backend/src/MzansiLegal.Application/ (#6)
+- [X] T009 Implement EmbeddingService with OpenAI integration in backend/src/MzansiLegal.Application/ (#7)
+- [X] T010 Implement cosine similarity logic for vector search in backend/src/MzansiLegal.Application/ (#7)
+- [X] T011 Seed database with 13 legislation documents in backend/src/MzansiLegal.DbMigrator/ (#8)
 
 **Checkpoint**: Foundation ready - knowledge base is indexed and searchable.
 
