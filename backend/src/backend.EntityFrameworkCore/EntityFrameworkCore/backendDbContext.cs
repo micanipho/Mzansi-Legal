@@ -3,6 +3,7 @@ using backend.Authorization.Roles;
 using backend.Authorization.Users;
 using backend.MultiTenancy;
 using backend.MzansiLegal.Categories;
+using backend.MzansiLegal.Conversations;
 using backend.MzansiLegal.KnowledgeBase;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,6 +16,12 @@ public class backendDbContext : AbpZeroDbContext<Tenant, Role, User, backendDbCo
     public DbSet<LegalDocument> LegalDocuments { get; set; }
     public DbSet<DocumentChunk> DocumentChunks { get; set; }
     public DbSet<ChunkEmbedding> ChunkEmbeddings { get; set; }
+
+    // MzansiLegal — Conversations (Phase 3)
+    public DbSet<Conversation> Conversations { get; set; }
+    public DbSet<Question> Questions { get; set; }
+    public DbSet<Answer> Answers { get; set; }
+    public DbSet<AnswerCitation> AnswerCitations { get; set; }
 
     public backendDbContext(DbContextOptions<backendDbContext> options)
         : base(options)
@@ -64,6 +71,45 @@ public class backendDbContext : AbpZeroDbContext<Tenant, Role, User, backendDbCo
             b.ToTable("MzansiChunkEmbeddings");
             b.HasKey(x => x.Id);
             b.Property(x => x.VectorJson).HasColumnType("text").IsRequired();
+        });
+
+        modelBuilder.Entity<Conversation>(b =>
+        {
+            b.ToTable("MzansiConversations");
+            b.HasKey(x => x.Id);
+            b.HasMany(x => x.Questions).WithOne(q => q.Conversation)
+                .HasForeignKey(q => q.ConversationId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Question>(b =>
+        {
+            b.ToTable("MzansiQuestions");
+            b.HasKey(x => x.Id);
+            b.Property(x => x.OriginalText).HasColumnType("text").IsRequired();
+            b.Property(x => x.TranslatedText).HasColumnType("text");
+            b.Property(x => x.AudioFilePath).HasMaxLength(512);
+            b.HasOne(x => x.Answer).WithOne(a => a.Question)
+                .HasForeignKey<Answer>(a => a.QuestionId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Answer>(b =>
+        {
+            b.ToTable("MzansiAnswers");
+            b.HasKey(x => x.Id);
+            b.Property(x => x.Text).HasColumnType("text").IsRequired();
+            b.Property(x => x.AdminNotes).HasColumnType("text");
+            b.Property(x => x.AudioFilePath).HasMaxLength(512);
+            b.HasMany(x => x.Citations).WithOne(c => c.Answer)
+                .HasForeignKey(c => c.AnswerId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<AnswerCitation>(b =>
+        {
+            b.ToTable("MzansiAnswerCitations");
+            b.HasKey(x => x.Id);
+            b.Property(x => x.SectionNumber).HasMaxLength(64);
+            b.Property(x => x.Excerpt).HasColumnType("text");
+            b.Property(x => x.RelevanceScore).HasColumnType("decimal(5,4)");
         });
     }
 }

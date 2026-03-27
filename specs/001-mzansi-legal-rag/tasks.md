@@ -43,15 +43,15 @@
 
 **Independent Test**: Submit a question in isiZulu via the chat UI and verify the answer is in isiZulu with English citations.
 
-- [ ] T012 [P] [US1] Create Conversation and Question entities in backend/src/MzansiLegal.Domain/ (#3)
-- [ ] T013 [P] [US1] Create Answer and AnswerCitation entities in backend/src/MzansiLegal.Domain/ (#3)
-- [ ] T014 [US1] Implement RagService core Q&A pipeline in backend/src/MzansiLegal.Application/ (#10)
-- [ ] T015 [US1] Implement LanguageService for detection and translation in backend/src/MzansiLegal.Application/ (#11)
-- [ ] T016 [US1] Implement Q&A API Endpoint in backend/src/MzansiLegal.HttpApi/ (#12)
-- [ ] T017 [P] [US1] Create Home Dashboard UI in frontend/src/app/page.tsx (#14)
-- [ ] T018 [P] [US1] Create Q&A Chat Interface in frontend/src/app/chat/page.tsx (#15)
-- [ ] T019 [US1] Integrate Whisper API for voice input in frontend/src/components/chat/VoiceInput.tsx (#16)
-- [ ] T020 [US1] Integrate TTS API for voice output in frontend/src/components/chat/VoiceOutput.tsx (#17)
+- [X] T012 [P] [US1] Create Conversation and Question entities in backend/src/MzansiLegal.Domain/ (#3)
+- [X] T013 [P] [US1] Create Answer and AnswerCitation entities in backend/src/MzansiLegal.Domain/ (#3)
+- [X] T014 [US1] Implement RagService core Q&A pipeline in backend/src/MzansiLegal.Application/ (#10)
+- [X] T015 [US1] Implement LanguageService for detection and translation in backend/src/MzansiLegal.Application/ (#11)
+- [X] T016 [US1] Implement Q&A API Endpoint in backend/src/MzansiLegal.HttpApi/ (#12)
+- [X] T017 [P] [US1] Create Home Dashboard UI in frontend/src/app/page.tsx (#14)
+- [X] T018 [P] [US1] Create Q&A Chat Interface in frontend/src/app/chat/page.tsx (#15)
+- [X] T019 [US1] Integrate Whisper API for voice input in frontend/src/components/chat/VoiceInput.tsx (#16)
+- [X] T020 [US1] Integrate TTS API for voice output in frontend/src/components/chat/VoiceOutput.tsx (#17)
 
 **Checkpoint**: User Story 1 (MVP) is fully functional.
 
