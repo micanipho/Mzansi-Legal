@@ -125,6 +125,8 @@ All sourced from justice.gov.za, sars.gov.za, and fsca.co.za.
 
 ## Domain Model
 
+Domain model (https://lucid.app/lucidchart/3b02f4bb-af2b-4a9e-a99e-216f699c0555/edit?view_items=G0sID~H.Ll67&page=0_0&invitationId=inv_6692b21a-876f-4dbf-ad6c-b643288bdb25)
+
 ### Aggregates
 
 ```
