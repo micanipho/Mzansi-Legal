@@ -1,0 +1,99 @@
+{
+  "common": {
+    "appName": "MzansiLegal",
+    "tagline": "Umsizi wakho wezomthetho oqhutshwa i-AI",
+    "loading": "Iyalayisha...",
+    "error": "Kukhona okungahambanga kahle. Sicela uzame futhi.",
+    "disclaimer": "Lolu lwazi luhlose ukukuqondisa kuphela futhi alumeli iseluleko somthetho. Hlala ubona umthetho oqeqeshiwe."
+  },
+  "nav": {
+    "home": "Ikhaya",
+    "chat": "Buza Umbuzo",
+    "rights": "Amalungelo Ami",
+    "contracts": "Hlola Isivumelwano",
+    "history": "Umlando",
+    "settings": "Izilungiselelo",
+    "admin": "Umlawuli",
+    "login": "Ngena",
+    "register": "Bhalisa",
+    "logout": "Phuma"
+  },
+  "home": {
+    "title": "Yazi Amalungelo Akho",
+    "subtitle": "Buza imibuzo yezomthetho ngolimi lwakho — uthole izimpendulo ezisobala nezinezingxenye.",
+    "askPlaceholder": "Bhala umbuzo wakho lapha...",
+    "askButton": "Buza Manje",
+    "trendingTitle": "Imibuzo Ethandwayo",
+    "categoriesTitle": "Phequlula ngohlobo"
+  },
+  "chat": {
+    "title": "Imibuzo Nezimpendulo Zomthetho",
+    "inputPlaceholder": "Buza umbuzo wezomthetho noma wamalungelo ezimali...",
+    "sendButton": "Thumela",
+    "voiceButton": "Faka Ngezwi",
+    "stopButton": "Misa Ukurekhoda",
+    "citationsTitle": "Imithombo",
+    "newConversation": "Ingxoxo Entsha"
+  },
+  "rights": {
+    "title": "Umhloli Wamalungelo Ami",
+    "searchPlaceholder": "Sesha amalungelo...",
+    "allCategories": "Konke",
+    "learnMore": "Funda Okwengeziwe",
+    "askAboutThis": "Buza ngalokhu"
+  },
+  "contracts": {
+    "title": "Hlola Impilo Yesivumelwano",
+    "uploadTitle": "Layisha Isivumelwano Sakho",
+    "uploadHint": "Layisha isivumelwano se-PDF ukuhlola izingozi nezimpawu ezibomvu.",
+    "uploadButton": "Layisha & Hlola",
+    "healthScore": "Isikali Sempilo",
+    "redFlags": "Izimpawu Ezibomvu",
+    "summary": "Isifinyezo",
+    "followUp": "Buza umbuzo wokulandelela ngalesi sivumelwano"
+  },
+  "history": {
+    "title": "Umlando Wezingxoxo Zami",
+    "empty": "Azikho izingxoxo okwamanje.",
+    "viewConversation": "Buka"
+  },
+  "settings": {
+    "title": "Izilungiselelo",
+    "language": "Ulimi Oluthandekayo",
+    "dyslexiaMode": "Indlela Ekulula Kwabanegciwane Lokufunda",
+    "autoPlayAudio": "Dweba Ngokuzenzakalelayo Izimpendulo Zamazwi",
+    "saveButton": "Gcina Izintandokazi"
+  },
+  "auth": {
+    "loginTitle": "Ngena",
+    "registerTitle": "Dala I-Akhawunti",
+    "emailLabel": "Ikheli Le-imeyili",
+    "passwordLabel": "Iphasiwedi",
+    "nameLabel": "Igama Eligcwele",
+    "loginButton": "Ngena",
+    "registerButton": "Bhalisa",
+    "switchToRegister": "Awunayo i-akhawunti? Bhalisa",
+    "switchToLogin": "Senekhona i-akhawunti? Ngena"
+  },
+  "admin": {
+    "dashboardTitle": "Ibhodi Lomlawuli",
+    "totalQuestions": "Imibuzo Yonke",
+    "totalUsers": "Abasebenzisi Bonke",
+    "pendingReview": "Ilindele Ukuhlolwa",
+    "publishedFaqs": "Imibuzo Ethandwayo Eshicilelwe",
+    "reviewQueueTitle": "Ulayini Wokuhlola",
+    "markAccurate": "Phawula Njengokunembe",
+    "markInaccurate": "Phawula Njengokungaqinisi",
+    "publishAsFaq": "Shicilela Njengembuzo Othandwayo",
+    "adminNotes": "Amanothi Omlawuli"
+  },
+  "categories": {
+    "legal": "Amalungelo Omthetho",
+    "financial": "Amalungelo Ezimali",
+    "employment": "Ukuqashwa",
+    "housing": "Izindawo Zokuhlala",
+    "consumer": "Amalungelo Abathengi",
+    "family": "Umthetho Womndeni",
+    "criminal": "Ubulungiswa Bobugebengu"
+  }
+}

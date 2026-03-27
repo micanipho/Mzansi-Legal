@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pwsh -File \".specify/scripts/powershell/create-new-feature.ps1\" \"MzansiLegal — a multilingual AI-powered legal and financial rights assistant for South African citizens\" -Json -ShortName \"mzansi-legal-rag\")",
+      "Read(//mnt/c/Windows/System32/WindowsPowerShell/**)",
+      "Bash(powershell -ExecutionPolicy Bypass -File \".specify/scripts/powershell/create-new-feature.ps1\" \"MzansiLegal multilingual AI-powered legal and financial rights assistant for South African citizens\" -Json -ShortName \"mzansi-legal-rag\")"
+    ]
+  }
+}

@@ -1,0 +1,551 @@
+MzansiLegal — Project Specification | Page 1
+MzansiLegal
+Multilingual AI-Powered Legal & Financial Rights Assistant
+for South African Citizens
+With AI Contract Analysis · Voice Support · Accessibility
+
+-- 1 of 15 --
+
+MzansiLegal — Project Specification | Page 2
+Table of contents
+1. Project title
+2. Problem statement
+3. Goal
+4. Primary users
+5. User stories
+6. Multilingual architecture
+7. Knowledge base scope
+8. Proposed tech stack
+9. Key features
+10. Application pages & demo flow
+11. Five-day implementation plan
+12. Domain model
+13. Disclaimers & ethics
+14. Success metrics
+
+-- 2 of 15 --
+
+MzansiLegal — Project Specification | Page 3
+1. Project title
+MzansiLegal: Multilingual AI-Powered Legal & Financial Rights Assistant for South African
+Citizens
+2. Problem statement
+South Africa has one of the most progressive constitutions in the world, yet the vast majority of
+citizens have limited understanding of both their legal rights and their financial rights. These two
+domains are deeply intertwined — a retrenched worker simultaneously faces a labour law question,
+a debt management crisis, and a tax question about their severance package. A tenant being
+charged illegal interest by a loan shark faces both a National Credit Act violation and a housing
+rights issue.
+Access to professional guidance in either domain is expensive. Attorney consultation fees start at
+R1,500–R3,000 per hour. Registered financial advisors charge R500–R2,000 per session. Legal Aid
+South Africa is overburdened and only serves those meeting strict financial eligibility criteria. The
+result is that ordinary citizens accept unlawful treatment or make poor financial decisions simply
+because they do not know they are protected by law.
+Compounding this is the language barrier. South Africa has 12 official languages, yet virtually all
+legislation and financial education material is published only in English. A Sesotho-speaking
+domestic worker in the Free State or an isiZulu-speaking tenant in KwaZulu-Natal cannot
+meaningfully access the laws that protect them.
+Beyond language, significant portions of the population face additional accessibility challenges.
+South Africa has over 1.1 million people with visual impairments, including approximately 600,000
+who are completely blind. An estimated 10–15% of South Africans have dyslexia, making dense
+legal text particularly difficult to process. For all of these groups, a text-only platform is not enough.
+Furthermore, millions of South Africans sign contracts every year — lease agreements, employment
+contracts, credit agreements, cellphone contracts — without fully understanding what they are
+agreeing to. Unfair clauses, illegal interest rates, and waived rights go undetected because ordinary
+citizens lack the knowledge to spot them.
+This project aims to bridge the knowledge gap, the language gap, and the accessibility gap by
+building a single AI-powered platform where citizens — including those who are blind, dyslexic, or
+have limited literacy — can ask questions about their legal and financial rights, upload contracts for
+proactive analysis, and receive accurate, cited answers by typing or speaking in their home
+language.
+3. Goal
+Build a unified platform that:
+• Allows users to ask legal and financial questions in their home language (English, isiZulu,
+Sesotho, or Afrikaans) via text or voice input
+
+-- 3 of 15 --
+
+MzansiLegal — Project Specification | Page 4
+• Automatically detects the user’s language and responds in the same language, with an option to
+hear the answer read aloud
+• Uses AI (RAG — Retrieval-Augmented Generation) to retrieve relevant legislation and generate
+accurate, cited answers
+• Covers both legal rights (employment, housing, consumer, privacy, harassment) and financial
+rights (credit, debt, tax, insurance, retirement)
+• Allows users to upload contracts for AI-powered analysis that proactively flags red flags,
+generates a health score, and provides a plain-language summary
+• Provides an interactive “My Rights” explorer with gamified knowledge tracking
+• Is fully accessible to blind and dyslexic users via voice I/O, screen reader support, and
+dyslexia-friendly mode
+• Includes an admin analytics dashboard and answer quality review system
+• Includes clear disclaimers distinguishing legal/financial information from professional advice
+4. Primary users
+• South African citizens seeking to understand their legal and financial rights in their home
+language
+• Blind and visually impaired users who rely on voice interaction and screen readers
+• Dyslexic users who benefit from audio output and simplified text presentation
+• Older citizens and those with limited literacy who prefer speaking over typing
+• Community advice office workers and paralegals needing quick references
+• NGO staff assisting communities with legal and financial education
+• Small business owners wanting to understand compliance and tax obligations
+• Workers navigating retrenchment, debt, or disputes with employers or creditors
+5. User stories
+5.1 Citizen / general user
+# User Story Acceptance Criteria
+1 As a citizen, I want to type a legal or financial
+question in my home language.
+User types in English, isiZulu, Sesotho, or Afrikaans.
+System detects language and returns answer in the
+same language with English citations.
+2 As a citizen, I want to see the exact section of the
+law that supports the answer.
+Each answer includes Act name and section number.
+Citations remain in English.
+3 As a citizen, I want to browse topics by category. Home page shows combined legal and financial
+categories with localised names.
+
+-- 4 of 15 --
+
+MzansiLegal — Project Specification | Page 5
+# User Story Acceptance Criteria
+4 As a citizen, I want to ask a cross-domain
+question and get one unified answer.
+Question like "I got retrenched, what are my rights?"
+returns answer citing both LRA and tax guidance.
+5 As a citizen, I want to upload a contract and get
+an instant health score and summary.
+User uploads PDF/photo. System auto-detects type,
+generates score (0-100), and summary in user’s
+language.
+6 As a citizen, I want to see red flag alerts on my
+contract.
+System flags clauses that may violate legislation with
+citations to the relevant law.
+7 As a citizen, I want to ask follow-up questions
+about my uploaded contract.
+Chat uses both contract text and legislation as
+context.
+8 As a citizen, I want to explore my rights
+interactively with a knowledge score.
+My Rights page tracks topics explored, shows
+gamified progress, expandable right cards.
+9 As a citizen, I want to speak my question instead
+of typing.
+Microphone button records audio, Whisper API
+transcribes, works for all 4 languages.
+1
+0
+As a citizen, I want to hear the answer read
+aloud.
+Speaker button sends text to OpenAI TTS API and
+plays audio in user’s language.
+1
+1
+As a citizen, I want a dyslexia-friendly reading
+mode.
+Toggle increases spacing, switches to OpenDyslexic
+font, increases font size.
+1
+2
+As a citizen, I want to choose my preferred
+language.
+Language selector in header. UI labels, categories,
+and placeholders adapt.
+5.2 Administrator
+# User Story Acceptance Criteria
+1
+3
+As an admin, I want to upload legislation and
+financial documents.
+PDFs tagged as "Legal" or "Financial". System
+processes and indexes.
+1
+4
+As an admin, I want an analytics dashboard. Charts show questions by category, language
+distribution, voice vs text, contract analysis trends.
+1
+5
+As an admin, I want to review and flag AI answers
+for quality.
+Review queue shows flagged answers with correction
+tools.
+
+-- 5 of 15 --
+
+MzansiLegal — Project Specification | Page 6
+6. Multilingual architecture
+The multilingual system uses a "translate-in, process, translate-out" approach. All legislation is
+stored and searched in English. The AI handles language translation as part of the pipeline.
+6.1 Query flow
+1 User types or speaks a question in any supported language
+2 If voice: audio is sent to OpenAI Whisper API for transcription
+3 System detects the input language via lightweight LLM classification
+4 If not English, the question is translated to English for embedding and search
+5 RAG pipeline runs in English: embed → retrieve top-K chunks → build prompt
+6 LLM prompt includes: "Respond in {language}. Keep Act names and section numbers in
+English."
+7 User receives answer in their language with English citations
+8 User can tap speaker button to hear the answer via OpenAI TTS API
+6.2 Why this approach works
+• Embeddings remain in English — no re-embedding per language
+• Search quality stays high (English embeddings are best-supported)
+• Citations stay accurate (official legal text is English)
+• GPT-4o handles isiZulu, Sesotho, and Afrikaans well
+• Adding a new language requires zero re-indexing
+6.3 Supported languages (MVP)
+Language Code Speakers (L1+L2) AI quality
+English en 17M Excellent
+isiZulu zu 28M Good
+Sesotho st 14M Good
+Afrikaans af 16M Very good
+7. Knowledge base scope
+The platform ingests documents from two domains into a single unified vector store. The RAG
+pipeline searches across both simultaneously.
+7.1 Legal legislation
+
+-- 6 of 15 --
+
+MzansiLegal — Project Specification | Page 7
+1 The Constitution of the Republic of South Africa, 1996
+2 Basic Conditions of Employment Act 75 of 1997 (BCEA)
+3 Consumer Protection Act 68 of 2008 (CPA)
+4 Labour Relations Act 66 of 1995 (LRA)
+5 Protection of Personal Information Act 4 of 2013 (POPIA)
+6 Rental Housing Act 50 of 1999
+7 Protection from Harassment Act 17 of 2011
+7.2 Financial legislation & guidance
+1 National Credit Act 34 of 2005 (NCA)
+2 Financial Advisory and Intermediary Services Act 37 of 2002 (FAIS)
+3 Tax Administration Act 28 of 2011
+4 Pension Funds Act 24 of 1956
+5 SARS personal income tax guides
+6 FSCA consumer education materials
+All sources are freely available from government websites (justice.gov.za, sars.gov.za, fsca.co.za).
+
+-- 7 of 15 --
+
+MzansiLegal — Project Specification | Page 8
+8. Proposed tech stack
+Layer Technology Purpose
+Frontend Next.js + Ant Design Responsive multilingual web UI
+Backend API .NET 8 + ABP Framework RESTful API with auth, multi-tenancy, modules
+Database PostgreSQL Legislation, chunks, embeddings, user data,
+analytics
+AI / LLM OpenAI GPT-4o (or Azure OpenAI) Language detection, translation, Q&A;, contract
+analysis
+Speech-to-Text OpenAI Whisper API Voice input transcription across 4 languages
+Text-to-Speech OpenAI TTS API Read answers aloud in user’s language
+Embeddings text-embedding-ada-002 Vector representations for semantic search
+Vector Search In-memory cosine similarity Chunk retrieval (pgvector for production)
+PDF Processing PdfPig (NuGet) Extract text from legislation and contracts
+Contract OCR OpenAI Vision API Extract text from photographed contracts
+Auth ABP Identity module Registration, login, roles (Citizen, Admin)
+i18n next-intl + JSON locale files UI translations for 4 languages
+Charts Ant Design Charts / Recharts Analytics dashboard, contract health score
+Hosting Azure App Service / Docker CI/CD via Azure DevOps
+9. Key features
+9.1 Multilingual AI Q&A (RAG pipeline)
+• User submits a legal or financial question via text or voice
+• Voice input transcribed via Whisper with automatic language detection
+• System translates to English if needed, generates embedding, performs semantic search
+• Top relevant chunks from both legal and financial documents are retrieved
+• LLM generates plain-language answer in user’s language with English citations
+• Cross-domain questions answered holistically
+9.2 AI contract analysis
+Users upload any contract and receive proactive AI-powered analysis without asking a single
+question:
+• Contract type auto-detection: identifies lease, employment, credit, service contract, etc.
+
+-- 8 of 15 --
+
+MzansiLegal — Project Specification | Page 9
+• Health score: overall score out of 100 based on fairness, legal compliance, transparency.
+Displayed as animated gauge with traffic light (green/amber/red).
+• Plain-language summary: one-paragraph summary of what the contract means, in user’s
+language.
+• Red flag alerts: proactive warnings citing specific legislation. E.g. interest rate exceeding NCA
+maximum, notice period exceeding BCEA limits, deposit not held in interest-bearing account per
+Rental Housing Act.
+• Ask about this contract: follow-up chat using both contract text and legislation as RAG context.
+• Supported types (MVP): employment contracts, lease/rental agreements, credit/loan
+agreements, service contracts.
+9.3 Voice support & accessibility
+• Voice input: microphone button, Whisper API transcription, all 4 languages
+• Voice output: speaker button on answers, OpenAI TTS playback. Auto-play for blind users
+(configurable).
+• Screen reader compatibility: ARIA labels, roles, full keyboard navigation
+• Dyslexia-friendly mode: toggle for OpenDyslexic font, increased spacing and font size
+• High contrast mode: respects OS-level accessibility settings
+• Voice and text can be mixed freely
+9.4 My Rights explorer & FAQ system
+• Interactive browse experience — not a static FAQ list
+• FAQs are admin-curated conversations: admin creates a question, system generates an
+answer, admin reviews and publishes it as a public FAQ
+• FAQs are tagged to a LegalCategory and appear on the home page, My Rights explorer, and as
+related question suggestions
+• Rights organised by category with expandable cards showing full explanations and legislation
+citations
+• Gamified knowledge score tracking how many topics the user has explored
+• Each card has “Ask a follow-up”, “Listen in isiZulu”, and “Share” actions
+• Same Conversation entity used for both private Q&A; and public FAQs — distinguished by
+IsPublicFaq flag
+9.5 Unified knowledge base
+• Single vector store containing both legal and financial document chunks
+• Each chunk tagged with domain, Act name, section number
+• Admin uploads new documents via the analytics dashboard
+• Adding a new language requires zero re-indexing
+
+-- 9 of 15 --
+
+MzansiLegal — Project Specification | Page 10
+9.6 Admin analytics dashboard
+• Live stats: total questions, contracts analysed, avg response time, citation accuracy
+• Questions by category (horizontal bar chart)
+• Language distribution (with voice vs text breakdown)
+• Top questions this week (with multilingual entries)
+• Answer quality review queue with flagged items and correction tools
+• Percentage change indicators vs previous period
+
+-- 10 of 15 --
+
+MzansiLegal — Project Specification | Page 11
+10. Application pages & demo flow
+The application consists of 5 distinct pages, each designed to be visually engaging with zero CRUD
+screens. Every page has data, interaction, and visual elements.
+# Page Key visual elements Demo moment
+1 Home
+dashboard
+Live stats (questions, contracts, languages),
+category grid with domain tags, trending
+questions ticker (multilingual), prominent
+CTAs for contract analysis and Q&A;
+App feels alive and established — not a
+blank chatbot
+2 Contract
+analysis
+Animated health score gauge (0→score),
+traffic light breakdown (red/amber/green
+counts), red flag cards sliding in with
+legislation citations, plain-language
+summary, follow-up chat
+Upload a real lease — score animates,
+red flags appear citing actual law. Room
+goes quiet.
+3 Q&A; chat Multilingual conversation, voice playback bar
+with waveform, expandable citation cards
+with Act/section, disclaimer in user’s
+language, related questions
+Ask in isiZulu, get cited answer in isiZulu,
+tap play to hear it. Shows multilingual +
+voice + accessibility in one screen.
+4 My Rights
+explorer
+Knowledge score progress bar (gamified),
+category filter tabs, expandable right cards
+with legislation text, action buttons
+(follow-up, listen, share)
+Interactive encyclopedia of rights —
+shows depth of content beyond chat
+5 Admin analytics Stat cards with trend indicators, category bar
+chart, language pie with voice/text split, top
+questions list, answer review queue with
+status dots
+Shows real data intelligence and quality
+oversight — this is a platform, not a toy
+10.1 Recommended demo script
+1 Open home dashboard — show live stats, trending questions in multiple languages, and
+category grid
+2 Navigate to contract analysis — upload a real lease agreement PDF
+3 Watch the health score animate, red flags appear with legislation citations
+4 Ask a follow-up question about the contract in the embedded chat
+5 Switch to Q&A; chat — ask an eviction question in isiZulu
+6 Show the cited answer in isiZulu, tap play to hear voice output
+7 Switch to English, ask a cross-domain question about retrenchment + severance tax
+8 Open My Rights explorer — show the knowledge score, expand a rights card, tap “Listen in
+Sesotho”
+9 Open admin dashboard — show analytics, language distribution, review queue
+10 Total demo time: approximately 8–10 minutes
+
+-- 11 of 15 --
+
+MzansiLegal — Project Specification | Page 12
+11. Five-day implementation plan
+Day Focus Deliverables
+Day 1 Setup & data pipeline ABP backend scaffold with entities PDF ingestion: upload → extract →
+chunk by section → embed → store Seed with legal Acts from
+justice.gov.za Seed with financial documents (NCA, SARS, FSCA)
+Next.js project with Ant Design, layout, routing, language selector
+Day 2 RAG + multilingual Q&A Vector similarity search (top-k across both domains) Language detection
++ translation layer LLM prompt with context, citations, language directive
+Q&A; API endpoint Store questions/answers for history and analytics
+Day 3 Frontend + voice +
+contracts
+Home dashboard with stats, categories, trending Chat interface with voice
+input (Whisper) and output (TTS) Contract upload + analysis pipeline
+(type detection, score, summary, red flags) Citation rendering with
+expandable sources
+Day 4 Explorer + admin + auth My Rights explorer with knowledge score and expandable cards Admin
+analytics dashboard with charts Answer quality review queue User auth
+(ABP Identity) Question history page
+Day 5 Accessibility + polish +
+deploy
+Accessibility: ARIA labels, keyboard nav, screen reader testing
+Dyslexia-friendly mode toggle Multilingual UI label files (4 languages)
+Disclaimers for legal and financial content Responsive design, loading
+states, error handling Azure DevOps CI/CD and deployment Demo
+preparation and documentation
+12. Domain model
+The domain model follows DDD conventions consistent with the Boxfusion training programme
+patterns: PartOf relationships for composition (child declares its parent), RefList for enumerations,
+StoredFile for attachments. All conversations and contract analyses require authentication and are
+PartOf AppUser.
+12.1 Core aggregates
+Aggregate Root entity Child entities Purpose
+Knowledge base LegalCategory LegalDocument,
+DocumentChunk,
+ChunkEmbedding
+Legislation storage, section-level
+chunks, and embedding vectors
+for RAG search
+Conversation Conversation Question, Answer,
+AnswerCitation
+Q&A; sessions (both private user
+conversations and admin-curated
+public FAQs)
+Contract ContractAnalysis ContractFlag Uploaded contracts with health
+score, summary, and red flag
+alerts. Requires auth.
+
+-- 12 of 15 --
+
+MzansiLegal — Project Specification | Page 13
+Aggregate Root entity Child entities Purpose
+User AppUser (extends ABP IdentityUser) User profile with language
+preference and accessibility
+settings
+12.2 Aggregate relationships
+All PartOf arrows point from child up to parent (the child declares who it belongs to):
+Child PartOf (parent) Cardinalit
+y
+Notes
+ChunkEmbedding DocumentChunk 1:1 Every chunk has exactly one embedding vector
+DocumentChunk LegalDocument Many:1 A document is split into many section-level chunks
+LegalDocument LegalCategory Many:1 Documents grouped by topic category
+AnswerCitation Answer Many:1 An answer can cite multiple legislation sections
+Answer Question 1:1 Each question generates one answer
+Question Conversation Many:1 A conversation can have multiple questions
+Conversation AppUser Many:1 Mandatory. User must be authenticated.
+ContractFlag ContractAnalysis Many:1 Analysis produces multiple flags
+ContractAnalysis AppUser Many:1 Mandatory. Sensitive data requires auth.
+12.3 Cross-aggregate references
+From To Type Purpose
+AnswerCitation.ChunkId DocumentChunk FK reference
+(dashed)
+Links AI answers back to source
+legislation chunks
+Conversation.FaqCateg
+ory
+LegalCategory Nullable FK Only set when IsPublicFaq = true.
+Links FAQ to a topic category.
+12.4 Key entities
+Entity Key properties Relationships
+LegalCategory Name, NameZu, NameSt, NameAf, Icon,
+Domain: RefList(Legal|Financial), SortOrder
+Has many: LegalDocument
+LegalDocument Title, ShortName, ActNumber, Year, FullText,
+OriginalPdf: StoredFile, Domain: RefList,
+IsProcessed, TotalChunks
+PartOf: LegalCategory. Has many:
+DocumentChunk
+DocumentChunk ChapterTitle, SectionNumber, SectionTitle,
+Content, TokenCount, SortOrder
+PartOf: LegalDocument. Has one:
+ChunkEmbedding
+
+-- 13 of 15 --
+
+MzansiLegal — Project Specification | Page 14
+Entity Key properties Relationships
+ChunkEmbedding Vector: float[1536] PartOf: DocumentChunk
+Conversation Language: RefList, InputMethod:
+RefList(Text|Voice), StartedAt, IsPublicFaq:
+bool, FaqCategory: Guid? (FK)
+PartOf: AppUser. Has many: Question.
+Optional ref: LegalCategory
+Question OriginalText, TranslatedText, Language:
+RefList, InputMethod: RefList, AudioFile:
+StoredFile
+PartOf: Conversation. Has one: Answer
+Answer Text, Language: RefList, AudioFile: StoredFile,
+IsAccurate: bool?, AdminNotes: string?
+PartOf: Question. Has many:
+AnswerCitation
+AnswerCitation SectionNumber, Excerpt, RelevanceScore:
+decimal
+PartOf: Answer. References:
+DocumentChunk (cross-aggregate)
+ContractAnalysis ContractType: RefList, HealthScore: int(0-100),
+Summary, OriginalFile: StoredFile,
+ExtractedText, Language: RefList, AnalysedAt
+PartOf: AppUser. Has many:
+ContractFlag
+ContractFlag Severity: RefList(Red|Amber|Green), Title,
+Description, ClauseText, LegislationCitation,
+SortOrder
+PartOf: ContractAnalysis
+AppUser PreferredLanguage: RefList, DyslexiaMode:
+bool, AutoPlayAudio: bool, Role:
+RefList(Citizen|Admin)
+Has many: Conversation,
+ContractAnalysis
+12.5 FAQ system
+FAQs use the same Conversation entity as regular Q&A. The admin creates a conversation with
+IsPublicFaq = true and assigns a FaqCategory. The system generates the answer, the admin
+reviews and marks IsAccurate = true, and the conversation becomes publicly visible on the home
+page and My Rights explorer. Regular user conversations have IsPublicFaq = false and are private
+to the user.
+Field Regular conversation FAQ conversation
+UserId The citizen’s ID The admin’s ID
+IsPublicFaq false true
+FaqCategory null FK → LegalCategory (e.g. Housing)
+Visibility Private — only in user’s history Public — home page, My Rights, related
+questions
+Auth required Yes Yes (admin role)
+
+-- 14 of 15 --
+
+MzansiLegal — Project Specification | Page 15
+13. Disclaimers & ethics
+The platform provides legal and financial information, not professional advice. Two distinct
+disclaimers are displayed:
+13.1 Legal disclaimer
+"This information is for educational purposes only and does not constitute legal advice. For advice
+specific to your situation, please consult a qualified attorney or contact Legal Aid South Africa (0800
+110 110)."
+13.2 Financial disclaimer
+"This information is for educational purposes only and does not constitute financial advice.
+MzansiLegal is not a registered financial services provider under the FAIS Act. For personalised
+financial advice, consult a registered financial advisor. For debt counselling, contact the National
+Credit Regulator (0860 627 627)."
+13.3 Contract analysis disclaimer
+"Contract analysis is provided for informational purposes only. AI-generated insights may not capture
+all legal nuances. Always have important contracts reviewed by a qualified attorney before signing."
+All disclaimers are pre-translated into the 4 supported languages and displayed with every
+AI-generated response.
+14. Success metrics
+• AI answers include accurate, verifiable citations in ≥90% of responses
+• Cross-domain questions answered holistically with citations from both domains
+• Multilingual support with ≥95% language detection accuracy
+• Voice input transcription accuracy ≥90% (English, Afrikaans), ≥80% (isiZulu, Sesotho)
+• Voice output produces natural-sounding speech in all 4 languages
+• Contract analysis correctly identifies contract type in ≥90% of uploads
+• Red flag detection cites accurate legislation references
+• Platform fully operable via keyboard and screen reader (WCAG 2.1 AA target)
+• Dyslexia-friendly mode available with one-click toggle
+• Average latency under 8 seconds (text), under 12 seconds (voice)
+• Knowledge base covers 13+ documents (7 legal + 6 financial)
+• Admin can upload and index a new document within 2 minutes
+• Full CI/CD pipeline with automated deployment via Azure DevOps
+
+-- 15 of 15 --
+

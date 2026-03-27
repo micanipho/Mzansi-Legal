@@ -1,0 +1,99 @@
+{
+  "common": {
+    "appName": "MzansiLegal",
+    "tagline": "Your AI-powered legal rights assistant",
+    "loading": "Loading...",
+    "error": "Something went wrong. Please try again.",
+    "disclaimer": "This information is for guidance only and does not constitute legal advice. Always consult a qualified legal professional."
+  },
+  "nav": {
+    "home": "Home",
+    "chat": "Ask a Question",
+    "rights": "My Rights",
+    "contracts": "Contract Check",
+    "history": "History",
+    "settings": "Settings",
+    "admin": "Admin",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout"
+  },
+  "home": {
+    "title": "Know Your Rights",
+    "subtitle": "Ask legal questions in your language — get clear, cited answers.",
+    "askPlaceholder": "Type your question here...",
+    "askButton": "Ask Now",
+    "trendingTitle": "Trending Questions",
+    "categoriesTitle": "Browse by Category"
+  },
+  "chat": {
+    "title": "Legal Q&A",
+    "inputPlaceholder": "Ask a legal or financial rights question...",
+    "sendButton": "Send",
+    "voiceButton": "Voice Input",
+    "stopButton": "Stop Recording",
+    "citationsTitle": "Sources",
+    "newConversation": "New Conversation"
+  },
+  "rights": {
+    "title": "My Rights Explorer",
+    "searchPlaceholder": "Search rights...",
+    "allCategories": "All",
+    "learnMore": "Learn More",
+    "askAboutThis": "Ask about this"
+  },
+  "contracts": {
+    "title": "Contract Health Check",
+    "uploadTitle": "Upload Your Contract",
+    "uploadHint": "Upload a PDF contract to analyse for risks and red flags.",
+    "uploadButton": "Upload & Analyse",
+    "healthScore": "Health Score",
+    "redFlags": "Red Flags",
+    "summary": "Summary",
+    "followUp": "Ask a follow-up question about this contract"
+  },
+  "history": {
+    "title": "My Conversation History",
+    "empty": "No conversations yet.",
+    "viewConversation": "View"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Preferred Language",
+    "dyslexiaMode": "Dyslexia-Friendly Mode",
+    "autoPlayAudio": "Auto-play Audio Responses",
+    "saveButton": "Save Preferences"
+  },
+  "auth": {
+    "loginTitle": "Login",
+    "registerTitle": "Create Account",
+    "emailLabel": "Email Address",
+    "passwordLabel": "Password",
+    "nameLabel": "Full Name",
+    "loginButton": "Login",
+    "registerButton": "Register",
+    "switchToRegister": "Don't have an account? Register",
+    "switchToLogin": "Already have an account? Login"
+  },
+  "admin": {
+    "dashboardTitle": "Admin Dashboard",
+    "totalQuestions": "Total Questions",
+    "totalUsers": "Total Users",
+    "pendingReview": "Pending Review",
+    "publishedFaqs": "Published FAQs",
+    "reviewQueueTitle": "Review Queue",
+    "markAccurate": "Mark as Accurate",
+    "markInaccurate": "Mark as Inaccurate",
+    "publishAsFaq": "Publish as FAQ",
+    "adminNotes": "Admin Notes"
+  },
+  "categories": {
+    "legal": "Legal Rights",
+    "financial": "Financial Rights",
+    "employment": "Employment",
+    "housing": "Housing",
+    "consumer": "Consumer Rights",
+    "family": "Family Law",
+    "criminal": "Criminal Justice"
+  }
+}

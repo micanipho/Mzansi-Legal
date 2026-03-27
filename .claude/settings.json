@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx create-next-app@16 frontend --typescript --eslint --app --src-dir --import-alias \"@/*\" --use-npm --no-git --no-tailwind)",
+      "Bash(printf \"n\\\\nn\\\\n\")",
+      "Bash(npx --yes create-next-app@16 frontend --typescript --eslint --app --src-dir --import-alias \"@/*\" --use-npm --no-git --no-tailwind --no-react-compiler)",
+      "Bash(npm install:*)",
+      "Bash(node -e \"const p=require\\(''c:/Users/Nhlakanipho/Documents/Projects/Mzansi-legal/frontend/node_modules/next-intl/package.json''\\); console.log\\(''version:'', p.version, ''peerNext:'', p.peerDependencies?.next\\)\")",
+      "Bash(npm run:*)",
+      "Bash(python3 -c \":*)",
+      "Bash(dotnet add:*)",
+      "Bash(dotnet build:*)",
+      "Bash(dotnet ef:*)",
+      "Bash(node -e \":*)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\Nhlakanipho\\Documents\\Projects\\Mzansi-legal\\frontend\\src\\app"
+    ]
+  }
+}
