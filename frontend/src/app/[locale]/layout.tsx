@@ -5,6 +5,8 @@ import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import AntdProvider from "@/components/providers/AntdProvider";
+import AppNavbar from "@/components/layout/AppNavbar";
+import OrganicBackground from "@/components/layout/OrganicBackground";
 import "@/styles/globals.css";
 
 export const metadata: Metadata = {
@@ -37,7 +39,20 @@ export default async function LocaleLayout({
         </a>
         <NextIntlClientProvider messages={messages}>
           <AntdRegistry>
-            <AntdProvider>{children}</AntdProvider>
+            <AntdProvider>
+              <div
+                style={{
+                  position: "relative",
+                  minHeight: "100vh",
+                  width: "100%",
+                  overflowX: "hidden",
+                }}
+              >
+                <OrganicBackground />
+                <AppNavbar />
+                <div id="main-content">{children}</div>
+              </div>
+            </AntdProvider>
           </AntdRegistry>
         </NextIntlClientProvider>
       </body>

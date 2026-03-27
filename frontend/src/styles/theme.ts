@@ -1,127 +1,82 @@
 import type { ThemeConfig } from "antd";
 
-/**
- * MzansiLegal Design Tokens
- *
- * Primary brand: deep justice green
- * Secondary: warm gold (South African vibrancy)
- * Neutral: accessible grays for long-form legal text
- */
+/** MzansiLegal design tokens — matched to reference implementation */
 
-export const designTokens = {
-  colorPrimary: "#006B3F", // South African green (ANC/nature association)
-  colorSuccess: "#52c41a",
-  colorWarning: "#faad14", // Gold — used for amber flags
-  colorError: "#f5222d", // Red — used for red flags in contracts
-  colorInfo: "#1677ff",
+export const C = {
+  bg:          '#FDFCF8',
+  fg:          '#2C2C24',
+  primary:     '#5D7052',
+  primaryFg:   '#F3F4F1',
+  secondary:   '#C18C5D',
+  secondaryFg: '#FFFFFF',
+  muted:       '#F0EBE5',
+  mutedFg:     '#78786C',
+  border:      '#DED8CF',
+  destructive: '#A85448',
+  card:        '#FEFEFA',
+  accent:      '#E6DCCD',
+} as const;
 
-  // Text
-  colorText: "#1a1a1a",
-  colorTextSecondary: "#595959",
-  colorTextTertiary: "#8c8c8c",
+/** Organic border radii */
+export const R = {
+  o1: '32px 16px 24px 32px',
+  o2: '16px 32px 32px 24px',
+  o3: '24px 24px 16px 32px',
+  o4: '32px 32px 16px 24px',
+} as const;
 
-  // Backgrounds
-  colorBgBase: "#ffffff",
-  colorBgLayout: "#f5f5f0", // Slightly warm white
+export const shadowOrganic = '0 4px 20px rgba(93, 112, 82, 0.15)';
+export const fontSerif = "'Fraunces', serif";
+export const fontSans  = "'Nunito', sans-serif";
 
-  // Border
-  colorBorder: "#d9d9d9",
-  colorBorderSecondary: "#f0f0f0",
-
-  // Font
-  fontFamily:
-    "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-  fontSize: 16, // Larger base for accessibility
-  fontSizeLG: 18,
-  fontSizeSM: 14,
-  fontSizeHeading1: 38,
-  fontSizeHeading2: 30,
-  fontSizeHeading3: 24,
-
-  // Spacing
-  borderRadius: 8,
-  borderRadiusLG: 12,
-  borderRadiusSM: 4,
-
-  // Shadows
-  boxShadow:
-    "0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1)",
-  boxShadowSecondary:
-    "0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1)",
-
-  // Motion
-  motionDurationFast: "0.1s",
-  motionDurationMid: "0.2s",
-  motionDurationSlow: "0.3s",
+/** Kept for components that still import `brand` */
+export const brand = {
+  dark:        C.fg,
+  cta:         C.primary,
+  ctaHover:    '#4d6045',
+  cream:       C.bg,
+  cardBg:      C.card,
+  border:      C.border,
+  borderLight: C.accent,
 } as const;
 
 export const antdTheme: ThemeConfig = {
   token: {
-    colorPrimary: designTokens.colorPrimary,
-    colorSuccess: designTokens.colorSuccess,
-    colorWarning: designTokens.colorWarning,
-    colorError: designTokens.colorError,
-    colorInfo: designTokens.colorInfo,
-
-    fontFamily: designTokens.fontFamily,
-    fontSize: designTokens.fontSize,
-
-    borderRadius: designTokens.borderRadius,
-    borderRadiusLG: designTokens.borderRadiusLG,
-    borderRadiusSM: designTokens.borderRadiusSM,
-
-    colorBgLayout: designTokens.colorBgLayout,
+    colorPrimary:          C.primary,
+    colorSuccess:          '#5D7052',
+    colorWarning:          C.secondary,
+    colorError:            C.destructive,
+    colorInfo:             '#1677ff',
+    colorText:             C.fg,
+    colorTextSecondary:    C.mutedFg,
+    colorBgLayout:         C.bg,
+    colorBgContainer:      C.card,
+    colorBorder:           C.border,
+    colorBorderSecondary:  C.accent,
+    fontFamily:            fontSans,
+    fontSize:              15,
+    borderRadius:          8,
+    borderRadiusLG:        12,
+    borderRadiusSM:        4,
+    boxShadow:             shadowOrganic,
   },
   components: {
     Button: {
-      borderRadius: designTokens.borderRadius,
-      fontWeight: 600,
+      borderRadius:  24,
+      paddingInline: 20,
+      primaryColor:  C.primaryFg,
     },
     Card: {
-      borderRadius: designTokens.borderRadiusLG,
-      boxShadow: designTokens.boxShadow,
-    },
-    Layout: {
-      headerBg: "#ffffff",
-      siderBg: "#ffffff",
-    },
-    Menu: {
-      itemBorderRadius: designTokens.borderRadius,
-    },
-    Tag: {
-      borderRadius: designTokens.borderRadius,
+      borderRadius:         16,
+      colorBorderSecondary: C.border,
     },
     Input: {
-      borderRadius: designTokens.borderRadius,
-      fontSize: designTokens.fontSize,
+      borderRadius:    24,
+      colorBgContainer: C.card,
     },
-    Select: {
-      borderRadius: designTokens.borderRadius,
-    },
-    Alert: {
-      borderRadius: designTokens.borderRadiusLG,
-    },
-    Progress: {
-      defaultColor: designTokens.colorPrimary,
-    },
-    Typography: {
-      fontFamily: designTokens.fontFamily,
+    Tag: {
+      borderRadius: 24,
+      fontSize:     11,
     },
   },
 };
-
-/** CSS custom properties for dyslexia-friendly mode */
-export const dyslexiaCssVars = {
-  "--font-family": "'OpenDyslexic', sans-serif",
-  "--letter-spacing": "0.1em",
-  "--word-spacing": "0.2em",
-  "--line-height": "1.8",
-  "--font-size-base": "17px",
-} as const;
-
-/** CSS variable names for runtime theming */
-export const cssVars = {
-  fontFamily: "--ml-font-family",
-  letterSpacing: "--ml-letter-spacing",
-  lineHeight: "--ml-line-height",
-} as const;
