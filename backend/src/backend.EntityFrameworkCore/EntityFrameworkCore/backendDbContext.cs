@@ -57,10 +57,26 @@ public class backendDbContext : AbpZeroDbContext<Tenant, Role, User, backendDbCo
     {
         base.OnModelCreating(modelBuilder);
 
+        ConfigureUserExtensions(modelBuilder);
         ConfigureLegalDocumentRelationships(modelBuilder);
         ConfigureDocumentChunkRelationships(modelBuilder);
         ConfigureChunkEmbeddingRelationships(modelBuilder);
         ConfigureQARelationships(modelBuilder);
+    }
+
+    /// <summary>
+    /// Applies database-level default values for the AppUser preference columns added to AbpUsers.
+    /// C# property initializers handle object-creation defaults; these ensure correct SQL-level
+    /// defaults for rows inserted outside the C# object model (e.g., seed operations).
+    /// </summary>
+    private static void ConfigureUserExtensions(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<User>(b =>
+        {
+            b.Property(u => u.PreferredLanguage).HasDefaultValue(Language.English);
+            b.Property(u => u.DyslexiaMode).HasDefaultValue(false);
+            b.Property(u => u.AutoPlayAudio).HasDefaultValue(false);
+        });
     }
 
     /// <summary>Configures the LegalDocument → Category FK and unique act index.</summary>

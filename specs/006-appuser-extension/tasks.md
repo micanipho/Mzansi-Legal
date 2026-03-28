@@ -22,7 +22,7 @@ verification of each story increment.
 **Purpose**: No shared infrastructure needs to be created from scratch — the project already has
 `User.cs` and `backendDbContext.cs`. This phase is a lightweight readiness check only.
 
-- [ ] T001 Confirm current branch is `006-appuser-extension` and `backend/src/backend.Core/Authorization/Users/User.cs` exists with no uncommitted conflicts
+- [x] T001 Confirm current branch is `006-appuser-extension` and `backend/src/backend.Core/Authorization/Users/User.cs` exists with no uncommitted conflicts
 
 **Checkpoint**: Working directory is clean; files to be modified are confirmed present.
 
@@ -38,8 +38,8 @@ After migration, run `SELECT column_name, data_type, column_default FROM informa
 
 ### Implementation for User Story 1
 
-- [ ] T002 [US1] Add `using backend.Domains.QA;` directive and `PreferredLanguage` property with XML doc comment and initializer `Language.English` to `backend/src/backend.Core/Authorization/Users/User.cs`
-- [ ] T003 [US1] Add `ConfigureUserExtensions` private static method to `backend/src/backend.EntityFrameworkCore/EntityFrameworkCore/backendDbContext.cs` — call it from `OnModelCreating`, add `using backend.Domains.QA;`, and set `HasDefaultValue(Language.English)` for `PreferredLanguage` on `modelBuilder.Entity<User>()`
+- [x] T002 [US1] Add `using backend.Domains.QA;` directive and `PreferredLanguage` property with XML doc comment and initializer `Language.English` to `backend/src/backend.Core/Authorization/Users/User.cs`
+- [x] T003 [US1] Add `ConfigureUserExtensions` private static method to `backend/src/backend.EntityFrameworkCore/EntityFrameworkCore/backendDbContext.cs` — call it from `OnModelCreating`, add `using backend.Domains.QA;`, and set `HasDefaultValue(Language.English)` for `PreferredLanguage` on `modelBuilder.Entity<User>()`
 
 **Checkpoint**: Solution builds; `new User().PreferredLanguage == Language.English`; `backendDbContext.cs` compiles with the new Fluent API method.
 
@@ -55,8 +55,8 @@ After migration, run `SELECT column_name, data_type, column_default FROM informa
 
 ### Implementation for User Story 2
 
-- [ ] T004 [US2] Add `DyslexiaMode` property (bool, initializer `false`, XML doc comment) and `AutoPlayAudio` property (bool, initializer `false`, XML doc comment) to `backend/src/backend.Core/Authorization/Users/User.cs`
-- [ ] T005 [US2] Extend `ConfigureUserExtensions` in `backend/src/backend.EntityFrameworkCore/EntityFrameworkCore/backendDbContext.cs` — add `HasDefaultValue(false)` for `DyslexiaMode` and `HasDefaultValue(false)` for `AutoPlayAudio` inside the existing `modelBuilder.Entity<User>()` lambda
+- [x] T004 [US2] Add `DyslexiaMode` property (bool, initializer `false`, XML doc comment) and `AutoPlayAudio` property (bool, initializer `false`, XML doc comment) to `backend/src/backend.Core/Authorization/Users/User.cs`
+- [x] T005 [US2] Extend `ConfigureUserExtensions` in `backend/src/backend.EntityFrameworkCore/EntityFrameworkCore/backendDbContext.cs` — add `HasDefaultValue(false)` for `DyslexiaMode` and `HasDefaultValue(false)` for `AutoPlayAudio` inside the existing `modelBuilder.Entity<User>()` lambda
 
 **Checkpoint**: Solution builds; `new User().DyslexiaMode == false && new User().AutoPlayAudio == false`; both `HasDefaultValue` calls present in `ConfigureUserExtensions`.
 
@@ -71,7 +71,7 @@ classification requirement. No code changes required.
 
 ### Implementation for User Story 3
 
-- [ ] T006 [US3] Verify ABP role seeds exist by querying `SELECT "Name" FROM "AbpRoles" WHERE "Name" IN ('Default', 'Admin')` against the PostgreSQL instance and confirming both rows are present — no code changes required; document result in a comment or PR description
+- [x] T006 [US3] Verify ABP role seeds exist by querying `SELECT "Name" FROM "AbpRoles" WHERE "Name" IN ('Default', 'Admin')` against the PostgreSQL instance and confirming both rows are present — no code changes required; document result in a comment or PR description
 
 **Checkpoint**: Both ABP roles confirmed present; no entity, enum, or migration changes needed for US3.
 
@@ -84,8 +84,8 @@ apply it to PostgreSQL.
 
 **⚠️ CRITICAL**: T002, T003, T004, and T005 must all be complete before generating the migration.
 
-- [ ] T007 Generate EF Core migration by running from `backend/`: `dotnet ef migrations add AddAppUserPreferences --project src/backend.EntityFrameworkCore --startup-project src/backend.Web.Host` — confirm the generated file in `backend/src/backend.EntityFrameworkCore/Migrations/` contains exactly **three** `AddColumn` operations on `AbpUsers` (`PreferredLanguage`, `DyslexiaMode`, `AutoPlayAudio`)
-- [ ] T008 Apply migration to PostgreSQL by running from `backend/`: `dotnet ef database update --project src/backend.EntityFrameworkCore --startup-project src/backend.Web.Host` — confirm command exits without errors
+- [x] T007 Generate EF Core migration by running from `backend/`: `dotnet ef migrations add AddAppUserPreferences --project src/backend.EntityFrameworkCore --startup-project src/backend.Web.Host` — confirm the generated file in `backend/src/backend.EntityFrameworkCore/Migrations/` contains exactly **three** `AddColumn` operations on `AbpUsers` (`PreferredLanguage`, `DyslexiaMode`, `AutoPlayAudio`)
+- [x] T008 Apply migration to PostgreSQL by running from `backend/`: `dotnet ef database update --project src/backend.EntityFrameworkCore --startup-project src/backend.Web.Host` — confirm command exits without errors
 
 **Checkpoint**: Migration applied; no errors reported; `AbpUsers` now has three new columns.
 
@@ -95,9 +95,9 @@ apply it to PostgreSQL.
 
 **Purpose**: Verify schema correctness, default values, and build health across all stories.
 
-- [ ] T009 [P] Verify all three new columns exist in PostgreSQL with correct types and defaults by running: `SELECT column_name, data_type, column_default FROM information_schema.columns WHERE table_name = 'AbpUsers' AND column_name IN ('PreferredLanguage', 'DyslexiaMode', 'AutoPlayAudio')` — confirm 3 rows returned with `integer`/`boolean` types and correct defaults
-- [ ] T010 [P] Confirm solution builds with no errors or warnings by running `dotnet build` from `backend/` and reviewing output
-- [ ] T011 Verify user creation defaults by querying a newly seeded or created user record in PostgreSQL — confirm `PreferredLanguage = 0`, `DyslexiaMode = false`, `AutoPlayAudio = false`
+- [x] T009 [P] Verify all three new columns exist in PostgreSQL with correct types and defaults by running: `SELECT column_name, data_type, column_default FROM information_schema.columns WHERE table_name = 'AbpUsers' AND column_name IN ('PreferredLanguage', 'DyslexiaMode', 'AutoPlayAudio')` — confirm 3 rows returned with `integer`/`boolean` types and correct defaults
+- [x] T010 [P] Confirm solution builds with no errors or warnings by running `dotnet build` from `backend/` and reviewing output
+- [x] T011 Verify user creation defaults by querying a newly seeded or created user record in PostgreSQL — confirm `PreferredLanguage = 0`, `DyslexiaMode = false`, `AutoPlayAudio = false`
 
 ---
 
