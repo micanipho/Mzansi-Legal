@@ -1,9 +1,10 @@
 "use client";
 
-import { Button, Card, Space, Typography } from "antd";
+import { Button, Space, Typography } from "antd";
 import { MessageOutlined } from "@ant-design/icons";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
+import { appRoutes, createLocalizedPath } from "@/i18n/routing";
 import { brand } from "@/styles/theme";
 
 const { Text, Title } = Typography;
@@ -30,7 +31,7 @@ export default function HistoryPage() {
         <Space>
           <Button
             type="primary"
-            onClick={() => router.push(`/${locale}/chat`)}
+            onClick={() => router.push(createLocalizedPath(locale, appRoutes.ask))}
             style={{ background: brand.dark, borderColor: brand.dark, borderRadius: 20, fontWeight: 600 }}
           >
             {t("askQuestion")}

@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Minus, Plus, Share2, Play } from "lucide-react";
+import { appRoutes, createLocalizedPath } from "@/i18n/routing";
 import { C, R, shadowOrganic, fontSerif, fontSans } from "@/styles/theme";
 
 // Filter values are kept as stable English keys for category matching
@@ -60,14 +61,8 @@ export default function MyRightsPage() {
 
   return (
     <main
+      className="page-shell"
       style={{
-        minHeight: "100vh",
-        paddingTop: 96,
-        paddingBottom: 80,
-        paddingLeft: 16,
-        paddingRight: 16,
-        maxWidth: 1280,
-        margin: "0 auto",
         display: "flex",
         flexDirection: "column",
         gap: 40,
@@ -252,7 +247,7 @@ export default function MyRightsPage() {
 
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
                     <button
-                      onClick={() => router.push(`/${locale}/chat?q=${encodeURIComponent(`Tell me more about: ${t(titleKey)}`)}`)}
+                      onClick={() => router.push(createLocalizedPath(locale, appRoutes.ask, `q=${encodeURIComponent(`Tell me more about: ${t(titleKey)}`)}`))}
                       style={{
                         background: C.primary,
                         color: C.primaryFg,

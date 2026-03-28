@@ -1,28 +1,57 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useLocale } from "next-intl";
-import { DownOutlined } from "@ant-design/icons";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 import { Scale } from "lucide-react";
-import { C, fontSerif, fontSans, shadowOrganic } from "@/styles/theme";
+import { startTransition } from "react";
+import {
+  appRoutes,
+  createLocalizedPath,
+  supportedLocales,
+} from "@/i18n/routing";
+import { buildLocaleSwitchHref } from "@/i18n/localeSwitch";
+import { C, fontSans, fontSerif, shadowOrganic } from "@/styles/theme";
 
 const NAV_LINKS = [
-  { name: "Home",      path: "" },
-  { name: "Ask",       path: "/chat" },
-  { name: "Contracts", path: "/contracts" },
-  { name: "My Rights", path: "/rights" },
-  { name: "History",   path: "/history" },
-];
+  { labelKey: "home", path: appRoutes.home },
+  { labelKey: "ask", path: appRoutes.ask },
+  { labelKey: "contracts", path: appRoutes.contracts },
+  { labelKey: "rights", path: appRoutes.rights },
+  { labelKey: "dashboard", path: appRoutes.adminDashboard },
+] as const;
 
 export default function AppNavbar() {
-  const locale  = useLocale();
+  const locale = useLocale();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const tNav = useTranslations("nav");
+  const tCommon = useTranslations("common");
 
   const isActive = (path: string) => {
-    const full = `/${locale}${path}`;
-    if (path === "") return pathname === full;
+    const full = createLocalizedPath(locale, path);
+    if (path === "") {
+      return pathname === full;
+    }
+
+    if (path === appRoutes.ask) {
+      return pathname === full || pathname === createLocalizedPath(locale, appRoutes.legacyChat);
+    }
+
     return pathname.startsWith(full);
+  };
+
+  const handleLocaleChange = (nextLocale: string) => {
+    const nextHref = buildLocaleSwitchHref({
+      pathname,
+      currentLocale: locale,
+      nextLocale,
+      searchParams,
+    });
+    startTransition(() => {
+      router.push(nextHref);
+    });
   };
 
   return (
@@ -39,24 +68,21 @@ export default function AppNavbar() {
       }}
     >
       <nav
+        className="app-navbar-shell grain-panel"
         style={{
           pointerEvents: "auto",
-          background: "rgba(255,255,255,0.70)",
+          background: "rgba(255,255,255,0.72)",
           backdropFilter: "blur(12px)",
           WebkitBackdropFilter: "blur(12px)",
-          border: `1px solid rgba(222,216,207,0.5)`,
+          border: "1px solid rgba(222,216,207,0.5)",
           borderRadius: 9999,
-          padding: "8px 16px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
+          padding: "10px 16px",
           boxShadow: shadowOrganic,
           fontFamily: fontSans,
         }}
       >
-        {/* Logo */}
         <Link
-          href={`/${locale}`}
+          href={createLocalizedPath(locale, appRoutes.home)}
           style={{ display: "flex", alignItems: "center", gap: 12, textDecoration: "none" }}
         >
           <div
@@ -74,57 +100,64 @@ export default function AppNavbar() {
           >
             <Scale size={20} color={C.primaryFg} />
           </div>
-          <span style={{ fontFamily: fontSerif, fontWeight: 700, fontSize: 20, color: C.fg, letterSpacing: "-0.02em" }}>
+          <span
+            style={{
+              fontFamily: fontSerif,
+              fontWeight: 700,
+              fontSize: 20,
+              color: C.fg,
+              letterSpacing: "-0.02em",
+            }}
+          >
             MzansiLegal
           </span>
         </Link>
 
-        {/* Nav links */}
-        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          {NAV_LINKS.map(({ name, path }) => {
+        <div className="app-navbar-links">
+          {NAV_LINKS.map(({ labelKey, path }) => {
             const active = isActive(path);
             return (
               <Link
-                key={name}
-                href={`/${locale}${path}`}
+                key={labelKey}
+                href={createLocalizedPath(locale, path)}
+                className="app-navbar-link"
+                aria-current={active ? "page" : undefined}
                 style={{
                   padding: "8px 16px",
                   borderRadius: 9999,
                   fontSize: 14,
-                  fontWeight: 500,
+                  fontWeight: 600,
                   color: active ? C.fg : C.mutedFg,
                   background: active ? C.muted : "transparent",
                   textDecoration: "none",
+                  whiteSpace: "nowrap",
                 }}
               >
-                {name}
+                {tNav(labelKey)}
               </Link>
             );
           })}
         </div>
 
-        {/* Right */}
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <button
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 4,
-              fontSize: 14,
-              fontWeight: 500,
-              color: C.fg,
-              background: "transparent",
-              border: "none",
-              cursor: "pointer",
-              padding: "8px 12px",
-              borderRadius: 9999,
-              fontFamily: fontSans,
-            }}
-          >
-            English <DownOutlined style={{ fontSize: 12, color: C.mutedFg }} />
-          </button>
+        <div className="app-navbar-actions">
+          <label style={{ display: "flex", minWidth: 0 }}>
+            <select
+              className="app-navbar-locale"
+              value={locale}
+              onChange={(event) => handleLocaleChange(event.target.value)}
+              aria-label={tNav("language")}
+            >
+              {supportedLocales.map((supportedLocale) => (
+                <option key={supportedLocale} value={supportedLocale}>
+                  {tCommon(`locales.${supportedLocale}`)}
+                </option>
+              ))}
+            </select>
+          </label>
+
           <Link
-            href={`/${locale}/chat`}
+            href={createLocalizedPath(locale, appRoutes.ask)}
+            className="app-navbar-link"
             style={{
               background: C.primary,
               color: C.primaryFg,
@@ -134,9 +167,10 @@ export default function AppNavbar() {
               fontWeight: 700,
               textDecoration: "none",
               fontFamily: fontSans,
+              whiteSpace: "nowrap",
             }}
           >
-            Get started
+            {tNav("getStarted")}
           </Link>
         </div>
       </nav>
