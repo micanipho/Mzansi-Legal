@@ -24,7 +24,7 @@ namespace backend.Migrations
                     MethodName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     Parameters = table.Column<string>(type: "character varying(4096)", maxLength: 4096, nullable: true),
                     ReturnValue = table.Column<string>(type: "text", nullable: true),
-                    ExecutionTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ExecutionTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     ExecutionDuration = table.Column<int>(type: "integer", nullable: false),
                     ClientIpAddress = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
                     ClientName = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
@@ -49,11 +49,11 @@ namespace backend.Migrations
                     JobType = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: false),
                     JobArgs = table.Column<string>(type: "character varying(1048576)", maxLength: 1048576, nullable: false),
                     TryCount = table.Column<short>(type: "smallint", nullable: false),
-                    NextTryTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    LastTryTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    NextTryTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    LastTryTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
                     IsAbandoned = table.Column<bool>(type: "boolean", nullable: false),
                     Priority = table.Column<byte>(type: "smallint", nullable: false),
-                    CreationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     CreatorUserId = table.Column<long>(type: "bigint", nullable: true)
                 },
                 constraints: table =>
@@ -86,13 +86,13 @@ namespace backend.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
                     DisplayName = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
-                    CreationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     CreatorUserId = table.Column<long>(type: "bigint", nullable: true),
-                    LastModificationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
                     LastModifierUserId = table.Column<long>(type: "bigint", nullable: true),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
                     DeleterUserId = table.Column<long>(type: "bigint", nullable: true),
-                    DeletionTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    DeletionTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -108,7 +108,7 @@ namespace backend.Migrations
                     BrowserInfo = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: true),
                     ClientIpAddress = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
                     ClientName = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
-                    CreationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     ExtensionData = table.Column<string>(type: "text", nullable: true),
                     ImpersonatorTenantId = table.Column<int>(type: "integer", nullable: true),
                     ImpersonatorUserId = table.Column<long>(type: "bigint", nullable: true),
@@ -132,13 +132,13 @@ namespace backend.Migrations
                     DisplayName = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
                     Icon = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
                     IsDisabled = table.Column<bool>(type: "boolean", nullable: false),
-                    CreationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     CreatorUserId = table.Column<long>(type: "bigint", nullable: true),
-                    LastModificationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
                     LastModifierUserId = table.Column<long>(type: "bigint", nullable: true),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
                     DeleterUserId = table.Column<long>(type: "bigint", nullable: true),
-                    DeletionTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    DeletionTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -156,9 +156,9 @@ namespace backend.Migrations
                     Source = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     Key = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
                     Value = table.Column<string>(type: "text", maxLength: 67108864, nullable: false),
-                    CreationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     CreatorUserId = table.Column<long>(type: "bigint", nullable: true),
-                    LastModificationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
                     LastModifierUserId = table.Column<long>(type: "bigint", nullable: true)
                 },
                 constraints: table =>
@@ -182,7 +182,7 @@ namespace backend.Migrations
                     ExcludedUserIds = table.Column<string>(type: "character varying(131072)", maxLength: 131072, nullable: true),
                     TenantIds = table.Column<string>(type: "character varying(131072)", maxLength: 131072, nullable: true),
                     TargetNotifiers = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: true),
-                    CreationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     CreatorUserId = table.Column<long>(type: "bigint", nullable: true)
                 },
                 constraints: table =>
@@ -202,7 +202,7 @@ namespace backend.Migrations
                     EntityTypeAssemblyQualifiedName = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: true),
                     EntityId = table.Column<string>(type: "character varying(96)", maxLength: 96, nullable: true),
                     TargetNotifiers = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: true),
-                    CreationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     CreatorUserId = table.Column<long>(type: "bigint", nullable: true)
                 },
                 constraints: table =>
@@ -220,7 +220,7 @@ namespace backend.Migrations
                     RoleId = table.Column<int>(type: "integer", nullable: false),
                     OrganizationUnitId = table.Column<long>(type: "bigint", nullable: false),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
-                    CreationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     CreatorUserId = table.Column<long>(type: "bigint", nullable: true)
                 },
                 constraints: table =>
@@ -238,13 +238,13 @@ namespace backend.Migrations
                     ParentId = table.Column<long>(type: "bigint", nullable: true),
                     Code = table.Column<string>(type: "character varying(95)", maxLength: 95, nullable: false),
                     DisplayName = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
-                    CreationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     CreatorUserId = table.Column<long>(type: "bigint", nullable: true),
-                    LastModificationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
                     LastModifierUserId = table.Column<long>(type: "bigint", nullable: true),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
                     DeleterUserId = table.Column<long>(type: "bigint", nullable: true),
-                    DeletionTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    DeletionTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -269,7 +269,7 @@ namespace backend.Migrations
                     EntityTypeAssemblyQualifiedName = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: true),
                     EntityId = table.Column<string>(type: "character varying(96)", maxLength: 96, nullable: true),
                     Severity = table.Column<byte>(type: "smallint", nullable: false),
-                    CreationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     CreatorUserId = table.Column<long>(type: "bigint", nullable: true)
                 },
                 constraints: table =>
@@ -288,13 +288,13 @@ namespace backend.Migrations
                     UserLinkId = table.Column<long>(type: "bigint", nullable: true),
                     UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     EmailAddress = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    CreationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     CreatorUserId = table.Column<long>(type: "bigint", nullable: true),
-                    LastModificationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
                     LastModifierUserId = table.Column<long>(type: "bigint", nullable: true),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
                     DeleterUserId = table.Column<long>(type: "bigint", nullable: true),
-                    DeletionTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    DeletionTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -316,7 +316,7 @@ namespace backend.Migrations
                     BrowserInfo = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: true),
                     Result = table.Column<byte>(type: "smallint", nullable: false),
                     FailReason = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: true),
-                    CreationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    CreationTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -332,7 +332,7 @@ namespace backend.Migrations
                     UserId = table.Column<long>(type: "bigint", nullable: false),
                     TenantNotificationId = table.Column<Guid>(type: "uuid", nullable: false),
                     State = table.Column<int>(type: "integer", nullable: false),
-                    CreationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     TargetNotifiers = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: true)
                 },
                 constraints: table =>
@@ -350,7 +350,7 @@ namespace backend.Migrations
                     UserId = table.Column<long>(type: "bigint", nullable: false),
                     OrganizationUnitId = table.Column<long>(type: "bigint", nullable: false),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
-                    CreationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     CreatorUserId = table.Column<long>(type: "bigint", nullable: true)
                 },
                 constraints: table =>
@@ -364,13 +364,13 @@ namespace backend.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    CreationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     CreatorUserId = table.Column<long>(type: "bigint", nullable: true),
-                    LastModificationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
                     LastModifierUserId = table.Column<long>(type: "bigint", nullable: true),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
                     DeleterUserId = table.Column<long>(type: "bigint", nullable: true),
-                    DeletionTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    DeletionTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
                     AuthenticationSource = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
                     UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
                     TenantId = table.Column<int>(type: "integer", nullable: true),
@@ -380,7 +380,7 @@ namespace backend.Migrations
                     Password = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     EmailConfirmationCode = table.Column<string>(type: "character varying(328)", maxLength: 328, nullable: true),
                     PasswordResetCode = table.Column<string>(type: "character varying(328)", maxLength: 328, nullable: true),
-                    LockoutEndDateUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    LockoutEndDateUtc = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
                     AccessFailedCount = table.Column<int>(type: "integer", nullable: false),
                     IsLockoutEnabled = table.Column<bool>(type: "boolean", nullable: false),
                     PhoneNumber = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: true),
@@ -420,10 +420,10 @@ namespace backend.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     WebhookName = table.Column<string>(type: "text", nullable: false),
                     Data = table.Column<string>(type: "text", nullable: true),
-                    CreationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     TenantId = table.Column<int>(type: "integer", nullable: true),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
-                    DeletionTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    DeletionTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -441,7 +441,7 @@ namespace backend.Migrations
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     Webhooks = table.Column<string>(type: "text", nullable: true),
                     Headers = table.Column<string>(type: "text", nullable: true),
-                    CreationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     CreatorUserId = table.Column<long>(type: "bigint", nullable: true)
                 },
                 constraints: table =>
@@ -502,7 +502,7 @@ namespace backend.Migrations
                     Value = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: false),
                     Discriminator = table.Column<string>(type: "character varying(21)", maxLength: 21, nullable: false),
                     EditionId = table.Column<int>(type: "integer", nullable: true),
-                    CreationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     CreatorUserId = table.Column<long>(type: "bigint", nullable: true)
                 },
                 constraints: table =>
@@ -522,7 +522,7 @@ namespace backend.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    ChangeTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ChangeTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     ChangeType = table.Column<byte>(type: "smallint", nullable: false),
                     EntityChangeSetId = table.Column<long>(type: "bigint", nullable: false),
                     EntityId = table.Column<string>(type: "character varying(48)", maxLength: 48, nullable: true),
@@ -547,13 +547,13 @@ namespace backend.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Description = table.Column<string>(type: "character varying(5000)", maxLength: 5000, nullable: true),
-                    CreationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     CreatorUserId = table.Column<long>(type: "bigint", nullable: true),
-                    LastModificationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
                     LastModifierUserId = table.Column<long>(type: "bigint", nullable: true),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
                     DeleterUserId = table.Column<long>(type: "bigint", nullable: true),
-                    DeletionTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    DeletionTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
                     TenantId = table.Column<int>(type: "integer", nullable: true),
                     Name = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
                     DisplayName = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
@@ -592,9 +592,9 @@ namespace backend.Migrations
                     UserId = table.Column<long>(type: "bigint", nullable: true),
                     Name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
                     Value = table.Column<string>(type: "text", nullable: true),
-                    CreationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     CreatorUserId = table.Column<long>(type: "bigint", nullable: true),
-                    LastModificationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
                     LastModifierUserId = table.Column<long>(type: "bigint", nullable: true)
                 },
                 constraints: table =>
@@ -613,13 +613,13 @@ namespace backend.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    CreationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     CreatorUserId = table.Column<long>(type: "bigint", nullable: true),
-                    LastModificationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
                     LastModifierUserId = table.Column<long>(type: "bigint", nullable: true),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
                     DeleterUserId = table.Column<long>(type: "bigint", nullable: true),
-                    DeletionTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    DeletionTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
                     TenancyName = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
                     Name = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     ConnectionString = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: true),
@@ -661,7 +661,7 @@ namespace backend.Migrations
                     UserId = table.Column<long>(type: "bigint", nullable: false),
                     ClaimType = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     ClaimValue = table.Column<string>(type: "text", nullable: true),
-                    CreationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     CreatorUserId = table.Column<long>(type: "bigint", nullable: true)
                 },
                 constraints: table =>
@@ -706,7 +706,7 @@ namespace backend.Migrations
                     TenantId = table.Column<int>(type: "integer", nullable: true),
                     UserId = table.Column<long>(type: "bigint", nullable: false),
                     RoleId = table.Column<int>(type: "integer", nullable: false),
-                    CreationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     CreatorUserId = table.Column<long>(type: "bigint", nullable: true)
                 },
                 constraints: table =>
@@ -731,7 +731,7 @@ namespace backend.Migrations
                     LoginProvider = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
                     Name = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
                     Value = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: true),
-                    ExpireDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    ExpireDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -753,8 +753,8 @@ namespace backend.Migrations
                     WebhookSubscriptionId = table.Column<Guid>(type: "uuid", nullable: false),
                     Response = table.Column<string>(type: "text", nullable: true),
                     ResponseStatusCode = table.Column<int>(type: "integer", nullable: true),
-                    CreationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    LastModificationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreationTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    LastModificationTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
                     TenantId = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
@@ -828,7 +828,7 @@ namespace backend.Migrations
                     Discriminator = table.Column<string>(type: "character varying(21)", maxLength: 21, nullable: false),
                     RoleId = table.Column<int>(type: "integer", nullable: true),
                     UserId = table.Column<long>(type: "bigint", nullable: true),
-                    CreationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     CreatorUserId = table.Column<long>(type: "bigint", nullable: true)
                 },
                 constraints: table =>
@@ -858,7 +858,7 @@ namespace backend.Migrations
                     RoleId = table.Column<int>(type: "integer", nullable: false),
                     ClaimType = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     ClaimValue = table.Column<string>(type: "text", nullable: true),
-                    CreationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     CreatorUserId = table.Column<long>(type: "bigint", nullable: true)
                 },
                 constraints: table =>

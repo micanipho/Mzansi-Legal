@@ -1,4 +1,5 @@
-﻿using backend.Configuration;
+﻿using System;
+using backend.Configuration;
 using backend.Web;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
@@ -11,6 +12,7 @@ public class backendDbContextFactory : IDesignTimeDbContextFactory<backendDbCont
 {
     public backendDbContext CreateDbContext(string[] args)
     {
+        AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         var builder = new DbContextOptionsBuilder<backendDbContext>();
 
         /*

@@ -4,6 +4,7 @@ using Abp.Collections.Extensions;
 using Abp.Dependency;
 using Castle.Facilities.Logging;
 using System;
+using System.IO;
 
 namespace backend.Migrator;
 
@@ -13,13 +14,14 @@ public class Program
 
     public static void Main(string[] args)
     {
+        AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         ParseArgs(args);
 
         using (var bootstrapper = AbpBootstrapper.Create<backendMigratorModule>())
         {
             bootstrapper.IocManager.IocContainer
                 .AddFacility<LoggingFacility>(
-                    f => f.UseAbpLog4Net().WithConfig("log4net.config")
+                    f => f.UseAbpLog4Net().WithConfig(Path.Combine(AppContext.BaseDirectory, "log4net.config"))
                 );
 
             bootstrapper.Initialize();

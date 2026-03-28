@@ -1,4 +1,5 @@
-﻿using Abp.AspNetCore.Dependency;
+﻿using System;
+using Abp.AspNetCore.Dependency;
 using Abp.Dependency;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
@@ -9,6 +10,7 @@ namespace backend.Web.Host.Startup
     {
         public static void Main(string[] args)
         {
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
             CreateHostBuilder(args).Build().Run();
         }
 
