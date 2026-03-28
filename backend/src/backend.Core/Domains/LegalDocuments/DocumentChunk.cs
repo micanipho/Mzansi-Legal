@@ -56,4 +56,22 @@ public class DocumentChunk : FullAuditedEntity<Guid>
     /// Null for chunks ingested before feature 008-pdf-section-chunking was introduced.
     /// </summary>
     public ChunkStrategy? ChunkStrategy { get; set; }
+
+    // ── LLM enrichment fields (added by feature 010-etl-ingestion-pipeline) ──
+
+    /// <summary>
+    /// Comma-separated legal keywords extracted by LLM enrichment
+    /// (e.g., "employment,termination,fair dismissal").
+    /// Null for chunks processed before this feature or when enrichment failed.
+    /// </summary>
+    [MaxLength(500)]
+    public string Keywords { get; set; }
+
+    /// <summary>
+    /// Topic classification label assigned by LLM enrichment
+    /// (e.g., "Labour Relations"). "Unknown" when enrichment failed gracefully.
+    /// Null for chunks processed before this feature.
+    /// </summary>
+    [MaxLength(200)]
+    public string TopicClassification { get; set; }
 }
