@@ -14,5 +14,9 @@
   <ItemGroup>
     <ProjectReference Include="..\backend.Core\backend.Core.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Ardalis.GuardClauses" Version="5.0.0" />
+    <PackageReference Include="UglyToad.PdfPig" Version="1.7.0-custom-5" />
+  </ItemGroup>
 </Project>
 
