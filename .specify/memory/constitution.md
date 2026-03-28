@@ -1,17 +1,19 @@
 <!--
 Sync Impact Report
-- Version change: 1.0.0 -> 1.1.0
+- Version change: 1.1.0 -> 1.2.0
 - Modified principles:
-    - IV. Domain Integrity and Secure User Ownership: added explicit reference to BACKEND_STRUCTURE.md layer rules
-    - V. Responsible Delivery and Operational Measurability: expanded with coding-standards compliance gate
+    - IV. Domain Integrity and Secure User Ownership: expanded to cover 6 aggregates (added
+      Comparison and ETL), added community insights public-access exception, FAQ IsPublicFaq rule
+    - V. Responsible Delivery and Operational Measurability: added ETL pipeline as a measurable
+      operational requirement; added violation letter and comparison success metrics
 - Added sections:
-    - Mandatory Reference Documents (new section listing BACKEND_STRUCTURE.md, BP.md, RULES.md)
-    - Skill Usage Policy (new section under Development Workflow)
+    - None (all additions folded into existing sections)
 - Removed sections: none
 - Templates requiring updates:
-    - .specify/templates/plan-template.md: Constitution Check gates now include BACKEND_STRUCTURE layer check (✅ updated by this amendment — gates listed below)
-    - .specify/templates/spec-template.md: no structural change needed (⚠ verify Key Entities section references DDD layer)
-    - .specify/templates/tasks-template.md: task categories already cover backend/frontend layers (✅ aligned)
+    - .specify/templates/plan-template.md: Constitution Check gates now include ETL/Ingestion Gate
+      (✅ updated below — gate 8 added)
+    - .specify/templates/spec-template.md: no structural change needed (✅ aligned)
+    - .specify/templates/tasks-template.md: task categories cover backend/frontend layers (✅ aligned)
 - Follow-up TODOs: none — all placeholders resolved
 -->
 
@@ -33,6 +35,8 @@ All legal and financial answers MUST be generated through retrieval-augmented ge
 against approved knowledge sources. Responses MUST include verifiable citations (Act and section)
 and MUST avoid unsupported legal claims when context is insufficient. Cross-domain questions
 (legal + financial) MUST be answered holistically when relevant evidence exists in indexed sources.
+Rights violation letters MUST cite the specific legislation clause violated. Contract comparison
+results MUST cite legislation when recommending one contract over another.
 
 ### III. Accessibility Is Non-Negotiable
 
@@ -47,19 +51,34 @@ The domain model MUST follow DDD composition rules as specified in `docs/BACKEND
 child entities declare PartOf ownership, enumerations use controlled RefList values, and binary
 assets use StoredFile patterns. Every domain entity MUST extend `FullAuditedEntity<Guid>`.
 The strict one-way layer dependency (Web.Host → Web.Core → Application → Core/EFCore) MUST
-never be violated — no layer may reference a layer above it. User-specific artifacts
-(conversations, answers, contract analyses, uploads) MUST be authenticated and scoped to their
-owning AppUser except explicitly published FAQs. Cross-aggregate references are allowed only for
-traceability requirements such as citation linkage to document chunks.
+never be violated — no layer may reference a layer above it.
+
+The domain MUST implement 6 aggregates: Knowledge Base (LegalDocument), Conversation (Q&A + FAQs),
+Contract (ContractAnalysis), Comparison (DocumentComparison), ETL (IngestionJob), and User
+(AppUser extends IdentityUser). The standalone Category entity groups documents and FAQs.
+
+User-specific artifacts (conversations, answers, contract analyses, uploads, violation letters,
+document comparisons) MUST be authenticated and scoped to their owning AppUser.
+**Exception**: The Community Insights Dashboard is public-facing and MUST NOT expose any personally
+identifiable data — only anonymised, aggregated statistics are permitted.
+FAQs (Conversation with IsPublicFaq = true) are publicly visible but MUST only be created by
+admin-role users. Regular user conversations MUST remain private.
+Cross-aggregate references are allowed only for traceability requirements such as citation linkage
+to document chunks or ingestion tracking to LegalDocument.
 
 ### V. Responsible Delivery and Operational Measurability
 
-Each feature MUST ship with measurable outcomes aligned to success metrics: citation quality,
-latency, language detection accuracy, accessibility conformance, and ingestion reliability. CI/CD
-automation MUST build, test, and deploy both backend and frontend through a repeatable pipeline.
-Legal and financial disclaimers MUST be present in relevant user flows and localized for supported
-languages. All C# code MUST comply with `docs/RULES.md` and `docs/BP.md` before a PR is merged —
-non-compliant code MUST NOT be merged without a recorded exception.
+Each feature MUST ship with measurable outcomes aligned to success metrics: citation quality
+(≥90%), latency (≤8 s text / ≤12 s voice), language detection accuracy (≥95%), accessibility
+conformance (WCAG 2.1 AA), ingestion reliability (≤5 minutes per Act), contract type detection
+(≥90%), smart comparison accuracy (≥85%), and voice transcription (≥90% EN/AF, ≥80% ZU/ST).
+CI/CD automation MUST build, test, and deploy both backend and frontend through a repeatable
+pipeline. Legal and financial disclaimers (including a contract analysis disclaimer) MUST be
+present in relevant user flows and localized for all supported languages. The ETL pipeline MUST
+track each stage (Queued → Extracting → Transforming → Loading → Completed/Failed) via
+IngestionJob, and the admin dashboard MUST expose live status for each stage. All C# code MUST
+comply with `docs/RULES.md` and `docs/BP.md` before a PR is merged — non-compliant code MUST NOT
+be merged without a recorded exception.
 
 ## Mandatory Reference Documents
 
@@ -143,11 +162,22 @@ Using a skill when one exists is MANDATORY. Deviating requires documented justif
 - Primary persistence MUST use PostgreSQL; vector search MAY use in-memory cosine similarity
   for MVP and can evolve to pgvector for scale.
 - AI stack MUST use OpenAI-compatible services for embeddings, multilingual generation,
-  transcription, and text-to-speech, with environment-based key management.
-- Knowledge ingestion MUST support structured chunking of legislation and contract text extraction.
-- Contract analysis MUST include type detection, health scoring, summary generation, and
-  legislation-backed flagging.
-- Deployment MUST support GitHub Actions CI/CD with environment separation and secret handling.
+  transcription (Whisper), and text-to-speech, with environment-based key management.
+- Knowledge ingestion MUST support structured ETL chunking of legislation: Extract (PdfPig + OCR
+  fallback) → Transform (chapter/section parsing, topic enrichment) → Load (embed + store).
+  Each stage MUST be tracked in IngestionJob with duration, chunk counts, and error details.
+- Contract analysis MUST include type detection, health scoring (0–100), plain-language summary,
+  and legislation-backed red flag flagging for MVP contract types (employment, lease, credit,
+  service).
+- Smart document comparison MUST accept two contracts of the same type, generate per-aspect
+  comparison points (ContractA value, ContractB value, winner, legislation citation), and produce
+  an overall recommendation stored as ComparisonPoint entities.
+- Rights violation letter generation MUST produce multilingual formal demand letters citing the
+  specific legislation violated, support PDF export via StoredFile, and display a disclaimer.
+- Community insights MUST aggregate anonymised platform statistics (contract health scores,
+  top violations, category distribution, language trends) and MUST NOT expose any PII.
+- Deployment MUST support CI/CD with environment separation and secret handling (Azure DevOps
+  or GitHub Actions).
 
 ## Development Workflow & Quality Gates
 
@@ -160,8 +190,9 @@ Using a skill when one exists is MANDATORY. Deviating requires documented justif
 - Any new document source MUST be validated for licensing/public availability before ingestion.
 - Pull requests MUST include test evidence for changed behavior (unit/integration/UI where
   applicable) and explicit accessibility impact notes for frontend changes.
-- Release readiness MUST verify: disclaimer rendering, multilingual behavior, citation presence,
-  and role-based access for admin functions.
+- Release readiness MUST verify: disclaimer rendering (legal, financial, and contract analysis),
+  multilingual behavior, citation presence, role-based access for admin functions, and community
+  insights data anonymisation.
 - Major architectural changes MUST include migration notes for data model and pipeline impacts.
 - All implementation tasks MUST use the relevant skill listed in the Skill Usage Policy above
   before falling back to manual scaffolding.
@@ -182,6 +213,8 @@ Every implementation plan MUST pass these gates before Phase 0 research:
 6. **Citation Gate**: Do all AI-facing endpoints define their RAG contract and citation format?
 7. **Accessibility Gate**: Are keyboard navigation and screen reader semantics planned for all
    new frontend components?
+8. **ETL/Ingestion Gate**: If the feature adds or modifies document ingestion, is an
+   IngestionJob entity used to track all pipeline stages with status, timing, and error details?
 
 ## Governance
 
@@ -199,4 +232,4 @@ Compliance policy:
 - Any exception MUST be explicit, time-bound, and approved with a remediation plan.
 - Non-compliant changes MUST NOT be merged without recorded exception approval.
 
-**Version**: 1.1.0 | **Ratified**: 2026-03-26 | **Last Amended**: 2026-03-27
+**Version**: 1.2.0 | **Ratified**: 2026-03-26 | **Last Amended**: 2026-03-28
