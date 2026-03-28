@@ -244,8 +244,10 @@ public class backendDbContext : AbpZeroDbContext<Tenant, Role, User, backendDbCo
     }
 
     /// <summary>
-    /// Configures the IngestionJob → LegalDocument FK (Restrict) and indexes on DocumentId and Status.
+    /// Configures the IngestionJob → LegalDocument FK (Restrict), IngestionJob → AbpUsers FK (SetNull),
+    /// and indexes on DocumentId, Status, and TriggeredByUserId.
     /// IngestionJob records are audit evidence; document deletion is blocked while jobs exist.
+    /// The TriggeredByUserId FK uses SetNull so that removing an admin user does not delete job history.
     /// </summary>
     private static void ConfigureIngestionJobRelationships(ModelBuilder modelBuilder)
     {
@@ -256,6 +258,14 @@ public class backendDbContext : AbpZeroDbContext<Tenant, Role, User, backendDbCo
             .HasForeignKey(j => j.DocumentId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        // TriggeredByUserId is nullable; set null when the triggering admin user is removed.
+        modelBuilder.Entity<IngestionJob>()
+            .HasOne<User>()
+            .WithMany()
+            .HasForeignKey(j => j.TriggeredByUserId)
+            .IsRequired(false)
+            .OnDelete(DeleteBehavior.SetNull);
+
         // Support efficient retrieval of all jobs for a given document.
         modelBuilder.Entity<IngestionJob>()
             .HasIndex(j => j.DocumentId);
@@ -263,6 +273,10 @@ public class backendDbContext : AbpZeroDbContext<Tenant, Role, User, backendDbCo
         // Support admin dashboard queries filtered by pipeline stage (e.g., active vs failed jobs).
         modelBuilder.Entity<IngestionJob>()
             .HasIndex(j => j.Status);
+
+        // Support audit queries — who triggered a specific job.
+        modelBuilder.Entity<IngestionJob>()
+            .HasIndex(j => j.TriggeredByUserId);
     }
 
     /// <summary>

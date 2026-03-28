@@ -68,4 +68,24 @@ public class IngestionJob : FullAuditedEntity<Guid>
     /// </summary>
     [MaxLength(2000)]
     public string ErrorMessage { get; set; }
+
+    // ── Orchestrator fields (added by feature 010-etl-ingestion-pipeline) ────
+
+    /// <summary>
+    /// ABP user ID of the admin who triggered this ingestion job.
+    /// Null when triggered programmatically or when the triggering user has been removed.
+    /// </summary>
+    public long? TriggeredByUserId { get; set; }
+
+    /// <summary>
+    /// Number of ChunkEmbedding records successfully generated and saved during the Load stage.
+    /// Zero until the Load stage completes.
+    /// </summary>
+    public int EmbeddingsGenerated { get; set; } = 0;
+
+    /// <summary>
+    /// UTC timestamp when the job reached a terminal state (Completed or Failed).
+    /// Null while the job is still in progress.
+    /// </summary>
+    public DateTime? CompletedAt { get; set; }
 }
