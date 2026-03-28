@@ -48,6 +48,14 @@ namespace backend.Web.Host.Startup
 
             services.AddSignalR();
 
+            // Named HttpClient for the OpenAI embeddings API.
+            // EmbeddingAppService resolves this client by name via IHttpClientFactory.
+            services.AddHttpClient("OpenAI", client =>
+            {
+                client.BaseAddress = new Uri(_appConfiguration["OpenAI:BaseUrl"]);
+                client.Timeout = TimeSpan.FromSeconds(30);
+            });
+
             // Configure CORS for angular2 UI
             services.AddCors(
                 options => options.AddPolicy(

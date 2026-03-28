@@ -27,9 +27,9 @@ backend/test/backend.Tests/EmbeddingServiceTests/
 
 **Purpose**: Create the folder structure and wire up configuration and HTTP client so all subsequent phases have a working foundation.
 
-- [ ] T001 Create folder `backend/src/backend.Application/Services/EmbeddingService/DTO/` (empty directory placeholder; will hold `EmbeddingResult.cs`)
-- [ ] T002 Add `"OpenAI": { "ApiKey": "", "EmbeddingModel": "text-embedding-ada-002" }` block to `backend/src/backend.Web.Host/appsettings.json`
-- [ ] T003 [P] Register named `"OpenAI"` `HttpClient` with `BaseAddress = "https://api.openai.com/"` and `Timeout = 30s` in `backend/src/backend.Application/backendApplicationModule.cs`
+- [x] T001 Create folder `backend/src/backend.Application/Services/EmbeddingService/DTO/` (empty directory placeholder; will hold `EmbeddingResult.cs`)
+- [x] T002 Add `"OpenAI": { "ApiKey": "", "EmbeddingModel": "text-embedding-ada-002" }` block to `backend/src/backend.Web.Host/appsettings.json`
+- [x] T003 [P] Register named `"OpenAI"` `HttpClient` with `BaseAddress = "https://api.openai.com/"` and `Timeout = 30s` in `backend/src/backend.Web.Host/Startup/Startup.cs` (BaseUrl read from config to avoid S1075 warning)
 
 ---
 
@@ -39,8 +39,8 @@ backend/test/backend.Tests/EmbeddingServiceTests/
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T004 Create `EmbeddingResult` record with properties `float[] Vector`, `string Model`, `int InputCharacterCount` in `backend/src/backend.Application/Services/EmbeddingService/DTO/EmbeddingResult.cs`
-- [ ] T005 [P] Create `IEmbeddingAppService` interface with `Task<EmbeddingResult> GenerateEmbeddingAsync(string text)` and XML doc comments in `backend/src/backend.Application/Services/EmbeddingService/IEmbeddingAppService.cs`
+- [x] T004 Create `EmbeddingResult` record with properties `float[] Vector`, `string Model`, `int InputCharacterCount` in `backend/src/backend.Application/Services/EmbeddingService/DTO/EmbeddingResult.cs`
+- [x] T005 [P] Create `IEmbeddingAppService` interface with `Task<EmbeddingResult> GenerateEmbeddingAsync(string text)` and XML doc comments in `backend/src/backend.Application/Services/EmbeddingService/IEmbeddingAppService.cs`
 
 **Checkpoint**: Foundation ready — user story implementation can now begin.
 
@@ -54,10 +54,10 @@ backend/test/backend.Tests/EmbeddingServiceTests/
 
 ### Implementation for User Story 1
 
-- [ ] T006 [US1] Create `EmbeddingHelper` static class with `TruncateToLimit(string text, int maxCharacters = 30_000)` returning the original string when under the limit and the first `maxCharacters` characters when over, in `backend/src/backend.Application/Services/EmbeddingService/EmbeddingHelper.cs`
-- [ ] T007 [US1] Add private sealed records `OpenAiEmbeddingRequest` (properties: `string Input`, `string Model`) and `OpenAiEmbeddingResponse` / `OpenAiEmbeddingData` to deserialise the OpenAI REST response (`data[0].embedding`) in `backend/src/backend.Application/Services/EmbeddingService/EmbeddingAppService.cs`
-- [ ] T008 [US1] Implement `EmbeddingAppService` class: inject `IConfiguration` and `IHttpClientFactory`; read `OpenAI:ApiKey` and `OpenAI:EmbeddingModel` in the constructor; implement `GenerateEmbeddingAsync` — truncate via `EmbeddingHelper.TruncateToLimit`, POST to `/v1/embeddings` with `Authorization: Bearer` header, deserialise response, return `EmbeddingResult` — in `backend/src/backend.Application/Services/EmbeddingService/EmbeddingAppService.cs`
-- [ ] T009 [P] [US1] Write unit tests for `EmbeddingHelper.TruncateToLimit`: text under 30,000 chars returns unchanged; text at exactly 30,000 chars returns unchanged; text at 30,001 chars is trimmed to 30,000; in `backend/test/backend.Tests/EmbeddingServiceTests/EmbeddingHelperTests.cs`
+- [x] T006 [US1] Create `EmbeddingHelper` static class with `TruncateToLimit(string text, int maxCharacters = 30_000)` returning the original string when under the limit and the first `maxCharacters` characters when over, in `backend/src/backend.Application/Services/EmbeddingService/EmbeddingHelper.cs`
+- [x] T007 [US1] Add private sealed records `OpenAiEmbeddingRequest` (properties: `string Input`, `string Model`) and `OpenAiEmbeddingResponse` / `OpenAiEmbeddingData` to deserialise the OpenAI REST response (`data[0].embedding`) in `backend/src/backend.Application/Services/EmbeddingService/EmbeddingAppService.cs`
+- [x] T008 [US1] Implement `EmbeddingAppService` class: inject `IConfiguration` and `IHttpClientFactory`; read `OpenAI:ApiKey` and `OpenAI:EmbeddingModel` in the constructor; implement `GenerateEmbeddingAsync` — truncate via `EmbeddingHelper.TruncateToLimit`, POST to `/v1/embeddings` with `Authorization: Bearer` header, deserialise response, return `EmbeddingResult` — in `backend/src/backend.Application/Services/EmbeddingService/EmbeddingAppService.cs`
+- [x] T009 [P] [US1] Write unit tests for `EmbeddingHelper.TruncateToLimit`: text under 30,000 chars returns unchanged; text at exactly 30,000 chars returns unchanged; text at 30,001 chars is trimmed to 30,000; in `backend/test/backend.Tests/EmbeddingServiceTests/EmbeddingHelperTests.cs`
 
 **Checkpoint**: `GenerateEmbeddingAsync` is callable with a real or mocked HTTP client and returns a 1,536-element vector. User Story 1 is independently functional.
 
@@ -71,8 +71,8 @@ backend/test/backend.Tests/EmbeddingServiceTests/
 
 ### Implementation for User Story 2
 
-- [ ] T010 [US2] Add `CosineSimilarity(float[] a, float[] b)` static method to `EmbeddingHelper`: guard against null inputs and different lengths; compute dot product, magnitude A, magnitude B; return `dotProduct / (magA * magB)`; return `0f` when either magnitude is zero to avoid NaN — in `backend/src/backend.Application/Services/EmbeddingService/EmbeddingHelper.cs`
-- [ ] T011 [P] [US2] Write unit tests for `EmbeddingHelper.CosineSimilarity`: identical vectors → `1.0 ± 0.001`; orthogonal vectors → `0.0 ± 0.001`; vectors of different lengths → throws `ArgumentException`; null input → throws `ArgumentException`; in `backend/test/backend.Tests/EmbeddingServiceTests/EmbeddingHelperTests.cs`
+- [x] T010 [US2] Add `CosineSimilarity(float[] a, float[] b)` static method to `EmbeddingHelper`: guard against null inputs and different lengths; compute dot product, magnitude A, magnitude B; return `dotProduct / (magA * magB)`; return `0f` when either magnitude is zero to avoid NaN — in `backend/src/backend.Application/Services/EmbeddingService/EmbeddingHelper.cs`
+- [x] T011 [P] [US2] Write unit tests for `EmbeddingHelper.CosineSimilarity`: identical vectors → `1.0 ± 0.001`; orthogonal vectors → `0.0 ± 0.001`; vectors of different lengths → throws `ArgumentException`; null input → throws `ArgumentException`; in `backend/test/backend.Tests/EmbeddingServiceTests/EmbeddingHelperTests.cs`
 
 **Checkpoint**: `CosineSimilarity` is independently testable without any HTTP dependency. User Story 2 is complete.
 
@@ -86,8 +86,8 @@ backend/test/backend.Tests/EmbeddingServiceTests/
 
 ### Implementation for User Story 3
 
-- [ ] T012 [US3] Add `Guard.Against.NullOrWhiteSpace(_apiKey, "OpenAI:ApiKey", "OpenAI:ApiKey must be set in appsettings.json")` and matching guard for `_embeddingModel` to the `EmbeddingAppService` constructor in `backend/src/backend.Application/Services/EmbeddingService/EmbeddingAppService.cs`
-- [ ] T013 [P] [US3] Write unit tests for `EmbeddingAppService` constructor: missing `ApiKey` throws `InvalidOperationException`; empty `ApiKey` throws `InvalidOperationException`; missing `EmbeddingModel` throws `InvalidOperationException`; valid config constructs without error; in `backend/test/backend.Tests/EmbeddingServiceTests/EmbeddingAppServiceTests.cs`
+- [x] T012 [US3] Add `Guard.Against.NullOrWhiteSpace(_apiKey, "OpenAI:ApiKey", "OpenAI:ApiKey must be set in appsettings.json")` and matching guard for `_embeddingModel` to the `EmbeddingAppService` constructor in `backend/src/backend.Application/Services/EmbeddingService/EmbeddingAppService.cs`
+- [x] T013 [P] [US3] Write unit tests for `EmbeddingAppService` constructor: missing `ApiKey` throws `InvalidOperationException`; empty `ApiKey` throws `InvalidOperationException`; missing `EmbeddingModel` throws `InvalidOperationException`; valid config constructs without error; in `backend/test/backend.Tests/EmbeddingServiceTests/EmbeddingAppServiceTests.cs`
 
 **Checkpoint**: All three user stories are independently functional. Configuration errors surface at construction time with clear messages.
 
@@ -97,9 +97,9 @@ backend/test/backend.Tests/EmbeddingServiceTests/
 
 **Purpose**: Meet coding standards from `docs/RULES.md` and verify the full pipeline end-to-end.
 
-- [ ] T014 [P] Add purpose XML doc comments (`/// <summary>`) to all public classes and methods across `IEmbeddingAppService.cs`, `EmbeddingAppService.cs`, `EmbeddingHelper.cs`, `EmbeddingResult.cs` per `docs/RULES.md`
-- [ ] T015 [P] Run `dotnet build backend/src/backend.Application/backend.Application.csproj` and fix any compilation errors
-- [ ] T016 [P] Run `dotnet test backend/test/backend.Tests/backend.Tests.csproj --filter "EmbeddingService"` and confirm all tests pass
+- [x] T014 [P] Add purpose XML doc comments (`/// <summary>`) to all public classes and methods across `IEmbeddingAppService.cs`, `EmbeddingAppService.cs`, `EmbeddingHelper.cs`, `EmbeddingResult.cs` per `docs/RULES.md`
+- [x] T015 [P] Run `dotnet build backend/src/backend.Application/backend.Application.csproj` and fix any compilation errors — 0 errors ✅
+- [x] T016 [P] Run `dotnet test backend/test/backend.Tests/backend.Tests.csproj --filter "EmbeddingService"` and confirm all tests pass — 19/19 ✅
 - [ ] T017 Validate quickstart.md smoke test: construct service with real config, call `GenerateEmbeddingAsync` with a short string, assert `result.Vector.Length == 1536`, then assert `EmbeddingHelper.CosineSimilarity(result.Vector, result.Vector) ≈ 1.0`
 
 ---
