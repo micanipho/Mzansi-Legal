@@ -772,3 +772,10 @@ INFO  2026-03-28 16:54:51,114 [9    ] .Mvc.Infrastructure.ObjectResultExecutor -
 INFO  2026-03-28 16:54:51,118 [9    ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.IngestionTestController.IngestPdf (backend.Web.Host) in 2199.9016ms
 INFO  2026-03-28 16:54:51,118 [9    ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.IngestionTestController.IngestPdf (backend.Web.Host)'
 INFO  2026-03-28 16:54:51,119 [9    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/2 POST https://localhost:44311/api/test/ingestion - 200 - application/json;+charset=utf-8 2223.2589ms
+DEBUG 2026-03-28 17:29:27,318 [25   ] Abp.Modules.AbpModuleManager             - Shutting down has been started
+DEBUG 2026-03-28 17:29:27,330 [25   ] Abp.BackgroundJobs.BackgroundJobManager  - Stop background worker: Abp.BackgroundJobs.BackgroundJobManager
+DEBUG 2026-03-28 17:29:27,330 [25   ] , Culture=neutral, PublicKeyToken=null]] - Stop background worker: Abp.Authorization.Users.UserTokenExpirationWorker`2[[backend.MultiTenancy.Tenant, backend.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[backend.Authorization.Users.User, backend.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]
+DEBUG 2026-03-28 17:29:27,331 [25   ] Abp.BackgroundJobs.BackgroundJobManager  - WaitToStop background worker: Abp.BackgroundJobs.BackgroundJobManager
+DEBUG 2026-03-28 17:29:27,332 [25   ] , Culture=neutral, PublicKeyToken=null]] - WaitToStop background worker: Abp.Authorization.Users.UserTokenExpirationWorker`2[[backend.MultiTenancy.Tenant, backend.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[backend.Authorization.Users.User, backend.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]
+DEBUG 2026-03-28 17:29:27,332 [25   ] Abp.Modules.AbpModuleManager             - Shutting down completed.
+INFO  2026-03-28 17:29:27,333 [25   ] Microsoft.Hosting.Lifetime               - Application is shutting down...
