@@ -24,7 +24,7 @@
 
 **Purpose**: Confirm the project baseline is clean before adding new files.
 
-- [ ] T001 Verify the backend project builds with zero errors from the current branch baseline by running `dotnet build backend/backend.sln` and confirming no compilation errors exist before any new files are added
+- [x] T001 Verify the backend project builds with zero errors from the current branch baseline by running `dotnet build backend/backend.sln` and confirming no compilation errors exist before any new files are added
 
 ---
 
@@ -34,8 +34,8 @@
 
 **⚠️ CRITICAL**: No entity files can be created until both enums exist in their correct namespaces.
 
-- [ ] T002 [P] Create `ContractType` enum in `backend/src/backend.Core/Domains/ContractAnalysis/ContractType.cs` with values `Employment = 0`, `Lease = 1`, `Credit = 2`, `Service = 3` — follow the XML doc-comment style of `backend/src/backend.Core/Domains/QA/Language.cs`
-- [ ] T003 [P] Create `FlagSeverity` enum in `backend/src/backend.Core/Domains/ContractAnalysis/FlagSeverity.cs` with values `Red = 0`, `Amber = 1`, `Green = 2` — follow the same XML doc-comment style as `ContractType`
+- [x] T002 [P] Create `ContractType` enum in `backend/src/backend.Core/Domains/ContractAnalysis/ContractType.cs` with values `Employment = 0`, `Lease = 1`, `Credit = 2`, `Service = 3` — follow the XML doc-comment style of `backend/src/backend.Core/Domains/QA/Language.cs`
+- [x] T003 [P] Create `FlagSeverity` enum in `backend/src/backend.Core/Domains/ContractAnalysis/FlagSeverity.cs` with values `Red = 0`, `Amber = 1`, `Green = 2` — follow the same XML doc-comment style as `ContractType`
 
 **Checkpoint**: Both enums compile. Entity creation can now begin.
 
@@ -49,8 +49,8 @@
 
 ### Implementation for User Story 1
 
-- [ ] T004 [US1] Create `ContractAnalysis` entity in `backend/src/backend.Core/Domains/ContractAnalysis/ContractAnalysis.cs` extending `FullAuditedEntity<Guid>` — include all properties from `data-model.md` (`UserId long [Required]`, `OriginalFileId Guid?`, `ExtractedText string`, `ContractType ContractType [Required]`, `HealthScore int [Required][Range(0,100)]`, `Summary string`, `Language Language [Required]` from `backend.Domains.QA`, `AnalysedAt DateTime [Required]`, `Flags virtual ICollection<ContractFlag>`) — add class and property XML doc-comments following the style in `backend/src/backend.Core/Domains/QA/Conversation.cs`
-- [ ] T005 [US1] Register `DbSet<ContractAnalysis> ContractAnalyses` in `backend/src/backend.EntityFrameworkCore/EntityFrameworkCore/backendDbContext.cs` under a new `// ── Contract Analysis domain ──` comment section, and add a call to `ConfigureContractAnalysisRelationships(modelBuilder)` in `OnModelCreating` — create the private stub method with an index on `ContractAnalysis.UserId` (`IX_ContractAnalyses_UserId`) following the pattern of `ConfigureQuestionRelationships` in the same file
+- [x] T004 [US1] Create `ContractAnalysis` entity in `backend/src/backend.Core/Domains/ContractAnalysis/ContractAnalysis.cs` extending `FullAuditedEntity<Guid>` — include all properties from `data-model.md` (`UserId long [Required]`, `OriginalFileId Guid?`, `ExtractedText string`, `ContractType ContractType [Required]`, `HealthScore int [Required][Range(0,100)]`, `Summary string`, `Language Language [Required]` from `backend.Domains.QA`, `AnalysedAt DateTime [Required]`, `Flags virtual ICollection<ContractFlag>`) — add class and property XML doc-comments following the style in `backend/src/backend.Core/Domains/QA/Conversation.cs`
+- [x] T005 [US1] Register `DbSet<ContractAnalysis> ContractAnalyses` in `backend/src/backend.EntityFrameworkCore/EntityFrameworkCore/backendDbContext.cs` under a new `// ── Contract Analysis domain ──` comment section, and add a call to `ConfigureContractAnalysisRelationships(modelBuilder)` in `OnModelCreating` — create the private stub method with an index on `ContractAnalysis.UserId` (`IX_ContractAnalyses_UserId`) following the pattern of `ConfigureQuestionRelationships` in the same file
 
 **Checkpoint**: User Story 1 domain model complete. `ContractAnalysis` can be registered and its table created with the `UserId` index.
 
@@ -64,9 +64,9 @@
 
 ### Implementation for User Story 2
 
-- [ ] T006 [US2] Create `ContractFlag` entity in `backend/src/backend.Core/Domains/ContractAnalysis/ContractFlag.cs` extending `FullAuditedEntity<Guid>` — include all properties from `data-model.md` (`ContractAnalysisId Guid [Required]`, navigation `ContractAnalysis` with `[ForeignKey(nameof(ContractAnalysisId))]`, `Severity FlagSeverity [Required]`, `Title string [Required][MaxLength(200)]`, `Description string [Required]`, `ClauseText string [Required]`, `LegislationCitation string [MaxLength(1000)]`, `SortOrder int` defaulting to 0) — add class and property XML doc-comments following the style of `backend/src/backend.Core/Domains/QA/Answer.cs`
-- [ ] T007 [US2] Register `DbSet<ContractFlag> ContractFlags` in `backend/src/backend.EntityFrameworkCore/EntityFrameworkCore/backendDbContext.cs` under the same `// ── Contract Analysis domain ──` section added in T005
-- [ ] T008 [US2] Expand `ConfigureContractAnalysisRelationships` in `backend/src/backend.EntityFrameworkCore/EntityFrameworkCore/backendDbContext.cs` to configure the `ContractFlag → ContractAnalysis` FK with `OnDelete(DeleteBehavior.Cascade)` and add `IX_ContractFlags_ContractAnalysisId` index — follow the exact pattern of `ConfigureQuestionRelationships` and `ConfigureAnswerRelationships` in the same file
+- [x] T006 [US2] Create `ContractFlag` entity in `backend/src/backend.Core/Domains/ContractAnalysis/ContractFlag.cs` extending `FullAuditedEntity<Guid>` — include all properties from `data-model.md` (`ContractAnalysisId Guid [Required]`, navigation `ContractAnalysis` with `[ForeignKey(nameof(ContractAnalysisId))]`, `Severity FlagSeverity [Required]`, `Title string [Required][MaxLength(200)]`, `Description string [Required]`, `ClauseText string [Required]`, `LegislationCitation string [MaxLength(1000)]`, `SortOrder int` defaulting to 0) — add class and property XML doc-comments following the style of `backend/src/backend.Core/Domains/QA/Answer.cs`
+- [x] T007 [US2] Register `DbSet<ContractFlag> ContractFlags` in `backend/src/backend.EntityFrameworkCore/EntityFrameworkCore/backendDbContext.cs` under the same `// ── Contract Analysis domain ──` section added in T005
+- [x] T008 [US2] Expand `ConfigureContractAnalysisRelationships` in `backend/src/backend.EntityFrameworkCore/EntityFrameworkCore/backendDbContext.cs` to configure the `ContractFlag → ContractAnalysis` FK with `OnDelete(DeleteBehavior.Cascade)` and add `IX_ContractFlags_ContractAnalysisId` index — follow the exact pattern of `ConfigureQuestionRelationships` and `ConfigureAnswerRelationships` in the same file
 
 **Checkpoint**: User Story 2 domain model complete. `ContractFlag` can be persisted and cascade-deleted with its parent analysis.
 
@@ -80,7 +80,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T009 [US3] Add `IX_ContractFlags_Severity` index to the `ConfigureContractAnalysisRelationships` method in `backend/src/backend.EntityFrameworkCore/EntityFrameworkCore/backendDbContext.cs` — add the index immediately after the `IX_ContractFlags_ContractAnalysisId` index added in T008, following the same `modelBuilder.Entity<ContractFlag>().HasIndex(f => f.Severity)` pattern
+- [x] T009 [US3] Add `IX_ContractFlags_Severity` index to the `ConfigureContractAnalysisRelationships` method in `backend/src/backend.EntityFrameworkCore/EntityFrameworkCore/backendDbContext.cs` — add the index immediately after the `IX_ContractFlags_ContractAnalysisId` index added in T008, following the same `modelBuilder.Entity<ContractFlag>().HasIndex(f => f.Severity)` pattern
 
 **Checkpoint**: All three user stories' domain model requirements are met. Ready for migration.
 
@@ -90,8 +90,8 @@
 
 **Purpose**: Generate and apply the EF Core migration; verify all database constraints, indexes, and cascade behavior are correct end-to-end.
 
-- [ ] T010 Generate EF Core migration named `AddContractAnalysisDomain` by running `dotnet ef migrations add AddContractAnalysisDomain --project src/backend.EntityFrameworkCore --startup-project src/backend.Web.Host` from the `backend/` directory — review the generated migration file in `backend/src/backend.EntityFrameworkCore/EntityFrameworkCore/Migrations/` to confirm it creates `ContractAnalyses` table, `ContractFlags` table, all FK constraints, the check constraint on `HealthScore`, and all three indexes (`IX_ContractAnalyses_UserId`, `IX_ContractFlags_ContractAnalysisId`, `IX_ContractFlags_Severity`)
-- [ ] T011 Apply the migration against the local development PostgreSQL database using the ABP Migrator (`dotnet run --project src/backend.Migrator` from `backend/`) and verify via psql or pgAdmin that: both tables exist, `UserId` is NOT NULL on `ContractAnalyses`, `ContractAnalysisId` is NOT NULL on `ContractFlags`, cascade delete is active, all three indexes are present, and the `HealthScore` check constraint rejects values outside 0–100
+- [x] T010 Generate EF Core migration named `AddContractAnalysisDomain` by running `dotnet ef migrations add AddContractAnalysisDomain --project src/backend.EntityFrameworkCore --startup-project src/backend.Web.Host` from the `backend/` directory — review the generated migration file in `backend/src/backend.EntityFrameworkCore/EntityFrameworkCore/Migrations/` to confirm it creates `ContractAnalyses` table, `ContractFlags` table, all FK constraints, the check constraint on `HealthScore`, and all three indexes (`IX_ContractAnalyses_UserId`, `IX_ContractFlags_ContractAnalysisId`, `IX_ContractFlags_Severity`)
+- [x] T011 Apply the migration against the local development PostgreSQL database using the ABP Migrator (`dotnet run --project src/backend.Migrator` from `backend/`) and verify via psql or pgAdmin that: both tables exist, `UserId` is NOT NULL on `ContractAnalyses`, `ContractAnalysisId` is NOT NULL on `ContractFlags`, cascade delete is active, all three indexes are present, and the `HealthScore` check constraint rejects values outside 0–100
 
 ---
 
