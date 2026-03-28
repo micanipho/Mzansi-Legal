@@ -40,6 +40,7 @@ Verify all gates from the constitution (`/.specify/memory/constitution.md`):
 - [ ] **Multilingual Gate**: All user-facing outputs planned for EN, isiZulu, Sesotho, Afrikaans
 - [ ] **Citation Gate**: AI-facing endpoints define RAG contract, citation format, and fallback behavior
 - [ ] **Accessibility Gate**: Keyboard navigation and screen reader semantics planned for new frontend components
+- [ ] **ETL/Ingestion Gate**: If adding/modifying document ingestion, IngestionJob tracks all pipeline stages (status, timing, errors)
 
 ## Project Structure
 
