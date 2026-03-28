@@ -11,6 +11,7 @@ Auto-generated from all feature plans. Last updated: 2026-03-28
 - PostgreSQL 15+ via Npgsql; float vectors stored as `real[]` (PostgreSQL array type) (004-rag-domain-model)
 - C# on .NET 9.0 + ABP Zero 10.x, Entity Framework Core 9.0.5, Npgsql.EntityFrameworkCore.PostgreSQL 9.0.x, Ardalis.GuardClauses (005-qa-domain-model)
 - C# on .NET 9.0 + ABP Zero 10.x + Entity Framework Core 9.0.5, Npgsql.EntityFrameworkCore.PostgreSQL 9.0.x, Ardalis.GuardClauses (007-contract-analysis-domain)
+- C# on .NET 9.0 + ABP Zero 10.x, EF Core 9.0.5, Npgsql.EntityFrameworkCore.PostgreSQL 9.0.x, Ardalis.GuardClauses, UglyToad.PdfPig (NEW — `dotnet add package UglyToad.PdfPig`) (008-pdf-section-chunking)
 
 - C# on .NET 9.0 + ABP Zero 10.x, Npgsql.EntityFrameworkCore.PostgreSQL 9.0.x, EF Core 9.0.5 (003-abp-backend-setup)
 
@@ -31,8 +32,8 @@ tests/
 C# on .NET 9.0: Follow standard conventions
 
 ## Recent Changes
+- 008-pdf-section-chunking: Added C# on .NET 9.0 + ABP Zero 10.x, EF Core 9.0.5, Npgsql.EntityFrameworkCore.PostgreSQL 9.0.x, Ardalis.GuardClauses, UglyToad.PdfPig (NEW — `dotnet add package UglyToad.PdfPig`)
 - 007-contract-analysis-domain: Added C# on .NET 9.0 + ABP Zero 10.x + Entity Framework Core 9.0.5, Npgsql.EntityFrameworkCore.PostgreSQL 9.0.x, Ardalis.GuardClauses
-- 006-appuser-extension: Added C# on .NET 9.0 + ABP Zero 10.x, Entity Framework Core 9.0.5, Npgsql.EntityFrameworkCore.PostgreSQL 9.0.x, Ardalis.GuardClauses
 - 006-appuser-extension: Added C# on .NET 9.0 + ABP Zero 10.x, Entity Framework Core 9.0.5, Npgsql.EntityFrameworkCore.PostgreSQL 9.0.x, Ardalis.GuardClauses
 
 

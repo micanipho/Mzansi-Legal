@@ -50,4 +50,10 @@ public class DocumentChunk : FullAuditedEntity<Guid>
 
     /// <summary>Embedding vector associated with this chunk. Null until the pipeline has processed the chunk.</summary>
     public virtual ChunkEmbedding Embedding { get; set; }
+
+    /// <summary>
+    /// Chunking strategy used to produce this chunk (SectionLevel or FixedSize).
+    /// Null for chunks ingested before feature 008-pdf-section-chunking was introduced.
+    /// </summary>
+    public ChunkStrategy? ChunkStrategy { get; set; }
 }
