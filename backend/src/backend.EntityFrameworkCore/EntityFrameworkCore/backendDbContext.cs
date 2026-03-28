@@ -1,6 +1,7 @@
 ﻿using Abp.Zero.EntityFrameworkCore;
 using backend.Authorization.Roles;
 using backend.Authorization.Users;
+using backend.Domains.ContractAnalysis;
 using backend.Domains.LegalDocuments;
 using backend.Domains.QA;
 using backend.MultiTenancy;
@@ -42,6 +43,14 @@ public class backendDbContext : AbpZeroDbContext<Tenant, Role, User, backendDbCo
     /// <summary>Legislation citations linking an Answer to a specific DocumentChunk.</summary>
     public DbSet<AnswerCitation> AnswerCitations { get; set; }
 
+    // ── Contract Analysis domain ────────────────────────────────────────────
+
+    /// <summary>Contract analysis sessions, each scoped to an authenticated user.</summary>
+    public DbSet<ContractAnalysis> ContractAnalyses { get; set; }
+
+    /// <summary>Individual findings (flags) produced by a contract analysis session.</summary>
+    public DbSet<ContractFlag> ContractFlags { get; set; }
+
     // ───────────────────────────────────────────────────────────────────────
 
     public backendDbContext(DbContextOptions<backendDbContext> options)
@@ -62,6 +71,7 @@ public class backendDbContext : AbpZeroDbContext<Tenant, Role, User, backendDbCo
         ConfigureDocumentChunkRelationships(modelBuilder);
         ConfigureChunkEmbeddingRelationships(modelBuilder);
         ConfigureQARelationships(modelBuilder);
+        ConfigureContractAnalysisRelationships(modelBuilder);
     }
 
     /// <summary>
@@ -224,6 +234,36 @@ public class backendDbContext : AbpZeroDbContext<Tenant, Role, User, backendDbCo
         // Supports reverse-lookup: which answers cite a given chunk.
         modelBuilder.Entity<AnswerCitation>()
             .HasIndex(ac => ac.ChunkId);
+    }
+
+    /// <summary>
+    /// Configures all FK relationships, cascade rules, and indexes for the Contract Analysis domain:
+    /// ContractAnalysis and ContractFlag entities.
+    /// </summary>
+    private static void ConfigureContractAnalysisRelationships(ModelBuilder modelBuilder)
+    {
+        // Support efficient retrieval of all contract analyses for a given user.
+        modelBuilder.Entity<ContractAnalysis>()
+            .HasIndex(a => a.UserId);
+
+        // Enforce HealthScore range at the database level in addition to [Range] application-layer validation.
+        modelBuilder.Entity<ContractAnalysis>()
+            .ToTable(t => t.HasCheckConstraint("CK_ContractAnalyses_HealthScore", "\"HealthScore\" >= 0 AND \"HealthScore\" <= 100"));
+
+        // Flags are owned by their analysis; deleting an analysis removes all its flags.
+        modelBuilder.Entity<ContractFlag>()
+            .HasOne(f => f.ContractAnalysis)
+            .WithMany(a => a.Flags)
+            .HasForeignKey(f => f.ContractAnalysisId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Support efficient retrieval of all flags for a given contract analysis.
+        modelBuilder.Entity<ContractFlag>()
+            .HasIndex(f => f.ContractAnalysisId);
+
+        // Support cross-analysis queries filtered by severity (FR-010, SC-005).
+        modelBuilder.Entity<ContractFlag>()
+            .HasIndex(f => f.Severity);
     }
 }
 
