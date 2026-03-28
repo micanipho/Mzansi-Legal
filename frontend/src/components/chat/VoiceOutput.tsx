@@ -53,6 +53,7 @@ export default function VoiceOutput({ text, language, autoPlay = false }: VoiceO
       onClick={play}
       type={playing ? "primary" : "default"}
       size="small"
+      data-autoplay={autoPlay ? "enabled" : "disabled"}
       aria-label={playing ? "Stop audio playback" : "Play answer aloud"}
     >
       {playing ? "Stop" : "Play"}
