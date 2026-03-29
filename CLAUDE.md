@@ -9,6 +9,15 @@ Auto-generated from all feature plans. Last updated: 2026-03-28
 - [if applicable, e.g., PostgreSQL, CoreData, files or N/A] (004-rag-domain-model)
 - C# on .NET 9.0 + ABP Zero 10.x, Entity Framework Core 9.0.5, Npgsql.EntityFrameworkCore.PostgreSQL 9.0.x (004-rag-domain-model)
 - PostgreSQL 15+ via Npgsql; float vectors stored as `real[]` (PostgreSQL array type) (004-rag-domain-model)
+- C# on .NET 9.0 + ABP Zero 10.x, Entity Framework Core 9.0.5, Npgsql.EntityFrameworkCore.PostgreSQL 9.0.x, Ardalis.GuardClauses (005-qa-domain-model)
+- C# on .NET 9.0 + ABP Zero 10.x + Entity Framework Core 9.0.5, Npgsql.EntityFrameworkCore.PostgreSQL 9.0.x, Ardalis.GuardClauses (007-contract-analysis-domain)
+- C# on .NET 9.0 + ABP Zero 10.x, EF Core 9.0.5, Npgsql.EntityFrameworkCore.PostgreSQL 9.0.x, Ardalis.GuardClauses, UglyToad.PdfPig (NEW — `dotnet add package UglyToad.PdfPig`) (008-pdf-section-chunking)
+- C# on .NET 9.0 + ABP Zero 10.x + `System.Net.Http.Json` (in-box with .NET 9), `Ardalis.GuardClauses` (already in project), `IHttpClientFactory` (ASP.NET Core built-in) (009-openai-embedding-service)
+- No new tables — `ChunkEmbedding` entity and `real[]` column already exist in PostgreSQL via prior migration (009-openai-embedding-service)
+- C# on .NET 9.0 + ABP Zero 10.x, Entity Framework Core 9.0.5, Npgsql 9.0.x, Ardalis.GuardClauses, UglyToad.PdfPig, System.Net.Http.Json (in-box) (010-etl-ingestion-pipeline)
+- PostgreSQL 15+ via Npgsql; `float[]` stored as `real[]`; new columns on `IngestionJobs` and `DocumentChunks` (010-etl-ingestion-pipeline)
+- C# on .NET 9.0 + ABP Zero 10.x, Entity Framework Core 9.0.5, Npgsql.EntityFrameworkCore.PostgreSQL 9.0.x, Ardalis.GuardClauses, UglyToad.PdfPig, System.Net.Http.Json (in-box) (012-legislation-seed-data)
+- PostgreSQL 15+ via Npgsql; existing schema (no new migrations) (012-legislation-seed-data)
 
 - C# on .NET 9.0 + ABP Zero 10.x, Npgsql.EntityFrameworkCore.PostgreSQL 9.0.x, EF Core 9.0.5 (003-abp-backend-setup)
 
@@ -29,9 +38,9 @@ tests/
 C# on .NET 9.0: Follow standard conventions
 
 ## Recent Changes
-- 004-rag-domain-model: Added C# on .NET 9.0 + ABP Zero 10.x, Entity Framework Core 9.0.5, Npgsql.EntityFrameworkCore.PostgreSQL 9.0.x
-- 004-rag-domain-model: Added [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION] + [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]
-- 003-abp-backend-setup: Added C# / .NET 9.0 + ABP Zero 10.x, Npgsql.EntityFrameworkCore.PostgreSQL 9.0.4, EF Core 9.0.5
+- 012-legislation-seed-data: Added C# on .NET 9.0 + ABP Zero 10.x, Entity Framework Core 9.0.5, Npgsql.EntityFrameworkCore.PostgreSQL 9.0.x, Ardalis.GuardClauses, UglyToad.PdfPig, System.Net.Http.Json (in-box)
+- 012-legislation-seed-data: Added [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION] + [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]
+- 010-etl-ingestion-pipeline: Added C# on .NET 9.0 + ABP Zero 10.x, Entity Framework Core 9.0.5, Npgsql 9.0.x, Ardalis.GuardClauses, UglyToad.PdfPig, System.Net.Http.Json (in-box)
 
 
 <!-- MANUAL ADDITIONS START -->

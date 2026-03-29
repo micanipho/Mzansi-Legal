@@ -4,16 +4,26 @@
     "tagline": "Umsizi wakho wezomthetho oqhutshwa i-AI",
     "loading": "Iyalayisha...",
     "error": "Kukhona okungahambanga kahle. Sicela uzame futhi.",
-    "disclaimer": "Lolu lwazi luhlose ukukuqondisa kuphela futhi alumeli iseluleko somthetho. Hlala ubona umthetho oqeqeshiwe."
+    "disclaimer": "Lolu lwazi luhlose ukukuqondisa kuphela futhi alumeli iseluleko somthetho. Hlala ubona umthetho oqeqeshiwe.",
+    "locales": {
+      "en": "English",
+      "zu": "isiZulu",
+      "st": "Sesotho",
+      "af": "Afrikaans"
+    }
   },
   "nav": {
     "home": "Ikhaya",
     "chat": "Buza Umbuzo",
+    "ask": "Buza",
     "rights": "Amalungelo Ami",
     "contracts": "Hlola Isivumelwano",
+    "dashboard": "Ideshibhodi",
     "history": "Umlando",
     "settings": "Izilungiselelo",
     "admin": "Umlawuli",
+    "language": "Ulimi",
+    "getStarted": "Qala Ukubuza",
     "login": "Ngena",
     "register": "Bhalisa",
     "logout": "Phuma"
@@ -110,8 +120,8 @@
   },
   "contracts": {
     "title": "Hlola Impilo Yesivumelwano",
-    "uploadTitle": "Layisha Isivumelwano Sakho",
-    "uploadHint": "Layisha isivumelwano se-PDF ukuhlola izingozi nezimpawu ezibomvu.",
+    "uploadTitle": "Layisha noma ubuyekeze isivumelwano",
+    "uploadHint": "Khetha ukuhlaziywa kwesivumelwano kwakamuva noma uvule idemo evelele ukuze ubonise indlela iMzansiLegal eveza ngayo ubungozi nesinyathelo esilandelayo.",
     "uploadButton": "Layisha & Hlola",
     "loading": "Iyahlaziya\u2026",
     "pdfLimit": "I-PDF kuze kube yi-10 MB \u00b7 Isivumelwano soqasha, sokusebenza, sekhredithi, noma sentela",
@@ -121,10 +131,32 @@
     "caution": "Xwayiso",
     "standard": "Okujwayelekile",
     "standardClauses": "Izimiso ezijwayelekile",
-    "allStandard": "Zonke izimiso ezijwayelekile zisemthethweni",
-    "plainSummary": "Isifinyezo solimi olulula",
+    "allStandard": "Iningi lezimiso ezijwayelekile lilungile",
+    "plainSummary": "Isincomo esilula",
     "summary": "Isifinyezo",
-    "followUp": "Buza umbuzo wokulandelela ngalesi sivumelwano"
+    "followUp": "Buza umbuzo wokulandelela ngalesi sivumelwano",
+    "viewFeatured": "Vula ukuhlaziywa okuvelele",
+    "whyItMattersTitle": "Kungani le demo ibalulekile",
+    "whyItMattersBody": "Khombisa i-MD ukuthi inkundla ingaguqula isivumelwano esingahluziwe sibe yincazelo esiza ekuthatheni isinqumo, hhayi impendulo ye-chatbot kuphela.",
+    "recentAnalyses": "Ukuhlaziywa kwakamuva",
+    "recentAnalysesHint": "Vula noma iyiphi irekhodi yesampula ukuze ubone umzila wemininingwane nesincomo esizinikele.",
+    "openAnalysis": "Vula ukuhlaziywa",
+    "scoreSuffix": "kwangu-100",
+    "cardMeta": "Kulayishwe {date} \u00b7 amakhasi angu-{pages} \u00b7 izigaba ezingu-{clauses}",
+    "detailMeta": "Kulayishwe {date} \u00b7 amakhasi angu-{pages} \u00b7 izigaba ezingu-{clauses} \u00b7 Kuhlaziywe ngesi-{language}",
+    "askAboutContract": "Buza ngalesi sivumelwano",
+    "followUpPrompt": "Ngisize ngiqonde ubungozi obuse",
+    "standardSummary": "Izigaba ezingu-{count} zihambisana namaphethini alindelekile ezincazelo, amandla enkantolo, nokwehlukaniseka kwalolu hlobo lwesivumelwano.",
+    "verdict": {
+      "good": "Ubungozi buphansi jikelele",
+      "review": "Kudinga ukubuyekezwa ngaphambi kokusayina",
+      "high-risk": "Kutholwe imigomo enobungozi obukhulu"
+    },
+    "benefits": {
+      "fairness": "Veza ngokushesha izindaba zobulungisa",
+      "risk": "Khombisa izigaba ezidlulisela ubungozi ngokungafanele",
+      "nextStep": "Khomba umsebenzisi esinyathelweni esilandelayo"
+    }
   },
   "history": {
     "title": "Umlando Wezingxoxo Zami",
@@ -154,6 +186,54 @@
   },
   "admin": {
     "dashboardTitle": "Ibhodi Lomlawuli",
+    "shellEyebrow": "Isignali yenkundla",
+    "shellDescription": "Umbono ophezulu walokho inkundla ekucubungulayo, lapho ubungozi buvela khona, nokuthi idemo idala inani elingakanani.",
+    "insightTitle": "Amaphethini ezimpawu ezibomvu zanyanga zonke",
+    "insightDescription": "Sebenzisa lo mbono ukukhombisa ukuthi inkundla ingaveza amaphethini kuwo wonke amadokhumenti alayishiwe, hhayi ukuphendula umbuzo owodwa kuphela.",
+    "insightChartTitle": "Izinga lezimpawu ezibomvu ngokohlobo lwedokhumenti",
+    "coverageTitle": "Isifinyezo sokufinyelela",
+    "coverageDescription": "Ukubuka okusheshayo kokufinyelela, ukwethenjwa, nokulungela kwenkundla kudemo elandelayo.",
+    "activityTitle": "Umsebenzi wakamuva wenkundla",
+    "activityDescription": "Izibuyekezo zomlawuli ezenza ideshibhodi izwakale njengendawo yomkhiqizo ebukhoma.",
+    "emptyState": {
+      "title": "Awekho amamethrikhi abukhoma okwamanje",
+      "description": "Xhuma i-telemetry yokungenisa nokuhlaziya ukuze ugcwalise le shadi ngokuzenzakalela."
+    },
+    "stats": {
+      "documents": "Imithetho efakiwe",
+      "documentsDescription": "Imithombo yomthetho etholakalayo manje ukuze kunikezwe izingcaphuno nezimpendulo ezisekelwe emthethweni.",
+      "analyses": "Ukuhlaziywa kwezivumelwano",
+      "analysesDescription": "Ukuhlaziywa okuqedwe kule nyanga kuyo yonke i-demo corpus.",
+      "alerts": "Izixwayiso zobungozi obukhulu",
+      "alertsDescription": "Amadokhumenti aveze izinkinga ezinzima ezidinga ukwenyuswa noma ukulandela."
+    },
+    "coverage": {
+      "languages": "Izilimi ezisekelwayo",
+      "languagesDetail": "Abasebenzisi bangashintsha phakathi kwezikhala ezine zolimi ngaphandle kokushiya umzila wabo wamanje.",
+      "sources": "Ukulungela kwezingcaphuno",
+      "sourcesDetail": "Ukumbozwa kwezimpendulo ezisekelwe emthethweni kuyo yonke imithetho efakiwe namademo ezivumelwano.",
+      "risk": "Izinga lezimpawu",
+      "riskDetail": "Ingxenye yokuhlaziywa kwakamuva ekhiqize okungenani uphawu olulodwa olubomvu olukhulu."
+    },
+    "activity": {
+      "items": {
+        "0": {
+          "title": "Ilayishiwe i-lease yendlu ku-demo vault",
+          "description": "Kwakhiwe ukuhlaziywa okusha kwe-lease kwaxhunyaniswa nomzila wemininingwane yesivumelwano ukuze kulandelwe imibuzo.",
+          "meta": "Emizuzwini engu-7 edlule"
+        },
+        "1": {
+          "title": "Isampula yomsebenzi ibuyekeziwe ngemihlahlandlela emisha",
+          "description": "I-demo corpus manje iveza ngokucace kakhudlwana izindaba ze-overtime ne-payslip emzileni wemininingwane.",
+          "meta": "Emizuzwini engu-21 edlule"
+        },
+        "2": {
+          "title": "Isivumelwano sekhredithi sithumele isexwayiso sobungozi obukhulu",
+          "description": "Ukuhlanganiswa kwezimali kanye nemigomo eqinile yokwehluleka ukukhokha kuphushele idokhumenti ngaphezu komkhawulo wokwenyusa.",
+          "meta": "Emizuzwini engu-42 edlule"
+        }
+      }
+    },
     "totalQuestions": "Imibuzo Yonke",
     "totalUsers": "Abasebenzisi Bonke",
     "pendingReview": "Ilindele Ukuhlolwa",

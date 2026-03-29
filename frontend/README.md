@@ -1,36 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+This is the Next.js frontend for MzansiLegal. It uses the App Router, `next-intl`, Ant Design, and an organic shell design system tuned for demo storytelling.
 
 ## Getting Started
 
-First, run the development server:
+First, install dependencies and run the development server:
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Canonical Routes
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `/en` home
+- `/en/ask` canonical question-and-answer flow
+- `/en/chat` legacy compatibility route that redirects into `/ask`
+- `/en/contracts` contract analysis list
+- `/en/contracts/maple-street-lease` contract detail demo route
+- `/en/rights` rights explorer
+- `/en/admin/dashboard` admin storytelling dashboard
 
-## Learn More
+## Validation
 
-To learn more about Next.js, take a look at the following resources:
+Run these before sign-off:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm run lint
+npm run build
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Manual demo checks should confirm:
 
-## Deploy on Vercel
+- locale switching preserves the current route family
+- `/chat` redirects into the ask journey
+- the shared shell stays usable at mobile widths
+- the admin dashboard shows summary cards plus a chart insight area
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Notes
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Locale message files currently exist for `en`, `zu`, `st`, and `af`
+- The dashboard uses `@ant-design/charts`
+- The visual system is driven by shared CSS variables in `src/styles/globals.css`

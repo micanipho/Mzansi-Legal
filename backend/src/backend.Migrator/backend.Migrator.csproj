@@ -19,6 +19,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\backend.Core\backend.Core.csproj" />
+    <ProjectReference Include="..\backend.Application\backend.Application.csproj" />
     <ProjectReference Include="..\backend.EntityFrameworkCore\backend.EntityFrameworkCore.csproj" />
   </ItemGroup>
 </Project>

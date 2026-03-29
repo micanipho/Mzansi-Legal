@@ -2,425 +2,237 @@
 
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
-import { useState } from "react";
-import {
-  ArrowLeft, FileText, AlertCircle, AlertTriangle,
-  CheckCircle, Mic, Send, UploadCloud,
-} from "lucide-react";
-import { C, R, shadowOrganic, fontSerif, fontSans } from "@/styles/theme";
+import { FileSearch, ArrowRight, UploadCloud, ShieldCheck, TriangleAlert } from "lucide-react";
+import { demoContracts } from "@/components/contracts/contractData";
+import { appRoutes, createLocalizedPath } from "@/i18n/routing";
+import { C, R, fontSans, fontSerif, shadowOrganic } from "@/styles/theme";
 
-interface ContractFlag {
-  title: string;
-  desc: string;
-  cite?: string;
+function getScoreTone(score: number) {
+  if (score >= 75) {
+    return { fg: C.primary, bg: "rgba(93, 112, 82, 0.08)", border: "rgba(93, 112, 82, 0.2)" };
+  }
+
+  if (score >= 55) {
+    return { fg: C.secondary, bg: "rgba(193, 140, 93, 0.08)", border: "rgba(193, 140, 93, 0.2)" };
+  }
+
+  return { fg: C.destructive, bg: "rgba(168, 84, 72, 0.08)", border: "rgba(168, 84, 72, 0.2)" };
 }
-
-interface AnalysisResult {
-  score: number;
-  name: string;
-  date: string;
-  tags: string[];
-  summary: string;
-  red: ContractFlag[];
-  caution: ContractFlag[];
-  standardCount: number;
-}
-
-const DEMO: AnalysisResult = {
-  score: 62,
-  name: "Lease agreement — 42 Maple Street",
-  date: "Uploaded 24 March 2026 · Analysed in 8 seconds",
-  tags: ["Rental / lease", "12 pages · 47 clauses", "Analysed in English"],
-  summary:
-    "This is a standard residential lease agreement for a period of 12 months. The rent is set at R8,500 per month. However, there are several clauses that heavily favor the landlord and may violate the Rental Housing Act and Consumer Protection Act. Specifically, the deposit requirements and notice periods are irregular. You should negotiate these points before signing.",
-  red: [
-    {
-      title: "Deposit exceeds legal limit",
-      desc: "The contract demands a 3-month deposit. Standard practice and tribunal rulings generally limit this to 1-2 months unless specifically justified.",
-      cite: "Rental Housing Act, Section 5(3)(g)",
-    },
-    {
-      title: "Notice period exceeds standard",
-      desc: "The landlord requires 3 months notice for early cancellation. Under the CPA, a tenant can cancel with 20 business days' notice.",
-      cite: "Consumer Protection Act, Section 14",
-    },
-    {
-      title: "Landlord can enter without consent",
-      desc: "Clause 12.4 allows the landlord to enter the property at any time without notice. This violates your constitutional right to privacy.",
-      cite: "Constitution, Section 14",
-    },
-  ],
-  caution: [
-    {
-      title: "Escalation rate above market average",
-      desc: "The annual rent increase is set at 10%. The current market average is between 5-7%.",
-    },
-    {
-      title: "Tenant responsible for all maintenance under R2,000",
-      desc: "While tenants are responsible for minor maintenance, setting a high blanket threshold of R2,000 might force you to pay for structural wear and tear.",
-    },
-  ],
-  standardCount: 40,
-};
 
 export default function ContractsPage() {
   const locale = useLocale();
   const t = useTranslations("contracts");
-  const [result, setResult]   = useState<AnalysisResult | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [followUp, setFollowUp] = useState("");
-
-  const handleUpload = () => {
-    setLoading(true);
-    setTimeout(() => { setResult(DEMO); setLoading(false); }, 1800);
-  };
-
-  if (!result) {
-    return (
-      <main
-        style={{
-          minHeight: "100vh",
-          paddingTop: 96,
-          paddingBottom: 80,
-          paddingLeft: 16,
-          paddingRight: 16,
-          maxWidth: 896,
-          margin: "0 auto",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontFamily: fontSans,
-        }}
-      >
-        <div
-          style={{
-            background: C.card,
-            border: `1px solid ${C.border}`,
-            borderRadius: R.o2,
-            padding: 48,
-            textAlign: "center",
-            boxShadow: shadowOrganic,
-            width: "100%",
-            maxWidth: 520,
-          }}
-        >
-          <div
-            style={{
-              width: 64, height: 64,
-              background: C.accent,
-              borderRadius: 9999,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: C.secondary,
-              margin: "0 auto 24px",
-            }}
-          >
-            <FileText size={28} />
-          </div>
-          <h1 style={{ fontFamily: fontSerif, fontSize: 28, fontWeight: 700, color: C.fg, margin: "0 0 12px" }}>
-            {t("uploadTitle")}
-          </h1>
-          <p style={{ color: C.mutedFg, marginBottom: 32, fontSize: 15 }}>
-            {t("uploadHint")}
-          </p>
-          <label
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 8,
-              background: C.primary,
-              color: C.primaryFg,
-              padding: "14px 32px",
-              borderRadius: 9999,
-              fontWeight: 700,
-              fontSize: 15,
-              cursor: loading ? "not-allowed" : "pointer",
-              fontFamily: fontSans,
-              opacity: loading ? 0.7 : 1,
-            }}
-          >
-            <UploadCloud size={20} />
-            {loading ? t("loading") : t("uploadButton")}
-            <input type="file" accept=".pdf" style={{ display: "none" }} onChange={handleUpload} />
-          </label>
-          <p style={{ fontSize: 12, color: C.mutedFg, marginTop: 16 }}>
-            {t("pdfLimit")}
-          </p>
-        </div>
-      </main>
-    );
-  }
 
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        paddingTop: 96,
-        paddingBottom: 128,
-        paddingLeft: 16,
-        paddingRight: 16,
-        maxWidth: 896,
-        margin: "0 auto",
-        display: "flex",
-        flexDirection: "column",
-        gap: 40,
-        fontFamily: fontSans,
-      }}
-    >
-      {/* Back */}
-      <button
-        onClick={() => setResult(null)}
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 8,
-          color: C.mutedFg,
-          background: "transparent",
-          border: "none",
-          cursor: "pointer",
-          fontWeight: 500,
-          fontSize: 14,
-          fontFamily: fontSans,
-          padding: 0,
-          width: "fit-content",
-        }}
-      >
-        <ArrowLeft size={16} />
-        {t("backToContracts")}
-      </button>
-
-      {/* Header */}
-      <section style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 24 }} className="md-flex-row">
-        <div
+    <main className="page-shell" style={{ display: "flex", flexDirection: "column", gap: 32, fontFamily: fontSans }}>
+      <section className="responsive-two-grid">
+        <article
+          className="surface-card grain-panel"
           style={{
-            flexShrink: 0,
-            width: 160,
-            height: 160,
-            border: `4px solid ${C.secondary}`,
-            borderRadius: R.o1,
+            borderRadius: R.o2,
+            padding: 32,
+            boxShadow: shadowOrganic,
             display: "flex",
             flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            background: C.card,
-            boxShadow: shadowOrganic,
-            transform: "rotate(-1deg)",
+            gap: 18,
           }}
         >
-          <span style={{ fontFamily: fontSerif, fontSize: 60, fontWeight: 700, color: C.fg, lineHeight: 1 }}>
-            {result.score}
+          <span
+            style={{
+              width: "fit-content",
+              padding: "6px 14px",
+              borderRadius: 9999,
+              background: "rgba(93, 112, 82, 0.1)",
+              color: C.primary,
+              fontWeight: 800,
+              fontSize: 12,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+            }}
+          >
+            {t("title")}
           </span>
-          <span style={{ fontSize: 14, fontWeight: 500, color: C.mutedFg, marginTop: 4 }}>/100</span>
-        </div>
-
-        <div style={{ flex: 1, textAlign: "center" }}>
-          <h1 style={{ fontFamily: fontSerif, fontSize: 32, fontWeight: 700, color: C.fg, margin: "0 0 12px" }}>
-            {result.name}
+          <h1 style={{ margin: 0, fontFamily: fontSerif, fontSize: "clamp(2.4rem, 4vw, 3.6rem)", color: C.fg }}>
+            {t("uploadTitle")}
           </h1>
-          <p style={{ color: C.mutedFg, marginBottom: 24 }}>{result.date}</p>
-          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 8 }}>
-            {result.tags.map((tag) => (
-              <span
-                key={tag}
-                style={{
-                  background: C.muted,
-                  color: C.fg,
-                  fontSize: 14,
-                  fontWeight: 500,
-                  padding: "6px 16px",
-                  borderRadius: 9999,
-                }}
-              >
-                {tag}
-              </span>
+          <p style={{ margin: 0, color: C.mutedFg, fontSize: 17, lineHeight: 1.7 }}>{t("uploadHint")}</p>
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+            <Link
+              href={createLocalizedPath(locale, `${appRoutes.contracts}/${demoContracts[0].id}`)}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+                padding: "12px 20px",
+                borderRadius: 9999,
+                background: C.primary,
+                color: C.primaryFg,
+                textDecoration: "none",
+                fontWeight: 700,
+              }}
+            >
+              <FileSearch size={16} />
+              {t("viewFeatured")}
+            </Link>
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+                padding: "12px 18px",
+                borderRadius: 9999,
+                border: `1px solid ${C.border}`,
+                color: C.mutedFg,
+                background: "rgba(255,255,255,0.62)",
+                fontWeight: 700,
+              }}
+            >
+              <UploadCloud size={16} />
+              {t("pdfLimit")}
+            </span>
+          </div>
+        </article>
+
+        <article
+          className="surface-card grain-panel"
+          style={{
+            borderRadius: R.o1,
+            padding: 28,
+            boxShadow: shadowOrganic,
+            display: "grid",
+            gap: 18,
+            alignContent: "start",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <ShieldCheck size={20} color={C.primary} />
+            <strong style={{ color: C.fg }}>{t("whyItMattersTitle")}</strong>
+          </div>
+          <p style={{ margin: 0, color: C.mutedFg, lineHeight: 1.7 }}>{t("whyItMattersBody")}</p>
+          <div style={{ display: "grid", gap: 12 }}>
+            {[
+              { icon: <ShieldCheck size={18} color={C.primary} />, text: t("benefits.fairness") },
+              { icon: <TriangleAlert size={18} color={C.secondary} />, text: t("benefits.risk") },
+              { icon: <ArrowRight size={18} color={C.destructive} />, text: t("benefits.nextStep") },
+            ].map((item) => (
+              <div key={item.text} style={{ display: "flex", alignItems: "center", gap: 10, color: C.fg }}>
+                {item.icon}
+                <span>{item.text}</span>
+              </div>
             ))}
           </div>
-        </div>
+        </article>
       </section>
 
-      {/* Summary */}
-      <section
-        style={{
-          background: "rgba(230,220,205,0.3)",
-          border: `1px solid ${C.accent}`,
-          borderRadius: R.o1,
-          padding: 32,
-        }}
-      >
-        <h2 style={{ fontFamily: fontSerif, fontSize: 20, fontWeight: 700, color: C.fg, margin: "0 0 12px", display: "flex", alignItems: "center", gap: 8 }}>
-          <FileText size={20} color={C.secondary} />
-          {t("plainSummary")}
-        </h2>
-        <p style={{ color: C.fg, lineHeight: 1.7, margin: 0, fontSize: 15 }}>{result.summary}</p>
-      </section>
-
-      {/* Breakdown row */}
-      <section style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
-        <div style={{ background: `rgba(168,84,72,0.05)`, border: `1px solid rgba(168,84,72,0.2)`, borderRadius: R.o2, padding: 24, textAlign: "center" }}>
-          <span style={{ fontFamily: fontSerif, fontSize: 36, fontWeight: 700, color: C.destructive, display: "block", marginBottom: 4 }}>3</span>
-          <span style={{ fontSize: 14, fontWeight: 500, color: C.destructive }}>{t("redFlags")}</span>
-        </div>
-        <div style={{ background: `rgba(193,140,93,0.05)`, border: `1px solid rgba(193,140,93,0.2)`, borderRadius: R.o3, padding: 24, textAlign: "center" }}>
-          <span style={{ fontFamily: fontSerif, fontSize: 36, fontWeight: 700, color: C.secondary, display: "block", marginBottom: 4 }}>4</span>
-          <span style={{ fontSize: 14, fontWeight: 500, color: C.secondary }}>{t("caution")}</span>
-        </div>
-        <div style={{ background: `rgba(93,112,82,0.05)`, border: `1px solid rgba(93,112,82,0.2)`, borderRadius: R.o4, padding: 24, textAlign: "center" }}>
-          <span style={{ fontFamily: fontSerif, fontSize: 36, fontWeight: 700, color: C.primary, display: "block", marginBottom: 4 }}>{result.standardCount}</span>
-          <span style={{ fontSize: 14, fontWeight: 500, color: C.primary }}>{t("standard")}</span>
-        </div>
-      </section>
-
-      {/* Red Flags */}
-      <section style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-          <h2 style={{ fontFamily: fontSerif, fontSize: 24, fontWeight: 700, color: C.fg, margin: 0 }}>{t("redFlags")}</h2>
-          <span style={{ background: C.destructive, color: "#fff", fontSize: 12, fontWeight: 700, padding: "3px 12px", borderRadius: 9999 }}>
-            {result.red.length} issues
-          </span>
-        </div>
-        {result.red.map((flag, i) => (
-          <div
-            key={i}
-            style={{
-              background: `rgba(168,84,72,0.05)`,
-              border: `1px solid rgba(168,84,72,0.2)`,
-              borderLeft: `4px solid ${C.destructive}`,
-              borderRadius: "0 16px 16px 0",
-              padding: 24,
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 8 }}>
-              <AlertCircle size={20} color={C.destructive} style={{ flexShrink: 0, marginTop: 2 }} />
-              <h3 style={{ fontSize: 17, fontWeight: 700, color: C.destructive, margin: 0 }}>{flag.title}</h3>
-            </div>
-            <p style={{ color: C.fg, marginLeft: 32, marginBottom: 16, lineHeight: 1.6 }}>{flag.desc}</p>
-            {flag.cite && (
-              <div style={{ marginLeft: 32, display: "inline-block", background: `rgba(168,84,72,0.1)`, color: `rgba(168,84,72,0.9)`, fontSize: 13, fontWeight: 500, padding: "4px 12px", borderRadius: 9999 }}>
-                {flag.cite}
-              </div>
-            )}
-          </div>
-        ))}
-      </section>
-
-      {/* Caution */}
-      <section style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-          <h2 style={{ fontFamily: fontSerif, fontSize: 24, fontWeight: 700, color: C.fg, margin: 0 }}>{t("caution")}</h2>
-          <span style={{ background: C.secondary, color: "#fff", fontSize: 12, fontWeight: 700, padding: "3px 12px", borderRadius: 9999 }}>
-            {result.caution.length} items
-          </span>
-        </div>
-        {result.caution.map((item, i) => (
-          <div
-            key={i}
-            style={{
-              background: `rgba(193,140,93,0.05)`,
-              border: `1px solid rgba(193,140,93,0.2)`,
-              borderLeft: `4px solid ${C.secondary}`,
-              borderRadius: "0 16px 16px 0",
-              padding: 24,
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 8 }}>
-              <AlertTriangle size={20} color={C.secondary} style={{ flexShrink: 0, marginTop: 2 }} />
-              <h3 style={{ fontSize: 17, fontWeight: 700, color: C.secondary, margin: 0 }}>{item.title}</h3>
-            </div>
-            <p style={{ color: C.fg, marginLeft: 32, margin: "0 0 0 32px", lineHeight: 1.6 }}>{item.desc}</p>
-          </div>
-        ))}
-      </section>
-
-      {/* Standard */}
-      <section style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        <h2 style={{ fontFamily: fontSerif, fontSize: 24, fontWeight: 700, color: C.fg, margin: "0 0 8px" }}>{t("standardClauses")}</h2>
-        <div
-          style={{
-            background: `rgba(93,112,82,0.05)`,
-            border: `1px solid rgba(93,112,82,0.2)`,
-            borderRadius: 16,
-            padding: 24,
-            display: "flex",
-            alignItems: "center",
-            gap: 16,
-          }}
-        >
-          <CheckCircle size={24} color={C.primary} style={{ flexShrink: 0 }} />
+      <section style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
           <div>
-            <h3 style={{ fontSize: 17, fontWeight: 700, color: C.primary, margin: "0 0 4px" }}>{t("allStandard")}</h3>
-            <p style={{ color: C.fg, margin: 0, lineHeight: 1.6 }}>
-              {result.standardCount} clauses cover standard definitions, jurisdiction, and severability. Nothing unusual detected.
-            </p>
+            <h2 style={{ margin: "0 0 6px", fontFamily: fontSerif, fontSize: 30, color: C.fg }}>{t("recentAnalyses")}</h2>
+            <p style={{ margin: 0, color: C.mutedFg }}>{t("recentAnalysesHint")}</p>
           </div>
+        </div>
+
+        <div style={{ display: "grid", gap: 20 }}>
+          {demoContracts.map((contract) => {
+            const tone = getScoreTone(contract.score);
+            const detailHref = createLocalizedPath(locale, `${appRoutes.contracts}/${contract.id}`);
+
+            return (
+              <article
+                key={contract.id}
+                className="surface-card grain-panel responsive-card-rail"
+                style={{
+                  borderRadius: 28,
+                  padding: 24,
+                  boxShadow: shadowOrganic,
+                }}
+              >
+                <div
+                  style={{
+                    background: tone.bg,
+                    border: `1px solid ${tone.border}`,
+                    borderRadius: 24,
+                    minHeight: 120,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <strong style={{ fontFamily: fontSerif, fontSize: 42, color: tone.fg, lineHeight: 1 }}>{contract.score}</strong>
+                  <span style={{ color: C.mutedFg, fontWeight: 700, fontSize: 13 }}>{t("scoreSuffix")}</span>
+                </div>
+
+                <div style={{ minWidth: 0, display: "grid", gap: 10 }}>
+                  <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+                    <span
+                      style={{
+                        padding: "5px 12px",
+                        borderRadius: 9999,
+                        background: C.muted,
+                        color: C.fg,
+                        fontWeight: 700,
+                        fontSize: 12,
+                      }}
+                    >
+                      {contract.category}
+                    </span>
+                    <span style={{ color: C.mutedFg, fontSize: 13 }}>
+                      {t("cardMeta", {
+                        date: contract.uploadedAt,
+                        pages: contract.pages,
+                        clauses: contract.clauses,
+                      })}
+                    </span>
+                  </div>
+                  <div>
+                    <h3 style={{ margin: "0 0 8px", fontFamily: fontSerif, fontSize: 28, color: C.fg }}>{contract.title}</h3>
+                    <p style={{ margin: 0, color: C.mutedFg, lineHeight: 1.7 }}>{contract.summary}</p>
+                  </div>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    {contract.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        style={{
+                          padding: "4px 10px",
+                          borderRadius: 9999,
+                          background: "rgba(230, 220, 205, 0.6)",
+                          color: C.fg,
+                          fontWeight: 700,
+                          fontSize: 12,
+                        }}
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                  <Link
+                    href={detailHref}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 8,
+                      padding: "12px 18px",
+                      borderRadius: 9999,
+                      textDecoration: "none",
+                      background: C.primary,
+                      color: C.primaryFg,
+                      fontWeight: 700,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {t("openAnalysis")}
+                    <ArrowRight size={16} />
+                  </Link>
+                </div>
+              </article>
+            );
+          })}
         </div>
       </section>
-
-      {/* Fixed follow-up input */}
-      <div
-        style={{
-          position: "fixed",
-          bottom: 24,
-          left: 0,
-          right: 0,
-          paddingLeft: 16,
-          paddingRight: 16,
-          zIndex: 40,
-          pointerEvents: "none",
-        }}
-      >
-        <div style={{ maxWidth: 768, margin: "0 auto", pointerEvents: "auto", boxShadow: shadowOrganic, borderRadius: 9999 }}>
-          <div
-            style={{
-              position: "relative",
-              display: "flex",
-              alignItems: "center",
-              background: C.card,
-              border: `2px solid ${C.border}`,
-              borderRadius: 9999,
-              padding: 8,
-            }}
-          >
-            <input
-              type="text"
-              placeholder={t("followUp")}
-              value={followUp}
-              onChange={(e) => setFollowUp(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && followUp.trim()) {
-                  window.location.href = `/${locale}/chat?q=${encodeURIComponent(followUp)}`;
-                }
-              }}
-              style={{
-                flex: 1,
-                background: "transparent",
-                border: "none",
-                outline: "none",
-                padding: "12px 24px",
-                fontSize: 16,
-                fontFamily: fontSans,
-                color: C.fg,
-                paddingRight: 96,
-              }}
-            />
-            <div style={{ position: "absolute", right: 8, display: "flex", alignItems: "center", gap: 8 }}>
-              <button
-                style={{ width: 40, height: 40, borderRadius: 9999, background: C.muted, border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: C.primary }}
-                aria-label="Voice input"
-              >
-                <Mic size={20} />
-              </button>
-              <button
-                onClick={() => followUp.trim() && (window.location.href = `/${locale}/chat?q=${encodeURIComponent(followUp)}`)}
-                style={{ width: 40, height: 40, borderRadius: 9999, background: C.primary, border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: C.primaryFg }}
-                aria-label="Send"
-              >
-                <Send size={16} style={{ marginLeft: 1 }} />
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
     </main>
   );
 }

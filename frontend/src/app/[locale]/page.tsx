@@ -9,6 +9,7 @@ import {
   Shield, Home as HomeIcon, Briefcase, CreditCard,
   Calculator, Lock, AlertTriangle,
 } from "lucide-react";
+import { appRoutes, createLocalizedPath } from "@/i18n/routing";
 import { C, R, shadowOrganic, fontSerif, fontSans } from "@/styles/theme";
 
 const STATS = [
@@ -25,7 +26,7 @@ const CATEGORIES = [
   { Icon: CreditCard,    titleKey: "catDebtTitle"       as const, descKey: "catDebtDesc"       as const, tagKey: "financial" as const, tagColor: `rgba(193,140,93,0.12)`,  tagText: C.secondary, r: R.o4 },
   { Icon: Calculator,    titleKey: "catTaxTitle"        as const, descKey: "catTaxDesc"        as const, tagKey: "financial" as const, tagColor: `rgba(193,140,93,0.12)`,  tagText: C.secondary, r: R.o1 },
   { Icon: Lock,          titleKey: "catPrivacyTitle"    as const, descKey: "catPrivacyDesc"    as const, tagKey: "legal"     as const, tagColor: `rgba(93,112,82,0.12)`,   tagText: C.primary,   r: R.o2 },
-  { Icon: FileText,      titleKey: "catContractTitle"   as const, descKey: "catContractDesc"   as const, tagKey: "contracts" as const, tagColor: "rgba(109,40,217,0.08)",  tagText: "#6D28D9",   r: R.o3 },
+  { Icon: FileText,      titleKey: "catContractTitle"   as const, descKey: "catContractDesc"   as const, tagKey: "contracts" as const, tagColor: `rgba(230,220,205,0.55)`,   tagText: C.secondary, r: R.o3 },
   { Icon: TrendingUp,    titleKey: "catInsuranceTitle"  as const, descKey: "catInsuranceDesc"  as const, tagKey: "financial" as const, tagColor: `rgba(193,140,93,0.12)`,  tagText: C.secondary, r: R.o4 },
   { Icon: AlertTriangle, titleKey: "catSafetyTitle"     as const, descKey: "catSafetyDesc"     as const, tagKey: "legal"     as const, tagColor: `rgba(93,112,82,0.12)`,   tagText: C.primary,   r: R.o1 },
 ];
@@ -71,19 +72,13 @@ export default function HomePage() {
   const ask = (q?: string) => {
     const text = (q ?? query).trim();
     if (!text) return;
-    router.push(`/${locale}/chat?q=${encodeURIComponent(text)}`);
+    router.push(createLocalizedPath(locale, appRoutes.ask, `q=${encodeURIComponent(text)}`));
   };
 
   return (
     <main
+      className="page-shell"
       style={{
-        minHeight: "100vh",
-        paddingTop: 96,
-        paddingBottom: 80,
-        paddingLeft: 16,
-        paddingRight: 16,
-        maxWidth: 1280,
-        margin: "0 auto",
         display: "flex",
         flexDirection: "column",
         gap: 96,
@@ -155,7 +150,7 @@ export default function HomePage() {
           />
           <div style={{ position: "absolute", right: 8, display: "flex", alignItems: "center", gap: 8 }}>
             <button
-              onClick={() => router.push(`/${locale}/chat`)}
+              onClick={() => router.push(createLocalizedPath(locale, appRoutes.ask))}
               style={{
                 width: 40, height: 40,
                 borderRadius: 9999,
@@ -192,9 +187,9 @@ export default function HomePage() {
 
         <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 16, fontSize: 14 }}>
           {[
-            { text: t("quickLink1"), href: `/${locale}/chat` },
-            { text: t("quickLink2"), href: `/${locale}/chat` },
-            { text: t("quickLink3"), href: `/${locale}/contracts` },
+            { text: t("quickLink1"), href: createLocalizedPath(locale, appRoutes.ask, `q=${encodeURIComponent(t("quickLink1"))}`) },
+            { text: t("quickLink2"), href: createLocalizedPath(locale, appRoutes.ask, `q=${encodeURIComponent(t("quickLink2"))}`) },
+            { text: t("quickLink3"), href: createLocalizedPath(locale, appRoutes.contracts) },
           ].map(({ text, href }) => (
             <Link
               key={text}
@@ -249,7 +244,7 @@ export default function HomePage() {
       {/* ── CTAs ─────────────────────────────────────────────── */}
       <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 24 }}>
         <Link
-          href={`/${locale}/contracts`}
+          href={createLocalizedPath(locale, appRoutes.contracts)}
           style={{
             background: C.card,
             border: `2px solid ${C.accent}`,
@@ -272,7 +267,7 @@ export default function HomePage() {
         </Link>
 
         <Link
-          href={`/${locale}/chat`}
+          href={createLocalizedPath(locale, appRoutes.ask)}
           style={{
             background: C.card,
             border: `1px solid ${C.border}`,
@@ -304,7 +299,7 @@ export default function HomePage() {
           {CATEGORIES.map(({ Icon, titleKey, descKey, tagKey, tagColor, tagText, r }) => (
             <Link
               key={titleKey}
-              href={`/${locale}/rights`}
+              href={createLocalizedPath(locale, appRoutes.rights)}
               style={{
                 background: C.card,
                 border: `1px solid ${C.border}`,
