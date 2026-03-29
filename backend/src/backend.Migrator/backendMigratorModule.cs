@@ -9,7 +9,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace backend.Migrator;
 
-[DependsOn(typeof(backendEntityFrameworkModule))]
+[DependsOn(typeof(backendEntityFrameworkModule), typeof(backendApplicationModule))]
 public class backendMigratorModule : AbpModule
 {
     private readonly IConfigurationRoot _appConfiguration;
@@ -41,8 +41,7 @@ public class backendMigratorModule : AbpModule
     public override void Initialize()
     {
         IocManager.RegisterAssemblyByConvention(typeof(backendMigratorModule).GetAssembly());
-        ServiceCollectionRegistrar.Register(IocManager);
+        ServiceCollectionRegistrar.Register(IocManager, _appConfiguration);
     }
 }
-
 

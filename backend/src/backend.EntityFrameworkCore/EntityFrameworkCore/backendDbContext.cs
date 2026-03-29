@@ -96,7 +96,7 @@ public class backendDbContext : AbpZeroDbContext<Tenant, Role, User, backendDbCo
         });
     }
 
-    /// <summary>Configures the LegalDocument → Category FK and unique act index.</summary>
+    /// <summary>Configures the LegalDocument → Category FK and unique document identity index.</summary>
     private static void ConfigureLegalDocumentRelationships(ModelBuilder modelBuilder)
     {
         // A document must belong to a category; deleting a category is restricted while documents exist.
@@ -106,9 +106,10 @@ public class backendDbContext : AbpZeroDbContext<Tenant, Role, User, backendDbCo
             .HasForeignKey(d => d.CategoryId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // Prevent duplicate registrations of the same act in the same year.
+        // Prevent duplicate registrations of the same document stub in the same year.
+        // Guides/materials can legitimately share an ActNumber such as "N/A".
         modelBuilder.Entity<LegalDocument>()
-            .HasIndex(d => new { d.ActNumber, d.Year })
+            .HasIndex(d => new { d.ShortName, d.Year })
             .IsUnique();
     }
 

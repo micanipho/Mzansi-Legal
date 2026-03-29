@@ -19,9 +19,9 @@
 
 **Purpose**: Folder structure and the central constants manifest that all seed classes depend on.
 
-- [ ] T001 Create `seed-data/legislation/` and `seed-data/financial/` directories with `.gitkeep` files (PDFs are added manually and not committed)
-- [ ] T002 Add `seed-data/**/*.pdf` to `.gitignore` so PDF binaries are never accidentally committed
-- [ ] T003 Create `backend/src/backend.EntityFrameworkCore/EntityFrameworkCore/Seed/Host/LegislationManifest.cs` — static class with `CategoryDefinition` and `DocumentDefinition` readonly records; define all 9 categories (Name, Domain, Icon, SortOrder) and all 13 documents (Title, ShortName, ActNumber, Year, FileName, CategoryShortName) as per `data-model.md`
+- [x] T001 Create `seed-data/legislation/` and `seed-data/financial/` directories with `.gitkeep` files (PDFs are added manually and not committed)
+- [x] T002 Add `seed-data/**/*.pdf` to `.gitignore` so PDF binaries are never accidentally committed
+- [x] T003 Create `backend/src/backend.EntityFrameworkCore/EntityFrameworkCore/Seed/Host/LegislationManifest.cs` — static class with `CategoryDefinition` and `DocumentDefinition` readonly records; define all 9 categories (Name, Domain, Icon, SortOrder) and all 13 documents (Title, ShortName, ActNumber, Year, FileName, CategoryShortName) as per `data-model.md`
 
 ---
 
@@ -31,9 +31,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete — `LegalDocumentRegistrar` and `LegislationIngestionRunner` both require categories to already exist.
 
-- [ ] T004 Create `backend/src/backend.EntityFrameworkCore/EntityFrameworkCore/Seed/Host/DefaultCategoriesCreator.cs` — constructor accepts `backendDbContext`; `Create()` method iterates `LegislationManifest.Categories`, checks for existing category by `Name` (case-insensitive), inserts if absent; guard clause for null context; purpose comment on class and `Create()`
-- [ ] T005 Modify `backend/src/backend.EntityFrameworkCore/EntityFrameworkCore/Seed/Host/InitialHostDbBuilder.cs` — add `new DefaultCategoriesCreator(_context).Create();` call after `DefaultSettingsCreator` and before `context.SaveChanges()`
-- [ ] T006 Build `backend.EntityFrameworkCore` and verify compilation succeeds: `dotnet build backend/src/backend.EntityFrameworkCore/backend.EntityFrameworkCore.csproj`
+- [x] T004 Create `backend/src/backend.EntityFrameworkCore/EntityFrameworkCore/Seed/Host/DefaultCategoriesCreator.cs` — constructor accepts `backendDbContext`; `Create()` method iterates `LegislationManifest.Categories`, checks for existing category by `Name` (case-insensitive), inserts if absent; guard clause for null context; purpose comment on class and `Create()`
+- [x] T005 Modify `backend/src/backend.EntityFrameworkCore/EntityFrameworkCore/Seed/Host/InitialHostDbBuilder.cs` — add `new DefaultCategoriesCreator(_context).Create();` call after `DefaultSettingsCreator` and before `context.SaveChanges()`
+- [x] T006 Build `backend.EntityFrameworkCore` and verify compilation succeeds: `dotnet build backend/src/backend.EntityFrameworkCore/backend.EntityFrameworkCore.csproj`
 
 **Checkpoint**: Foundation ready — `DefaultCategoriesCreator` compiles and is wired. Run `dotnet run --project backend/src/backend.Migrator -- -q` and verify 9 rows in the `Categories` table.
 
@@ -45,15 +45,15 @@
 
 **Independent Test**: Run `dotnet run --project backend/src/backend.Migrator -- -q` against a clean database. Query `SELECT COUNT(*) FROM "Categories"` → 9. Query `SELECT short_name, is_processed FROM "LegalDocuments" ORDER BY short_name` → 13 rows, all `is_processed = false`.
 
-- [ ] T007 [US1] Create `backend/src/backend.EntityFrameworkCore/EntityFrameworkCore/Seed/Host/LegalDocumentRegistrar.cs` — constructor accepts `backendDbContext`; `Create()` method:
+- [x] T007 [US1] Create `backend/src/backend.EntityFrameworkCore/EntityFrameworkCore/Seed/Host/LegalDocumentRegistrar.cs` — constructor accepts `backendDbContext`; `Create()` method:
   - Loads all seeded categories into a `Dictionary<string, Guid>` keyed by Name for FK resolution
   - Iterates `LegislationManifest.Documents`
   - Checks for existing document by `(ShortName, Year)` — skips if found (idempotency)
   - Inserts new `LegalDocument` with `IsProcessed = false`, `TotalChunks = 0`, `FileName` set to manifest value
   - Guard clause: skip gracefully if matching category Guid not found (logs a warning)
   - Purpose comment on class and `Create()`
-- [ ] T008 [US1] Modify `backend/src/backend.EntityFrameworkCore/EntityFrameworkCore/Seed/Host/InitialHostDbBuilder.cs` — add `new LegalDocumentRegistrar(_context).Create();` call after `DefaultCategoriesCreator.Create()`
-- [ ] T009 [US1] Build and smoke-test: `dotnet build backend/src/backend.EntityFrameworkCore/backend.EntityFrameworkCore.csproj` — confirm zero errors
+- [x] T008 [US1] Modify `backend/src/backend.EntityFrameworkCore/EntityFrameworkCore/Seed/Host/InitialHostDbBuilder.cs` — add `new LegalDocumentRegistrar(_context).Create();` call after `DefaultCategoriesCreator.Create()`
+- [x] T009 [US1] Build and smoke-test: `dotnet build backend/src/backend.EntityFrameworkCore/backend.EntityFrameworkCore.csproj` — confirm zero errors
 
 **Checkpoint**: User Story 1 complete. Run Migrator → verify 9 categories and 13 `LegalDocument` stubs exist with `is_processed = false`. This is the independently testable MVP increment.
 
@@ -65,7 +65,7 @@
 
 **Independent Test**: Place at least one PDF (e.g., `seed-data/legislation/bcea-1997.pdf`) and run the Migrator. Query `SELECT d.short_name, j.status, j.chunks_loaded, j.embeddings_generated FROM "IngestionJobs" j JOIN "LegalDocuments" d ON d.id = j.document_id` — confirm one row with `status = Completed` and `chunks_loaded > 0`. Query `SELECT is_processed, total_chunks FROM "LegalDocuments" WHERE short_name = 'BCEA'` → `is_processed = true`, `total_chunks > 0`.
 
-- [ ] T010 [US2] Create `backend/src/backend.EntityFrameworkCore/EntityFrameworkCore/Seed/Host/LegislationIngestionRunner.cs` — class implements `ITransientDependency`; constructor accepts `IIocResolver iocResolver`; public `RunAsync()` method:
+- [x] T010 [US2] Create `backend/src/backend.EntityFrameworkCore/EntityFrameworkCore/Seed/Host/LegislationIngestionRunner.cs` — class implements `ITransientDependency`; constructor accepts `IIocResolver iocResolver`; public `RunAsync()` method:
   - Resolves `backendDbContext` via `iocResolver` to load all `LegalDocument` records where `IsProcessed = false`
   - Resolves `IAbpSession` and calls `Use(tenantId: null, userId: 1L)` (host admin user seeded by `HostRoleAndUserCreator`)
   - Resolves `IEtlPipelineAppService`
@@ -75,8 +75,8 @@
   - On failure: logs document title and exception message; continues to next document
   - Guard clause: `Guard.Against.Null(iocResolver, nameof(iocResolver))`
   - Purpose comment on class and `RunAsync()`
-- [ ] T011 [US2] Modify `backend/src/backend.EntityFrameworkCore/EntityFrameworkCore/Seed/SeedHelper.cs` — update `SeedHostDb(IIocResolver iocResolver)` method to call `new LegislationIngestionRunner(iocResolver).RunAsync().GetAwaiter().GetResult()` after the existing `WithDbContext` block
-- [ ] T012 [US2] Verify `backend.Migrator` project still references `backend.EntityFrameworkCore` and `backend.Core` (no new project references needed): `dotnet build backend/src/backend.Migrator/backend.Migrator.csproj`
+- [x] T011 [US2] Modify `backend/src/backend.EntityFrameworkCore/EntityFrameworkCore/Seed/SeedHelper.cs` — update `SeedHostDb(IIocResolver iocResolver)` method to call `new LegislationIngestionRunner(iocResolver).RunAsync().GetAwaiter().GetResult()` after the existing `WithDbContext` block
+- [x] T012 [US2] Verify `backend.Migrator` project still references `backend.EntityFrameworkCore` and `backend.Core` (no new project references needed): `dotnet build backend/src/backend.Migrator/backend.Migrator.csproj`
 
 **Checkpoint**: User Story 2 complete. With at least one PDF present, run Migrator → confirm `IngestionJob.Status = Completed`, `DocumentChunk` and `ChunkEmbedding` records created, `LegalDocument.IsProcessed = true`.
 
@@ -88,9 +88,9 @@
 
 **Independent Test**: Run Migrator twice. After the second run: `SELECT COUNT(*) FROM "Categories"` = 9; `SELECT COUNT(*) FROM "LegalDocuments"` = 13; `SELECT COUNT(*) FROM "IngestionJobs"` unchanged from first run; `SELECT COUNT(*) FROM "DocumentChunks"` unchanged.
 
-- [ ] T013 [P] [US3] Verify `DefaultCategoriesCreator.cs` already skips existing categories (idempotency built in T004) — confirm the `Name` existence check is case-insensitive using `StringComparison.OrdinalIgnoreCase` or an EF `ToLower()` query; update if needed
-- [ ] T014 [P] [US3] Verify `LegalDocumentRegistrar.cs` already skips existing documents (idempotency built in T007) — confirm the `(ShortName, Year)` existence check is correct; update if needed
-- [ ] T015 [US3] Verify `LegislationIngestionRunner.cs` `IsProcessed = false` guard (built in T010) prevents re-triggering ETL for already-completed documents — confirm `EtlPipelineAppService.TriggerAsync` active-job guard is a secondary safety net but the primary skip is at the runner level; update runner logic if missing
+- [x] T013 [P] [US3] Verify `DefaultCategoriesCreator.cs` already skips existing categories (idempotency built in T004) — confirm the `Name` existence check is case-insensitive using `StringComparison.OrdinalIgnoreCase` or an EF `ToLower()` query; update if needed
+- [x] T014 [P] [US3] Verify `LegalDocumentRegistrar.cs` already skips existing documents (idempotency built in T007) — confirm the `(ShortName, Year)` existence check is correct; update if needed
+- [x] T015 [US3] Verify `LegislationIngestionRunner.cs` `IsProcessed = false` guard (built in T010) prevents re-triggering ETL for already-completed documents — confirm `EtlPipelineAppService.TriggerAsync` active-job guard is a secondary safety net but the primary skip is at the runner level; update runner logic if missing
 
 **Checkpoint**: User Story 3 complete. Run Migrator twice — second run must produce zero new rows in any seeded table.
 
@@ -105,8 +105,8 @@
 - `[WARN] LegislationIngestionRunner: PDF file not found for '{title}' ('{fileName}') — skipping` for missing files
 - `[WARN] LegislationIngestionRunner: Failed to ingest '{title}' — {reason}` for any ETL failure
 
-- [ ] T016 [P] [US4] Update `LegislationIngestionRunner.cs` — replace any raw `Console.WriteLine` calls with ABP `Logger` (inherited from `ApplicationService` base or injected via `ILogger`) using `Logger.Info(...)` and `Logger.Warn(...)` with the exact log message formats defined in `contracts/seed-manifest-contract.md` Contract 5
-- [ ] T017 [P] [US4] Update `LegislationIngestionRunner.cs` — add a summary log line at the end of `RunAsync()` reporting total documents attempted, succeeded, skipped (missing file), and failed: e.g., `[INFO] LegislationIngestionRunner: Seed complete — 11 succeeded, 1 skipped (no file), 1 failed`
+- [x] T016 [P] [US4] Update `LegislationIngestionRunner.cs` — replace any raw `Console.WriteLine` calls with ABP `Logger` (inherited from `ApplicationService` base or injected via `ILogger`) using `Logger.Info(...)` and `Logger.Warn(...)` with the exact log message formats defined in `contracts/seed-manifest-contract.md` Contract 5
+- [x] T017 [P] [US4] Update `LegislationIngestionRunner.cs` — add a summary log line at the end of `RunAsync()` reporting total documents attempted, succeeded, skipped (missing file), and failed: e.g., `[INFO] LegislationIngestionRunner: Seed complete — 11 succeeded, 1 skipped (no file), 1 failed`
 
 **Checkpoint**: User Story 4 complete. All four user stories are now independently functional.
 
@@ -116,10 +116,10 @@
 
 **Purpose**: Tests, validation, and final cleanup.
 
-- [ ] T018 [P] Write unit tests for `DefaultCategoriesCreator` in `backend/test/backend.Tests/Seed/DefaultCategoriesCreatorTests.cs` — test: (a) inserts all 9 categories on empty DB, (b) skips existing categories (idempotency), (c) produces correct `Domain` and `SortOrder` values
-- [ ] T019 [P] Write unit tests for `LegalDocumentRegistrar` in `backend/test/backend.Tests/Seed/LegalDocumentRegistrarTests.cs` — test: (a) inserts all 13 document stubs on seeded categories, (b) skips existing documents (idempotency), (c) all stubs have `IsProcessed = false` and `TotalChunks = 0`
-- [ ] T020 Run full `quickstart.md` validation: place all 13 PDFs in `seed-data/`, run `dotnet run --project backend/src/backend.Migrator -- -q`, execute the 4 verification SQL queries from `quickstart.md` and confirm all expected counts
-- [ ] T021 Run `dotnet build backend/backend.sln` to confirm the full solution builds cleanly with no warnings introduced by this feature
+- [x] T018 [P] Write unit tests for `DefaultCategoriesCreator` in `backend/test/backend.Tests/Seed/DefaultCategoriesCreatorTests.cs` — test: (a) inserts all 9 categories on empty DB, (b) skips existing categories (idempotency), (c) produces correct `Domain` and `SortOrder` values
+- [x] T019 [P] Write unit tests for `LegalDocumentRegistrar` in `backend/test/backend.Tests/Seed/LegalDocumentRegistrarTests.cs` — test: (a) inserts all 13 document stubs on seeded categories, (b) skips existing documents (idempotency), (c) all stubs have `IsProcessed = false` and `TotalChunks = 0`
+- [x] T020 Run full `quickstart.md` validation: place all 13 PDFs in `seed-data/`, run `dotnet run --project backend/src/backend.Migrator -- -q`, execute the 4 verification SQL queries from `quickstart.md` and confirm all expected counts
+- [x] T021 Run `dotnet build backend/backend.sln` to confirm the full solution builds cleanly with no warnings introduced by this feature
 
 ---
 

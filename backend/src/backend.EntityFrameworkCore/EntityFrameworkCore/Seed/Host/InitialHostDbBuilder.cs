@@ -15,6 +15,8 @@ public class InitialHostDbBuilder
         new DefaultLanguagesCreator(_context).Create();
         new HostRoleAndUserCreator(_context).Create();
         new DefaultSettingsCreator(_context).Create();
+        new DefaultCategoriesCreator(_context).Create();
+        new LegalDocumentRegistrar(_context).Create();
 
         _context.SaveChanges();
     }
