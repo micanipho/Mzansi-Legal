@@ -32,15 +32,17 @@ RUN dotnet publish -c Release -o /publish --no-restore
 # ─────────────────────────────────────────────────────────────────────────────
 # Stage 2: runtime
 # ─────────────────────────────────────────────────────────────────────────────
-FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
 
 WORKDIR /app
 
 COPY --from=build /publish .
 
-# Railway injects a dynamic PORT environment variable.
-# ASPNETCORE_URLS overrides any Kestrel endpoint config in appsettings.json.
-ENV PORT=80
-ENV ASPNETCORE_URLS=http://+:$PORT
+# Railway injects PORT at runtime. ASPNETCORE_HTTP_PORTS is the .NET 8+ way
+# to tell Kestrel which port to listen on without a full URL. The default of
+# 8080 is used when running the image locally without Railway's PORT variable.
+ENV ASPNETCORE_HTTP_PORTS=8080
 
-ENTRYPOINT ["dotnet", "backend.Web.Host.dll"]
+# Use a shell entrypoint so $PORT is resolved at container start time,
+# allowing Railway's dynamic PORT value to override the default above.
+ENTRYPOINT ["sh", "-c", "ASPNETCORE_HTTP_PORTS=${PORT:-8080} exec dotnet backend.Web.Host.dll"]
