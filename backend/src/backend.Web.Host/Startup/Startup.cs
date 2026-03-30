@@ -93,11 +93,11 @@ namespace backend.Web.Host.Startup
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
-            app.UseAbp(options => { options.UseAbpRequestLocalization = false; }); // Initializes ABP framework.
-
-            // Apply any pending EF Core migrations at startup so the schema is always
-            // current after a Railway deployment without requiring a manual migration step.
+            // Migrations must run before UseAbp() — ABP's seeder queries the schema
+            // immediately inside UseAbp() and will crash if tables don't exist yet.
             ApplyDatabaseMigrations(app);
+
+            app.UseAbp(options => { options.UseAbpRequestLocalization = false; }); // Initializes ABP framework.
 
             app.UseCors(_defaultCorsPolicyName); // Enable CORS!
 
