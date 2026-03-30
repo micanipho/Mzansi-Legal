@@ -132,23 +132,26 @@ namespace backend.Web.Host.Startup
         }
 
         /// <summary>
-        /// Applies all pending EF Core migrations to the database. Called once at startup.
-        /// Fails fast with a logged exception if migration cannot complete, preventing the
-        /// service from accepting traffic against an out-of-date schema.
+        /// Applies all pending EF Core migrations to the database. Called before UseAbp()
+        /// so the schema exists when ABP's seeder runs. Creates the DbContext directly from
+        /// configuration rather than via Windsor, which is not yet initialised at this point.
         /// </summary>
-        private static void ApplyDatabaseMigrations(IApplicationBuilder app)
+        private void ApplyDatabaseMigrations(IApplicationBuilder app)
         {
-            using (var scope = app.ApplicationServices.CreateScope())
+            var connectionString = _appConfiguration.GetConnectionString("Default");
+            var optionsBuilder = new DbContextOptionsBuilder<backendDbContext>();
+            backendDbContextConfigurer.Configure(optionsBuilder, connectionString);
+
+            try
             {
-                var dbContext = scope.ServiceProvider.GetRequiredService<backendDbContext>();
-                try
+                using (var dbContext = new backendDbContext(optionsBuilder.Options))
                 {
                     dbContext.Database.Migrate();
                 }
-                catch (Exception ex)
-                {
-                    throw new InvalidOperationException("Database migration failed at startup. The service will not start.", ex);
-                }
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("Database migration failed at startup. The service will not start.", ex);
             }
         }
 
