@@ -38,11 +38,8 @@ WORKDIR /app
 
 COPY --from=build /publish .
 
-# Railway injects PORT at runtime. ASPNETCORE_HTTP_PORTS is the .NET 8+ way
-# to tell Kestrel which port to listen on without a full URL. The default of
-# 8080 is used when running the image locally without Railway's PORT variable.
+# Default port for local docker run. Railway overrides this via its PORT variable
+# which is automatically mapped to ASPNETCORE_HTTP_PORTS in Railway's environment.
 ENV ASPNETCORE_HTTP_PORTS=8080
 
-# Use a shell entrypoint so $PORT is resolved at container start time,
-# allowing Railway's dynamic PORT value to override the default above.
-ENTRYPOINT ["sh", "-c", "ASPNETCORE_HTTP_PORTS=${PORT:-8080} exec dotnet backend.Web.Host.dll"]
+ENTRYPOINT ["dotnet", "backend.Web.Host.dll"]

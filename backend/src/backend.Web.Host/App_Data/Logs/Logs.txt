@@ -779,3 +779,282 @@ DEBUG 2026-03-28 17:29:27,331 [25   ] Abp.BackgroundJobs.BackgroundJobManager  -
 DEBUG 2026-03-28 17:29:27,332 [25   ] , Culture=neutral, PublicKeyToken=null]] - WaitToStop background worker: Abp.Authorization.Users.UserTokenExpirationWorker`2[[backend.MultiTenancy.Tenant, backend.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[backend.Authorization.Users.User, backend.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]
 DEBUG 2026-03-28 17:29:27,332 [25   ] Abp.Modules.AbpModuleManager             - Shutting down completed.
 INFO  2026-03-28 17:29:27,333 [25   ] Microsoft.Hosting.Lifetime               - Application is shutting down...
+DEBUG 2026-03-30 14:17:13,708 [2    ] Abp.Modules.AbpModuleManager             - Loading Abp modules...
+DEBUG 2026-03-30 14:17:17,847 [2    ] Abp.Modules.AbpModuleManager             - Found 15 ABP modules in total.
+DEBUG 2026-03-30 14:17:17,866 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: backend.Web.Host.Startup.backendWebHostModule, backend.Web.Host, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:17:17,869 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: backend.backendWebCoreModule, backend.Web.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:17:17,869 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: backend.backendApplicationModule, backend.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:17:17,869 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: backend.backendCoreModule, backend.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:17:17,870 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: Abp.Zero.AbpZeroCoreModule, Abp.ZeroCore, Version=10.2.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:17:17,870 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: Abp.Zero.AbpZeroCommonModule, Abp.Zero.Common, Version=10.2.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:17:17,870 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: Abp.AbpKernelModule, Abp, Version=10.2.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:17:17,871 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: Abp.AutoMapper.AbpAutoMapperModule, Abp.AutoMapper, Version=10.2.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:17:17,871 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: backend.EntityFrameworkCore.backendEntityFrameworkModule, backend.EntityFrameworkCore, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:17:17,872 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: Abp.Zero.EntityFrameworkCore.AbpZeroCoreEntityFrameworkCoreModule, Abp.ZeroCore.EntityFrameworkCore, Version=10.2.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:17:17,872 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: Abp.EntityFrameworkCore.AbpEntityFrameworkCoreModule, Abp.EntityFrameworkCore, Version=10.2.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:17:17,872 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: Abp.EntityFramework.AbpEntityFrameworkCommonModule, Abp.EntityFramework.Common, Version=10.2.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:17:17,873 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: Abp.AspNetCore.AbpAspNetCoreModule, Abp.AspNetCore, Version=10.2.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:17:17,873 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: Abp.Web.AbpWebCommonModule, Abp.Web.Common, Version=10.2.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:17:17,873 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: Abp.AspNetCore.SignalR.AbpAspNetCoreSignalRModule, Abp.AspNetCore.SignalR, Version=10.2.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:17:17,874 [2    ] Abp.Modules.AbpModuleManager             - 15 modules loaded.
+DEBUG 2026-03-30 14:17:20,170 [2    ] o.Configuration.LanguageManagementConfig - Converted Abp (Abp.Localization.Dictionaries.DictionaryBasedLocalizationSource) to MultiTenantLocalizationSource
+DEBUG 2026-03-30 14:17:20,170 [2    ] o.Configuration.LanguageManagementConfig - Converted AbpZero (Abp.Localization.Dictionaries.DictionaryBasedLocalizationSource) to MultiTenantLocalizationSource
+DEBUG 2026-03-30 14:17:20,170 [2    ] o.Configuration.LanguageManagementConfig - Converted backend (Abp.Localization.Dictionaries.DictionaryBasedLocalizationSource) to MultiTenantLocalizationSource
+DEBUG 2026-03-30 14:17:20,170 [2    ] o.Configuration.LanguageManagementConfig - Converted AbpWeb (Abp.Localization.Dictionaries.DictionaryBasedLocalizationSource) to MultiTenantLocalizationSource
+FATAL 2026-03-30 14:17:20,191 [2    ] Abp.AbpBootstrapper                      - System.ArgumentException: IDX10703: Cannot create a 'Microsoft.IdentityModel.Tokens.SymmetricSecurityKey', key length is zero.
+   at Microsoft.IdentityModel.Tokens.SymmetricSecurityKey..ctor(Byte[] key)
+   at backend.backendWebCoreModule.ConfigureTokenAuth() in C:\Users\Nhlakanipho\Documents\Projects\Mzansi-legal\backend\src\backend.Web.Core\backendWebCoreModule.cs:line 58
+   at backend.backendWebCoreModule.PreInitialize() in C:\Users\Nhlakanipho\Documents\Projects\Mzansi-legal\backend\src\backend.Web.Core\backendWebCoreModule.cs:line 50
+   at Abp.Modules.AbpModuleManager.<>c.<StartModules>b__15_0(AbpModuleInfo module)
+   at System.Collections.Generic.List`1.ForEach(Action`1 action)
+   at Abp.Modules.AbpModuleManager.StartModules()
+   at Abp.AbpBootstrapper.Initialize()
+System.ArgumentException: IDX10703: Cannot create a 'Microsoft.IdentityModel.Tokens.SymmetricSecurityKey', key length is zero.
+   at Microsoft.IdentityModel.Tokens.SymmetricSecurityKey..ctor(Byte[] key)
+   at backend.backendWebCoreModule.ConfigureTokenAuth() in C:\Users\Nhlakanipho\Documents\Projects\Mzansi-legal\backend\src\backend.Web.Core\backendWebCoreModule.cs:line 58
+   at backend.backendWebCoreModule.PreInitialize() in C:\Users\Nhlakanipho\Documents\Projects\Mzansi-legal\backend\src\backend.Web.Core\backendWebCoreModule.cs:line 50
+   at Abp.Modules.AbpModuleManager.<>c.<StartModules>b__15_0(AbpModuleInfo module)
+   at System.Collections.Generic.List`1.ForEach(Action`1 action)
+   at Abp.Modules.AbpModuleManager.StartModules()
+   at Abp.AbpBootstrapper.Initialize()
+FATAL 2026-03-30 14:17:20,270 [2    ] Microsoft.AspNetCore.Hosting.Diagnostics - Application startup exception
+System.ArgumentException: IDX10703: Cannot create a 'Microsoft.IdentityModel.Tokens.SymmetricSecurityKey', key length is zero.
+   at Microsoft.IdentityModel.Tokens.SymmetricSecurityKey..ctor(Byte[] key)
+   at backend.backendWebCoreModule.ConfigureTokenAuth() in C:\Users\Nhlakanipho\Documents\Projects\Mzansi-legal\backend\src\backend.Web.Core\backendWebCoreModule.cs:line 58
+   at backend.backendWebCoreModule.PreInitialize() in C:\Users\Nhlakanipho\Documents\Projects\Mzansi-legal\backend\src\backend.Web.Core\backendWebCoreModule.cs:line 50
+   at Abp.Modules.AbpModuleManager.<>c.<StartModules>b__15_0(AbpModuleInfo module)
+   at System.Collections.Generic.List`1.ForEach(Action`1 action)
+   at Abp.Modules.AbpModuleManager.StartModules()
+   at Abp.AbpBootstrapper.Initialize()
+   at Abp.AspNetCore.AbpApplicationBuilderExtensions.InitializeAbp(IApplicationBuilder app)
+   at Abp.AspNetCore.AbpApplicationBuilderExtensions.UseAbp(IApplicationBuilder app, Action`1 optionsAction)
+   at backend.Web.Host.Startup.Startup.Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory) in C:\Users\Nhlakanipho\Documents\Projects\Mzansi-legal\backend\src\backend.Web.Host\Startup\Startup.cs:line 103
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at Microsoft.AspNetCore.Hosting.ConfigureBuilder.Invoke(Object instance, IApplicationBuilder builder)
+   at Microsoft.WebTools.BrowserLink.Net.HostingStartup.<>c__DisplayClass1_0.<Configure>b__0(IApplicationBuilder app)
+   at Microsoft.WebTools.ApiEndpointDiscovery.HostingStartup.<>c__DisplayClass2_0.<Configure>b__0(IApplicationBuilder app)
+   at Microsoft.AspNetCore.Watch.BrowserRefresh.HostingStartup.<>c__DisplayClass1_0.<Configure>b__0(IApplicationBuilder app) in /_3/HostingStartup.cs:line 59
+   at Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync(CancellationToken cancellationToken)
+ERROR 2026-03-30 14:17:20,274 [2    ] crosoft.Extensions.Hosting.Internal.Host - Hosting failed to start
+System.ArgumentException: IDX10703: Cannot create a 'Microsoft.IdentityModel.Tokens.SymmetricSecurityKey', key length is zero.
+   at Microsoft.IdentityModel.Tokens.SymmetricSecurityKey..ctor(Byte[] key)
+   at backend.backendWebCoreModule.ConfigureTokenAuth() in C:\Users\Nhlakanipho\Documents\Projects\Mzansi-legal\backend\src\backend.Web.Core\backendWebCoreModule.cs:line 58
+   at backend.backendWebCoreModule.PreInitialize() in C:\Users\Nhlakanipho\Documents\Projects\Mzansi-legal\backend\src\backend.Web.Core\backendWebCoreModule.cs:line 50
+   at Abp.Modules.AbpModuleManager.<>c.<StartModules>b__15_0(AbpModuleInfo module)
+   at System.Collections.Generic.List`1.ForEach(Action`1 action)
+   at Abp.Modules.AbpModuleManager.StartModules()
+   at Abp.AbpBootstrapper.Initialize()
+   at Abp.AspNetCore.AbpApplicationBuilderExtensions.InitializeAbp(IApplicationBuilder app)
+   at Abp.AspNetCore.AbpApplicationBuilderExtensions.UseAbp(IApplicationBuilder app, Action`1 optionsAction)
+   at backend.Web.Host.Startup.Startup.Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory) in C:\Users\Nhlakanipho\Documents\Projects\Mzansi-legal\backend\src\backend.Web.Host\Startup\Startup.cs:line 103
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at Microsoft.AspNetCore.Hosting.ConfigureBuilder.Invoke(Object instance, IApplicationBuilder builder)
+   at Microsoft.WebTools.BrowserLink.Net.HostingStartup.<>c__DisplayClass1_0.<Configure>b__0(IApplicationBuilder app)
+   at Microsoft.WebTools.ApiEndpointDiscovery.HostingStartup.<>c__DisplayClass2_0.<Configure>b__0(IApplicationBuilder app)
+   at Microsoft.AspNetCore.Watch.BrowserRefresh.HostingStartup.<>c__DisplayClass1_0.<Configure>b__0(IApplicationBuilder app) in /_3/HostingStartup.cs:line 59
+   at Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.Internal.Host.<StartAsync>b__14_1(IHostedService service, CancellationToken token)
+   at Microsoft.Extensions.Hosting.Internal.Host.ForeachService[T](IEnumerable`1 services, CancellationToken token, Boolean concurrent, Boolean abortOnFirstException, List`1 exceptions, Func`3 operation)
+DEBUG 2026-03-30 14:19:49,991 [2    ] Abp.Modules.AbpModuleManager             - Loading Abp modules...
+DEBUG 2026-03-30 14:19:49,998 [2    ] Abp.Modules.AbpModuleManager             - Found 15 ABP modules in total.
+DEBUG 2026-03-30 14:19:50,007 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: backend.Web.Host.Startup.backendWebHostModule, backend.Web.Host, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:19:50,008 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: backend.backendWebCoreModule, backend.Web.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:19:50,009 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: backend.backendApplicationModule, backend.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:19:50,009 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: backend.backendCoreModule, backend.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:19:50,009 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: Abp.Zero.AbpZeroCoreModule, Abp.ZeroCore, Version=10.2.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:19:50,009 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: Abp.Zero.AbpZeroCommonModule, Abp.Zero.Common, Version=10.2.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:19:50,009 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: Abp.AbpKernelModule, Abp, Version=10.2.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:19:50,010 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: Abp.AutoMapper.AbpAutoMapperModule, Abp.AutoMapper, Version=10.2.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:19:50,010 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: backend.EntityFrameworkCore.backendEntityFrameworkModule, backend.EntityFrameworkCore, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:19:50,010 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: Abp.Zero.EntityFrameworkCore.AbpZeroCoreEntityFrameworkCoreModule, Abp.ZeroCore.EntityFrameworkCore, Version=10.2.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:19:50,010 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: Abp.EntityFrameworkCore.AbpEntityFrameworkCoreModule, Abp.EntityFrameworkCore, Version=10.2.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:19:50,011 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: Abp.EntityFramework.AbpEntityFrameworkCommonModule, Abp.EntityFramework.Common, Version=10.2.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:19:50,011 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: Abp.AspNetCore.AbpAspNetCoreModule, Abp.AspNetCore, Version=10.2.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:19:50,011 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: Abp.Web.AbpWebCommonModule, Abp.Web.Common, Version=10.2.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:19:50,011 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: Abp.AspNetCore.SignalR.AbpAspNetCoreSignalRModule, Abp.AspNetCore.SignalR, Version=10.2.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:19:50,012 [2    ] Abp.Modules.AbpModuleManager             - 15 modules loaded.
+DEBUG 2026-03-30 14:19:50,056 [2    ] o.Configuration.LanguageManagementConfig - Converted Abp (Abp.Localization.Dictionaries.DictionaryBasedLocalizationSource) to MultiTenantLocalizationSource
+DEBUG 2026-03-30 14:19:50,056 [2    ] o.Configuration.LanguageManagementConfig - Converted AbpZero (Abp.Localization.Dictionaries.DictionaryBasedLocalizationSource) to MultiTenantLocalizationSource
+DEBUG 2026-03-30 14:19:50,056 [2    ] o.Configuration.LanguageManagementConfig - Converted backend (Abp.Localization.Dictionaries.DictionaryBasedLocalizationSource) to MultiTenantLocalizationSource
+DEBUG 2026-03-30 14:19:50,056 [2    ] o.Configuration.LanguageManagementConfig - Converted AbpWeb (Abp.Localization.Dictionaries.DictionaryBasedLocalizationSource) to MultiTenantLocalizationSource
+DEBUG 2026-03-30 14:19:50,249 [2    ] ameworkCore.AbpEntityFrameworkCoreModule - Registering DbContext: backend.EntityFrameworkCore.backendDbContext, backend.EntityFrameworkCore, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:19:50,406 [2    ] Abp.Localization.LocalizationManager     - Initializing 4 localization sources.
+DEBUG 2026-03-30 14:19:50,438 [2    ] Abp.Localization.LocalizationManager     - Initialized localization source: Abp
+DEBUG 2026-03-30 14:19:50,445 [2    ] Abp.Localization.LocalizationManager     - Initialized localization source: AbpZero
+DEBUG 2026-03-30 14:19:50,450 [2    ] Abp.Localization.LocalizationManager     - Initialized localization source: backend
+DEBUG 2026-03-30 14:19:50,454 [2    ] Abp.Localization.LocalizationManager     - Initialized localization source: AbpWeb
+DEBUG 2026-03-30 14:19:50,460 [2    ] Abp.BackgroundJobs.BackgroundJobManager  - Start background worker: Abp.BackgroundJobs.BackgroundJobManager
+DEBUG 2026-03-30 14:19:50,462 [2    ] , Culture=neutral, PublicKeyToken=null]] - Start background worker: Abp.Authorization.Users.UserTokenExpirationWorker`2[[backend.MultiTenancy.Tenant, backend.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[backend.Authorization.Users.User, backend.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]
+DEBUG 2026-03-30 14:19:50,476 [2    ] Abp.AutoMapper.AbpAutoMapperModule       - Found 10 classes define auto mapping attributes
+DEBUG 2026-03-30 14:19:50,476 [2    ] Abp.AutoMapper.AbpAutoMapperModule       - backend.Users.Dto.CreateUserDto
+DEBUG 2026-03-30 14:19:50,479 [2    ] Abp.AutoMapper.AbpAutoMapperModule       - backend.Users.Dto.UserDto
+DEBUG 2026-03-30 14:19:50,479 [2    ] Abp.AutoMapper.AbpAutoMapperModule       - backend.Sessions.Dto.TenantLoginInfoDto
+DEBUG 2026-03-30 14:19:50,479 [2    ] Abp.AutoMapper.AbpAutoMapperModule       - backend.Sessions.Dto.UserLoginInfoDto
+DEBUG 2026-03-30 14:19:50,479 [2    ] Abp.AutoMapper.AbpAutoMapperModule       - backend.Services.LegalDocumentService.DTO.LegalDocumentDto
+DEBUG 2026-03-30 14:19:50,479 [2    ] Abp.AutoMapper.AbpAutoMapperModule       - backend.Services.LegalDocumentService.DTO.LegalDocumentListDto
+DEBUG 2026-03-30 14:19:50,479 [2    ] Abp.AutoMapper.AbpAutoMapperModule       - backend.Services.CategoryService.DTO.CategoryDto
+DEBUG 2026-03-30 14:19:50,479 [2    ] Abp.AutoMapper.AbpAutoMapperModule       - backend.Roles.Dto.PermissionDto
+DEBUG 2026-03-30 14:19:50,479 [2    ] Abp.AutoMapper.AbpAutoMapperModule       - backend.MultiTenancy.Dto.CreateTenantDto
+DEBUG 2026-03-30 14:19:50,480 [2    ] Abp.AutoMapper.AbpAutoMapperModule       - backend.MultiTenancy.Dto.TenantDto
+INFO  2026-03-30 14:19:51,542 [2    ] tCore.Builder.RequestLocalizationOptions - Supported Request Localization Cultures: en,es-MX,fr,de,it,nl,pt-BR,tr,ru,ar,fa,ja,zh-Hans
+INFO  2026-03-30 14:19:51,770 [2    ] Microsoft.Hosting.Lifetime               - Now listening on: https://localhost:44311
+INFO  2026-03-30 14:19:51,817 [2    ] Microsoft.Hosting.Lifetime               - Application started. Press Ctrl+C to shut down.
+INFO  2026-03-30 14:19:51,817 [2    ] Microsoft.Hosting.Lifetime               - Hosting environment: Development
+INFO  2026-03-30 14:19:51,817 [2    ] Microsoft.Hosting.Lifetime               - Content root path: C:\Users\Nhlakanipho\Documents\Projects\Mzansi-legal\backend\src\backend.Web.Host
+INFO  2026-03-30 14:19:52,892 [8    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/2 GET https://localhost:44311/ - - -
+INFO  2026-03-30 14:19:53,131 [6    ] ft.AspNetCore.Routing.EndpointMiddleware - Executing endpoint 'backend.Web.Host.Controllers.HomeController.Index (backend.Web.Host)'
+INFO  2026-03-30 14:19:53,204 [6    ] c.Infrastructure.ControllerActionInvoker - Route matched with {action = "Index", controller = "Home", area = ""}. Executing controller action with signature Microsoft.AspNetCore.Mvc.IActionResult Index() on controller backend.Web.Host.Controllers.HomeController (backend.Web.Host).
+INFO  2026-03-30 14:19:53,459 [6    ] vc.Infrastructure.RedirectResultExecutor - Executing RedirectResult, redirecting to /swagger.
+INFO  2026-03-30 14:19:53,474 [6    ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.HomeController.Index (backend.Web.Host) in 256.0664ms
+INFO  2026-03-30 14:19:53,475 [6    ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.HomeController.Index (backend.Web.Host)'
+INFO  2026-03-30 14:19:53,484 [6    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/2 GET https://localhost:44311/ - 302 - - 593.5065ms
+INFO  2026-03-30 14:19:53,574 [6    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/2 GET https://localhost:44311/swagger/ui/abp.js - - -
+INFO  2026-03-30 14:19:53,574 [8    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/2 GET https://localhost:44311/swagger/ui/abp.swagger.js - - -
+INFO  2026-03-30 14:19:53,574 [9    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/2 GET https://localhost:44311/_framework/aspnetcore-browser-refresh.js - - -
+INFO  2026-03-30 14:19:53,578 [8    ] NetCore.StaticFiles.StaticFileMiddleware - The file /swagger/ui/abp.swagger.js was not modified
+INFO  2026-03-30 14:19:53,578 [6    ] NetCore.StaticFiles.StaticFileMiddleware - The file /swagger/ui/abp.js was not modified
+INFO  2026-03-30 14:19:53,579 [8    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/2 GET https://localhost:44311/swagger/ui/abp.swagger.js - 304 - text/javascript 5.4344ms
+INFO  2026-03-30 14:19:53,579 [6    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/2 GET https://localhost:44311/swagger/ui/abp.js - 304 - text/javascript 5.4490ms
+INFO  2026-03-30 14:19:53,580 [18   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/2 GET https://localhost:44311/_framework/aspnetcore-browser-refresh.js - 200 14937 application/javascript;+charset=utf-8 6.2405ms
+INFO  2026-03-30 14:19:53,589 [6    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/2 GET https://localhost:44311/_vs/browserLink - - -
+INFO  2026-03-30 14:19:53,654 [15   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/2 GET https://localhost:44311/_vs/browserLink - 200 - text/javascript;+charset=UTF-8 65.3161ms
+INFO  2026-03-30 14:19:53,697 [8    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/2 GET https://localhost:44311/AntiForgery/SetCookie - - -
+INFO  2026-03-30 14:19:53,702 [8    ] ft.AspNetCore.Routing.EndpointMiddleware - Executing endpoint 'backend.Web.Host.Controllers.AntiForgeryController.SetCookie (backend.Web.Host)'
+INFO  2026-03-30 14:19:53,742 [8    ] c.Infrastructure.ControllerActionInvoker - Route matched with {action = "SetCookie", controller = "AntiForgery", area = ""}. Executing controller action with signature Void SetCookie() on controller backend.Web.Host.Controllers.AntiForgeryController (backend.Web.Host).
+INFO  2026-03-30 14:19:53,748 [19   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/2 GET https://localhost:44311/swagger/v1/swagger.json - - -
+INFO  2026-03-30 14:19:53,813 [8    ] .Mvc.Infrastructure.ObjectResultExecutor - Executing ObjectResult, writing value of type 'Abp.Web.Models.AjaxResponse'.
+INFO  2026-03-30 14:19:53,822 [8    ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.AntiForgeryController.SetCookie (backend.Web.Host) in 79.4453ms
+INFO  2026-03-30 14:19:53,822 [8    ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.AntiForgeryController.SetCookie (backend.Web.Host)'
+INFO  2026-03-30 14:19:53,822 [8    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/2 GET https://localhost:44311/AntiForgery/SetCookie - 200 - application/json;+charset=utf-8 125.2057ms
+INFO  2026-03-30 14:19:53,862 [8    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/2 GET https://localhost:44311/swagger/v1/swagger.json - 200 - application/json;charset=utf-8 114.0239ms
+INFO  2026-03-30 14:25:20,568 [19   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/2 OPTIONS https://localhost:44311/api/app/qa/ask - - -
+INFO  2026-03-30 14:25:20,588 [19   ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-03-30 14:25:20,601 [19   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/2 OPTIONS https://localhost:44311/api/app/qa/ask - 204 - - 32.9826ms
+INFO  2026-03-30 14:25:20,611 [6    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/2 POST https://localhost:44311/api/app/qa/ask - application/json 67
+INFO  2026-03-30 14:25:20,614 [6    ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-03-30 14:25:20,633 [6    ] ft.AspNetCore.Routing.EndpointMiddleware - Executing endpoint 'backend.Web.Host.Controllers.QaController.Ask (backend.Web.Host)'
+INFO  2026-03-30 14:25:20,688 [6    ] c.Infrastructure.ControllerActionInvoker - Route matched with {action = "Ask", controller = "Qa", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[backend.Services.RagService.DTO.RagAnswerResult] Ask(backend.Services.RagService.DTO.AskQuestionRequest) on controller backend.Web.Host.Controllers.QaController (backend.Web.Host).
+WARN  2026-03-30 14:25:21,879 [6    ] Mvc.ExceptionHandling.AbpExceptionFilter - Current user did not login to the application!
+Abp.Authorization.AbpAuthorizationException: Current user did not login to the application!
+   at Abp.Authorization.AuthorizationHelper.AuthorizeAsync(IEnumerable`1 authorizeAttributes)
+   at Abp.Authorization.AuthorizationHelper.CheckPermissionsAsync(MethodInfo methodInfo, Type type)
+   at Abp.Authorization.AuthorizationHelper.AuthorizeAsync(MethodInfo methodInfo, Type type)
+   at Abp.Authorization.AuthorizationInterceptor.InternalInterceptAsynchronous[TResult](IInvocation invocation)
+   at backend.Services.RagService.RagAppService.AskAsync(AskQuestionRequest request) in C:\Users\Nhlakanipho\Documents\Projects\Mzansi-legal\backend\src\backend.Application\Services\RagService\RagAppService.cs:line 123
+   at lambda_method1958(Closure, Object)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeNextExceptionFilterAsync>g__Awaited|26_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+INFO  2026-03-30 14:25:21,888 [6    ] .Mvc.Infrastructure.ObjectResultExecutor - Executing ObjectResult, writing value of type 'Abp.Web.Models.AjaxResponse'.
+INFO  2026-03-30 14:25:21,891 [6    ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.QaController.Ask (backend.Web.Host) in 1200.2754ms
+INFO  2026-03-30 14:25:21,891 [6    ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.QaController.Ask (backend.Web.Host)'
+INFO  2026-03-30 14:25:21,892 [6    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/2 POST https://localhost:44311/api/app/qa/ask - 401 - application/json;+charset=utf-8 1280.6952ms
+DEBUG 2026-03-30 14:32:20,422 [15   ] Abp.Modules.AbpModuleManager             - Shutting down has been started
+DEBUG 2026-03-30 14:32:20,425 [15   ] Abp.BackgroundJobs.BackgroundJobManager  - Stop background worker: Abp.BackgroundJobs.BackgroundJobManager
+DEBUG 2026-03-30 14:32:20,425 [15   ] , Culture=neutral, PublicKeyToken=null]] - Stop background worker: Abp.Authorization.Users.UserTokenExpirationWorker`2[[backend.MultiTenancy.Tenant, backend.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[backend.Authorization.Users.User, backend.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]
+DEBUG 2026-03-30 14:32:20,426 [15   ] Abp.BackgroundJobs.BackgroundJobManager  - WaitToStop background worker: Abp.BackgroundJobs.BackgroundJobManager
+DEBUG 2026-03-30 14:32:20,426 [15   ] , Culture=neutral, PublicKeyToken=null]] - WaitToStop background worker: Abp.Authorization.Users.UserTokenExpirationWorker`2[[backend.MultiTenancy.Tenant, backend.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[backend.Authorization.Users.User, backend.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]
+DEBUG 2026-03-30 14:32:20,427 [15   ] Abp.Modules.AbpModuleManager             - Shutting down completed.
+INFO  2026-03-30 14:32:20,428 [15   ] Microsoft.Hosting.Lifetime               - Application is shutting down...
+DEBUG 2026-03-30 14:32:33,676 [2    ] Abp.Modules.AbpModuleManager             - Loading Abp modules...
+DEBUG 2026-03-30 14:32:33,682 [2    ] Abp.Modules.AbpModuleManager             - Found 15 ABP modules in total.
+DEBUG 2026-03-30 14:32:33,694 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: backend.Web.Host.Startup.backendWebHostModule, backend.Web.Host, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:32:33,695 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: backend.backendWebCoreModule, backend.Web.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:32:33,695 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: backend.backendApplicationModule, backend.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:32:33,696 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: backend.backendCoreModule, backend.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:32:33,696 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: Abp.Zero.AbpZeroCoreModule, Abp.ZeroCore, Version=10.2.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:32:33,696 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: Abp.Zero.AbpZeroCommonModule, Abp.Zero.Common, Version=10.2.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:32:33,696 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: Abp.AbpKernelModule, Abp, Version=10.2.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:32:33,697 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: Abp.AutoMapper.AbpAutoMapperModule, Abp.AutoMapper, Version=10.2.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:32:33,697 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: backend.EntityFrameworkCore.backendEntityFrameworkModule, backend.EntityFrameworkCore, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:32:33,697 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: Abp.Zero.EntityFrameworkCore.AbpZeroCoreEntityFrameworkCoreModule, Abp.ZeroCore.EntityFrameworkCore, Version=10.2.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:32:33,697 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: Abp.EntityFrameworkCore.AbpEntityFrameworkCoreModule, Abp.EntityFrameworkCore, Version=10.2.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:32:33,698 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: Abp.EntityFramework.AbpEntityFrameworkCommonModule, Abp.EntityFramework.Common, Version=10.2.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:32:33,698 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: Abp.AspNetCore.AbpAspNetCoreModule, Abp.AspNetCore, Version=10.2.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:32:33,698 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: Abp.Web.AbpWebCommonModule, Abp.Web.Common, Version=10.2.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:32:33,698 [2    ] Abp.Modules.AbpModuleManager             - Loaded module: Abp.AspNetCore.SignalR.AbpAspNetCoreSignalRModule, Abp.AspNetCore.SignalR, Version=10.2.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:32:33,699 [2    ] Abp.Modules.AbpModuleManager             - 15 modules loaded.
+DEBUG 2026-03-30 14:32:33,731 [2    ] o.Configuration.LanguageManagementConfig - Converted Abp (Abp.Localization.Dictionaries.DictionaryBasedLocalizationSource) to MultiTenantLocalizationSource
+DEBUG 2026-03-30 14:32:33,731 [2    ] o.Configuration.LanguageManagementConfig - Converted AbpZero (Abp.Localization.Dictionaries.DictionaryBasedLocalizationSource) to MultiTenantLocalizationSource
+DEBUG 2026-03-30 14:32:33,731 [2    ] o.Configuration.LanguageManagementConfig - Converted backend (Abp.Localization.Dictionaries.DictionaryBasedLocalizationSource) to MultiTenantLocalizationSource
+DEBUG 2026-03-30 14:32:33,731 [2    ] o.Configuration.LanguageManagementConfig - Converted AbpWeb (Abp.Localization.Dictionaries.DictionaryBasedLocalizationSource) to MultiTenantLocalizationSource
+DEBUG 2026-03-30 14:32:33,927 [2    ] ameworkCore.AbpEntityFrameworkCoreModule - Registering DbContext: backend.EntityFrameworkCore.backendDbContext, backend.EntityFrameworkCore, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+DEBUG 2026-03-30 14:32:34,082 [2    ] Abp.Localization.LocalizationManager     - Initializing 4 localization sources.
+DEBUG 2026-03-30 14:32:34,112 [2    ] Abp.Localization.LocalizationManager     - Initialized localization source: Abp
+DEBUG 2026-03-30 14:32:34,120 [2    ] Abp.Localization.LocalizationManager     - Initialized localization source: AbpZero
+DEBUG 2026-03-30 14:32:34,124 [2    ] Abp.Localization.LocalizationManager     - Initialized localization source: backend
+DEBUG 2026-03-30 14:32:34,127 [2    ] Abp.Localization.LocalizationManager     - Initialized localization source: AbpWeb
+DEBUG 2026-03-30 14:32:34,135 [2    ] Abp.BackgroundJobs.BackgroundJobManager  - Start background worker: Abp.BackgroundJobs.BackgroundJobManager
+DEBUG 2026-03-30 14:32:34,138 [2    ] , Culture=neutral, PublicKeyToken=null]] - Start background worker: Abp.Authorization.Users.UserTokenExpirationWorker`2[[backend.MultiTenancy.Tenant, backend.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[backend.Authorization.Users.User, backend.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]
+DEBUG 2026-03-30 14:32:34,153 [2    ] Abp.AutoMapper.AbpAutoMapperModule       - Found 10 classes define auto mapping attributes
+DEBUG 2026-03-30 14:32:34,153 [2    ] Abp.AutoMapper.AbpAutoMapperModule       - backend.Users.Dto.CreateUserDto
+DEBUG 2026-03-30 14:32:34,155 [2    ] Abp.AutoMapper.AbpAutoMapperModule       - backend.Users.Dto.UserDto
+DEBUG 2026-03-30 14:32:34,156 [2    ] Abp.AutoMapper.AbpAutoMapperModule       - backend.Sessions.Dto.TenantLoginInfoDto
+DEBUG 2026-03-30 14:32:34,156 [2    ] Abp.AutoMapper.AbpAutoMapperModule       - backend.Sessions.Dto.UserLoginInfoDto
+DEBUG 2026-03-30 14:32:34,156 [2    ] Abp.AutoMapper.AbpAutoMapperModule       - backend.Services.LegalDocumentService.DTO.LegalDocumentDto
+DEBUG 2026-03-30 14:32:34,156 [2    ] Abp.AutoMapper.AbpAutoMapperModule       - backend.Services.LegalDocumentService.DTO.LegalDocumentListDto
+DEBUG 2026-03-30 14:32:34,156 [2    ] Abp.AutoMapper.AbpAutoMapperModule       - backend.Services.CategoryService.DTO.CategoryDto
+DEBUG 2026-03-30 14:32:34,156 [2    ] Abp.AutoMapper.AbpAutoMapperModule       - backend.Roles.Dto.PermissionDto
+DEBUG 2026-03-30 14:32:34,156 [2    ] Abp.AutoMapper.AbpAutoMapperModule       - backend.MultiTenancy.Dto.CreateTenantDto
+DEBUG 2026-03-30 14:32:34,156 [2    ] Abp.AutoMapper.AbpAutoMapperModule       - backend.MultiTenancy.Dto.TenantDto
+INFO  2026-03-30 14:32:35,224 [2    ] tCore.Builder.RequestLocalizationOptions - Supported Request Localization Cultures: en,es-MX,fr,de,it,nl,pt-BR,tr,ru,ar,fa,ja,zh-Hans
+INFO  2026-03-30 14:32:35,464 [2    ] Microsoft.Hosting.Lifetime               - Now listening on: https://localhost:44311
+INFO  2026-03-30 14:32:35,509 [2    ] Microsoft.Hosting.Lifetime               - Application started. Press Ctrl+C to shut down.
+INFO  2026-03-30 14:32:35,510 [2    ] Microsoft.Hosting.Lifetime               - Hosting environment: Development
+INFO  2026-03-30 14:32:35,510 [2    ] Microsoft.Hosting.Lifetime               - Content root path: C:\Users\Nhlakanipho\Documents\Projects\Mzansi-legal\backend\src\backend.Web.Host
+INFO  2026-03-30 14:32:35,829 [6    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/2 GET https://localhost:44311/ - - -
+INFO  2026-03-30 14:32:36,083 [16   ] ft.AspNetCore.Routing.EndpointMiddleware - Executing endpoint 'backend.Web.Host.Controllers.HomeController.Index (backend.Web.Host)'
+INFO  2026-03-30 14:32:36,205 [16   ] c.Infrastructure.ControllerActionInvoker - Route matched with {action = "Index", controller = "Home", area = ""}. Executing controller action with signature Microsoft.AspNetCore.Mvc.IActionResult Index() on controller backend.Web.Host.Controllers.HomeController (backend.Web.Host).
+INFO  2026-03-30 14:32:36,603 [6    ] vc.Infrastructure.RedirectResultExecutor - Executing RedirectResult, redirecting to /swagger.
+INFO  2026-03-30 14:32:36,632 [6    ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.HomeController.Index (backend.Web.Host) in 401.1353ms
+INFO  2026-03-30 14:32:36,632 [6    ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.HomeController.Index (backend.Web.Host)'
+INFO  2026-03-30 14:32:36,647 [6    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/2 GET https://localhost:44311/ - 302 - - 815.9004ms
+INFO  2026-03-30 14:32:36,707 [9    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/2 GET https://localhost:44311/_framework/aspnetcore-browser-refresh.js - - -
+INFO  2026-03-30 14:32:36,707 [16   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/2 GET https://localhost:44311/_vs/browserLink - - -
+INFO  2026-03-30 14:32:36,726 [8    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/2 GET https://localhost:44311/_framework/aspnetcore-browser-refresh.js - 200 14937 application/javascript;+charset=utf-8 18.7648ms
+INFO  2026-03-30 14:32:36,758 [16   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/2 GET https://localhost:44311/_vs/browserLink - 200 - text/javascript;+charset=UTF-8 51.7310ms
+INFO  2026-03-30 14:32:37,398 [16   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/2 GET https://localhost:44311/AntiForgery/SetCookie - - -
+INFO  2026-03-30 14:32:37,403 [16   ] ft.AspNetCore.Routing.EndpointMiddleware - Executing endpoint 'backend.Web.Host.Controllers.AntiForgeryController.SetCookie (backend.Web.Host)'
+INFO  2026-03-30 14:32:37,430 [15   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/2 GET https://localhost:44311/swagger/v1/swagger.json - - -
+INFO  2026-03-30 14:32:37,431 [16   ] c.Infrastructure.ControllerActionInvoker - Route matched with {action = "SetCookie", controller = "AntiForgery", area = ""}. Executing controller action with signature Void SetCookie() on controller backend.Web.Host.Controllers.AntiForgeryController (backend.Web.Host).
+INFO  2026-03-30 14:32:37,484 [16   ] .Mvc.Infrastructure.ObjectResultExecutor - Executing ObjectResult, writing value of type 'Abp.Web.Models.AjaxResponse'.
+INFO  2026-03-30 14:32:37,493 [16   ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.AntiForgeryController.SetCookie (backend.Web.Host) in 62.1794ms
+INFO  2026-03-30 14:32:37,528 [16   ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.AntiForgeryController.SetCookie (backend.Web.Host)'
+INFO  2026-03-30 14:32:37,528 [16   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/2 GET https://localhost:44311/AntiForgery/SetCookie - 200 - application/json;+charset=utf-8 130.4228ms
+INFO  2026-03-30 14:32:37,579 [15   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/2 GET https://localhost:44311/swagger/v1/swagger.json - 200 - application/json;charset=utf-8 148.9088ms
+INFO  2026-03-30 14:33:22,471 [15   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/2 OPTIONS https://localhost:44311/api/app/qa/ask - - -
+INFO  2026-03-30 14:33:22,476 [15   ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-03-30 14:33:22,478 [15   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/2 OPTIONS https://localhost:44311/api/app/qa/ask - 204 - - 6.7252ms
+INFO  2026-03-30 14:33:22,481 [19   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/2 POST https://localhost:44311/api/app/qa/ask - application/json 91
+INFO  2026-03-30 14:33:22,481 [19   ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-03-30 14:33:22,483 [19   ] ft.AspNetCore.Routing.EndpointMiddleware - Executing endpoint 'backend.Web.Host.Controllers.QaController.Ask (backend.Web.Host)'
+INFO  2026-03-30 14:33:22,498 [19   ] c.Infrastructure.ControllerActionInvoker - Route matched with {action = "Ask", controller = "Qa", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[backend.Services.RagService.DTO.RagAnswerResult] Ask(backend.Services.RagService.DTO.AskQuestionRequest) on controller backend.Web.Host.Controllers.QaController (backend.Web.Host).
+WARN  2026-03-30 14:33:22,994 [19   ] Mvc.ExceptionHandling.AbpExceptionFilter - Current user did not login to the application!
+Abp.Authorization.AbpAuthorizationException: Current user did not login to the application!
+   at Abp.Authorization.AuthorizationHelper.AuthorizeAsync(IEnumerable`1 authorizeAttributes)
+   at Abp.Authorization.AuthorizationHelper.CheckPermissionsAsync(MethodInfo methodInfo, Type type)
+   at Abp.Authorization.AuthorizationHelper.AuthorizeAsync(MethodInfo methodInfo, Type type)
+   at Abp.Authorization.AuthorizationInterceptor.InternalInterceptAsynchronous[TResult](IInvocation invocation)
+   at backend.Services.RagService.RagAppService.AskAsync(AskQuestionRequest request) in C:\Users\Nhlakanipho\Documents\Projects\Mzansi-legal\backend\src\backend.Application\Services\RagService\RagAppService.cs:line 123
+   at lambda_method1958(Closure, Object)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeNextExceptionFilterAsync>g__Awaited|26_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+INFO  2026-03-30 14:33:23,001 [19   ] .Mvc.Infrastructure.ObjectResultExecutor - Executing ObjectResult, writing value of type 'Abp.Web.Models.AjaxResponse'.
+INFO  2026-03-30 14:33:23,003 [19   ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.QaController.Ask (backend.Web.Host) in 504.4628ms
+INFO  2026-03-30 14:33:23,003 [19   ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.QaController.Ask (backend.Web.Host)'
+INFO  2026-03-30 14:33:23,004 [19   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/2 POST https://localhost:44311/api/app/qa/ask - 401 - application/json;+charset=utf-8 523.0620ms
