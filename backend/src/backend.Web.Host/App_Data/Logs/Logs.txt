@@ -1058,3 +1058,14 @@ INFO  2026-03-30 14:33:23,001 [19   ] .Mvc.Infrastructure.ObjectResultExecutor -
 INFO  2026-03-30 14:33:23,003 [19   ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.QaController.Ask (backend.Web.Host) in 504.4628ms
 INFO  2026-03-30 14:33:23,003 [19   ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.QaController.Ask (backend.Web.Host)'
 INFO  2026-03-30 14:33:23,004 [19   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/2 POST https://localhost:44311/api/app/qa/ask - 401 - application/json;+charset=utf-8 523.0620ms
+INFO  2026-03-30 15:20:32,806 [20   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/2 GET https://localhost:44311/_framework/aspnetcore-browser-refresh.js - - -
+INFO  2026-03-30 15:20:32,826 [20   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/2 GET https://localhost:44311/_framework/aspnetcore-browser-refresh.js - 200 14937 application/javascript;+charset=utf-8 20.3087ms
+INFO  2026-03-30 15:20:33,392 [15   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/2 GET https://localhost:44311/AntiForgery/SetCookie - - -
+INFO  2026-03-30 15:20:33,418 [20   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/2 GET https://localhost:44311/swagger/v1/swagger.json - - -
+INFO  2026-03-30 15:20:33,427 [15   ] ft.AspNetCore.Routing.EndpointMiddleware - Executing endpoint 'backend.Web.Host.Controllers.AntiForgeryController.SetCookie (backend.Web.Host)'
+INFO  2026-03-30 15:20:33,467 [15   ] c.Infrastructure.ControllerActionInvoker - Route matched with {action = "SetCookie", controller = "AntiForgery", area = ""}. Executing controller action with signature Void SetCookie() on controller backend.Web.Host.Controllers.AntiForgeryController (backend.Web.Host).
+INFO  2026-03-30 15:20:33,590 [9    ] .Mvc.Infrastructure.ObjectResultExecutor - Executing ObjectResult, writing value of type 'Abp.Web.Models.AjaxResponse'.
+INFO  2026-03-30 15:20:33,592 [9    ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.AntiForgeryController.SetCookie (backend.Web.Host) in 124.2781ms
+INFO  2026-03-30 15:20:33,592 [9    ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.AntiForgeryController.SetCookie (backend.Web.Host)'
+INFO  2026-03-30 15:20:33,594 [9    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/2 GET https://localhost:44311/AntiForgery/SetCookie - 200 - application/json;+charset=utf-8 202.1480ms
+INFO  2026-03-30 15:20:33,623 [20   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/2 GET https://localhost:44311/swagger/v1/swagger.json - 200 - application/json;charset=utf-8 204.5653ms
