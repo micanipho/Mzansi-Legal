@@ -1,5 +1,10 @@
-import AskExperience from "@/components/chat/AskExperience";
+import { Suspense } from "react";
+import QaChatPage from "@/components/chat/QaChatPage";
 
 export default function AskPage() {
-  return <AskExperience />;
+  return (
+    <Suspense>
+      <QaChatPage />
+    </Suspense>
+  );
 }

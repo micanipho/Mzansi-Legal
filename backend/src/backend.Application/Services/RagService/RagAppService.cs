@@ -150,9 +150,12 @@ public class RagAppService : ApplicationService, IRagAppService
         var userPrompt = RagPromptBuilder.BuildUserPrompt(request.QuestionText, contextBlock);
         var answerText = await CallChatCompletionsAsync(systemPrompt, userPrompt);
 
-        // Persist the Q&A chain and get the persisted Answer ID.
-        var userId = AbpSession.UserId ?? 0L;
-        var answerId = await PersistQaAsync(userId, request.QuestionText, answerText, topChunks);
+        // Persist the Q&A chain only when a user session exists (auth is deferred in this phase).
+        Guid? answerId = null;
+        if (AbpSession.UserId.HasValue)
+        {
+            answerId = await PersistQaAsync(AbpSession.UserId.Value, request.QuestionText, answerText, topChunks);
+        }
 
         // Build and return the result.
         var citations = topChunks.Select(c => new RagCitationDto

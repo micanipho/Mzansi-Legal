@@ -12,7 +12,7 @@ namespace backend.Web.Host.Controllers
     /// Answers are grounded in retrieved South African legislation and include verifiable citations.
     /// </summary>
     [Route("api/app/qa")]
-    [AbpAuthorize]
+    // [AbpAuthorize]
     public class QaController : backendControllerBase
     {
         private readonly IRagAppService _ragAppService;
