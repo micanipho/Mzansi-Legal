@@ -1,6 +1,6 @@
 ﻿# Mzansi-legal Development Guidelines
 
-Auto-generated from all feature plans. Last updated: 2026-03-28
+Auto-generated from all feature plans. Last updated: 2026-03-30
 
 ## Active Technologies
 - C# / .NET 9.0 + ABP Zero 10.x, Npgsql.EntityFrameworkCore.PostgreSQL 9.0.4, EF Core 9.0.5 (003-abp-backend-setup)
@@ -18,6 +18,8 @@ Auto-generated from all feature plans. Last updated: 2026-03-28
 - PostgreSQL 15+ via Npgsql; `float[]` stored as `real[]`; new columns on `IngestionJobs` and `DocumentChunks` (010-etl-ingestion-pipeline)
 - C# on .NET 9.0 + ABP Zero 10.x, Entity Framework Core 9.0.5, Npgsql.EntityFrameworkCore.PostgreSQL 9.0.x, Ardalis.GuardClauses, UglyToad.PdfPig, System.Net.Http.Json (in-box) (012-legislation-seed-data)
 - PostgreSQL 15+ via Npgsql; existing schema (no new migrations) (012-legislation-seed-data)
+- C# on .NET 9.0 + ABP Zero 10.x, EF Core 9.0.5, Npgsql.EntityFrameworkCore.PostgreSQL 9.0.x, ASP.NET Core 9.0 (013-railway-docker-deploy)
+- PostgreSQL 15+ — provisioned as Railway PostgreSQL plugin (013-railway-docker-deploy)
 
 - C# on .NET 9.0 + ABP Zero 10.x, Npgsql.EntityFrameworkCore.PostgreSQL 9.0.x, EF Core 9.0.5 (003-abp-backend-setup)
 
@@ -38,9 +40,9 @@ tests/
 C# on .NET 9.0: Follow standard conventions
 
 ## Recent Changes
+- 013-railway-docker-deploy: Added C# on .NET 9.0 + ABP Zero 10.x, EF Core 9.0.5, Npgsql.EntityFrameworkCore.PostgreSQL 9.0.x, ASP.NET Core 9.0
 - 012-legislation-seed-data: Added C# on .NET 9.0 + ABP Zero 10.x, Entity Framework Core 9.0.5, Npgsql.EntityFrameworkCore.PostgreSQL 9.0.x, Ardalis.GuardClauses, UglyToad.PdfPig, System.Net.Http.Json (in-box)
 - 012-legislation-seed-data: Added [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION] + [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]
-- 010-etl-ingestion-pipeline: Added C# on .NET 9.0 + ABP Zero 10.x, Entity Framework Core 9.0.5, Npgsql 9.0.x, Ardalis.GuardClauses, UglyToad.PdfPig, System.Net.Http.Json (in-box)
 
 
 <!-- MANUAL ADDITIONS START -->
