@@ -4,7 +4,9 @@ using Abp.AspNetCore.SignalR.Hubs;
 using Abp.Castle.Logging.Log4Net;
 using Abp.Extensions;
 using backend.Configuration;
+using backend.EntityFrameworkCore;
 using backend.Identity;
+using Microsoft.EntityFrameworkCore;
 using Castle.Facilities.Logging;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -93,6 +95,10 @@ namespace backend.Web.Host.Startup
         {
             app.UseAbp(options => { options.UseAbpRequestLocalization = false; }); // Initializes ABP framework.
 
+            // Apply any pending EF Core migrations at startup so the schema is always
+            // current after a Railway deployment without requiring a manual migration step.
+            ApplyDatabaseMigrations(app);
+
             app.UseCors(_defaultCorsPolicyName); // Enable CORS!
 
             app.UseStaticFiles();
@@ -123,6 +129,27 @@ namespace backend.Web.Host.Startup
                     .GetManifestResourceStream("backend.Web.Host.wwwroot.swagger.ui.index.html");
                 options.DisplayRequestDuration(); // Controls the display of the request duration (in milliseconds) for "Try it out" requests.
             }); // URL: /swagger
+        }
+
+        /// <summary>
+        /// Applies all pending EF Core migrations to the database. Called once at startup.
+        /// Fails fast with a logged exception if migration cannot complete, preventing the
+        /// service from accepting traffic against an out-of-date schema.
+        /// </summary>
+        private static void ApplyDatabaseMigrations(IApplicationBuilder app)
+        {
+            using (var scope = app.ApplicationServices.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<backendDbContext>();
+                try
+                {
+                    dbContext.Database.Migrate();
+                }
+                catch (Exception ex)
+                {
+                    throw new InvalidOperationException("Database migration failed at startup. The service will not start.", ex);
+                }
+            }
         }
 
         private void ConfigureSwagger(IServiceCollection services)
