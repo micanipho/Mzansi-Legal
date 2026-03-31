@@ -17,10 +17,10 @@
 
 **Purpose**: Restore the working tree and verify the dev environment is ready.
 
-- [ ] T001 Restore all frontend files from git: `git checkout HEAD -- frontend/`
-- [ ] T002 Install dependencies: `cd frontend && npm install`
-- [ ] T003 [P] Create `frontend/.env.local` with `NEXT_PUBLIC_API_BASE=http://localhost:21021`
-- [ ] T004 Verify dev server starts: `cd frontend && npm run dev` → `http://localhost:3000/en`
+- [x] T001 Restore all frontend files from git: `git checkout HEAD -- frontend/`
+- [x] T002 Install dependencies: `cd frontend && npm install`
+- [x] T003 [P] Create `frontend/.env.local` with `NEXT_PUBLIC_API_BASE=http://localhost:21021`
+- [x] T004 Verify dev server starts: `cd frontend && npm run dev` → `http://localhost:3000/en`
 
 **Checkpoint**: Dev server running, all routes accessible (may show partial data)
 
@@ -32,18 +32,18 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T005 Verify CSS variables in `frontend/src/styles/globals.css` match design tokens (colours, fonts, shadows) from the design reference PDFs
-- [ ] T006 [P] Verify TypeScript token exports in `frontend/src/styles/theme.ts` — ensure `C`, `R`, `fontSerif`, `fontSans`, `shadowOrganic` are complete and correctly typed
-- [ ] T007 Verify `AuthProvider` in `frontend/src/components/providers/AuthProvider.tsx` correctly reads `ml_token` and `ml_user` cookies on mount and exposes `{ user, isLoading, signIn, signOut }` via context
-- [ ] T008 Verify `useAuth` hook in `frontend/src/hooks/useAuth.ts` re-exports the auth context correctly
-- [ ] T009 [P] Verify `appRoutes` and `createLocalizedPath` in `frontend/src/i18n/routing.ts` contain all 8 routes: home, ask, contracts, rights, history, auth, adminDashboard, and the `[id]` contract detail helper
-- [ ] T010 Verify root layout `frontend/src/app/[locale]/layout.tsx` wraps all pages with `AntdProvider`, `AuthProvider`, and `AppNavbar`
-- [ ] T011 Verify `AppNavbar` in `frontend/src/components/layout/AppNavbar.tsx`:
+- [x] T005 Verify CSS variables in `frontend/src/styles/globals.css` match design tokens (colours, fonts, shadows) from the design reference PDFs
+- [x] T006 [P] Verify TypeScript token exports in `frontend/src/styles/theme.ts` — ensure `C`, `R`, `fontSerif`, `fontSans`, `shadowOrganic` are complete and correctly typed
+- [x] T007 Verify `AuthProvider` in `frontend/src/components/providers/AuthProvider.tsx` correctly reads `ml_token` and `ml_user` cookies on mount and exposes `{ user, isLoading, signIn, signOut }` via context
+- [x] T008 Verify `useAuth` hook in `frontend/src/hooks/useAuth.ts` re-exports the auth context correctly
+- [x] T009 [P] Verify `appRoutes` and `createLocalizedPath` in `frontend/src/i18n/routing.ts` contain all 8 routes: home, ask, contracts, rights, history, auth, adminDashboard, and the `[id]` contract detail helper
+- [x] T010 Verify root layout `frontend/src/app/[locale]/layout.tsx` wraps all pages with `AntdProvider`, `AuthProvider`, and `AppNavbar`
+- [x] T011 Verify `AppNavbar` in `frontend/src/components/layout/AppNavbar.tsx`:
   - Active link indicator matches current pathname
   - Language selector switches locale correctly using `buildLocaleSwitchHref`
   - Shows "Get started" when unauthenticated; shows user initials + dropdown when authenticated
   - Admin users see the Dashboard link in the nav links
-- [ ] T012 [P] Verify `AntdProvider` in `frontend/src/components/providers/AntdProvider.tsx` applies the `antdTheme` config from `frontend/src/styles/theme.ts`
+- [x] T012 [P] Verify `AntdProvider` in `frontend/src/components/providers/AntdProvider.tsx` applies the `antdTheme` config from `frontend/src/styles/theme.ts`
 
 **Checkpoint**: Design system tokens confirmed, auth context working, navbar functional across all locales
 
@@ -233,7 +233,7 @@
 
 ### Implementation
 
-- [ ] T042 [US5] Implement History page `frontend/src/app/[locale]/history/page.tsx`:
+- [x] T042 [US5] Implement History page `frontend/src/app/[locale]/history/page.tsx`:
   - Auth guard: redirect to auth if unauthenticated
   - On mount: fetch conversation list from `GET /api/conversations` via `qaService` (or `historyService`)
   - Loading state: skeleton or spinner while fetching
@@ -289,7 +289,7 @@
 **Purpose**: Final quality checks across all pages before PR.
 
 - [ ] T050 [P] Run i18n key audit: start dev server and open each of the 8 routes in all 4 locales — verify no `[MISSING]` keys appear in the UI or browser console
-- [ ] T051 [P] Run TypeScript build check: `cd frontend && npm run build` — zero type errors required
+- [x] T051 [P] Run TypeScript build check: `cd frontend && npm run build` — zero type errors required
 - [ ] T052 [P] Accessibility spot-check: tab through each page's interactive elements (nav links, language selector, form inputs, card expand toggles, chat input, voice buttons) — verify focus ring is visible and `aria-*` attributes are present
 - [ ] T053 Verify all 8 routes are reachable at desktop width (1280px) with no horizontal scroll or layout overflow
 - [ ] T054 Verify all 8 routes are usable at tablet width (768px) — content visible, nav accessible, no clipping
