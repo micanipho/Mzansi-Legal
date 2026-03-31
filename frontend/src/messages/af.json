@@ -67,7 +67,9 @@
     "catInsuranceTitle": "Versekering & Aftrede",
     "catInsuranceDesc": "Eise, uitbetalings en voorsieningsfondse.",
     "catSafetyTitle": "Veiligheid & Teistering",
-    "catSafetyDesc": "Beskermingsbevele en werkplek-veiligheid."
+    "catSafetyDesc": "Beskermingsbevele en werkplek-veiligheid.",
+    "heroCtaGuest": "Begin Nou",
+    "heroCtaUser": "Gaan na App"
   },
   "chat": {
     "title": "Regs V&A",
@@ -175,14 +177,22 @@
   },
   "auth": {
     "loginTitle": "Meld Aan",
+    "signInTitle": "Meld Aan",
     "registerTitle": "Skep Rekening",
     "emailLabel": "E-posadres",
     "passwordLabel": "Wagwoord",
     "nameLabel": "Volle Naam",
+    "languageLabel": "Voorkeur Taal",
     "loginButton": "Meld Aan",
+    "signInButton": "Meld Aan",
     "registerButton": "Registreer",
     "switchToRegister": "Het jy nie 'n rekening nie? Registreer",
-    "switchToLogin": "Het jy al 'n rekening? Meld Aan"
+    "switchToSignIn": "Het jy al 'n rekening? Meld Aan",
+    "switchToLogin": "Het jy al 'n rekening? Meld Aan",
+    "invalidCredentials": "Ongeldige e-pos of wagwoord. Probeer asseblief weer.",
+    "emailTaken": "Hierdie e-posadres is reeds geregistreer.",
+    "signOutMenuItem": "Meld Af",
+    "adminDashboardLink": "Admin-kontroleskerm"
   },
   "admin": {
     "dashboardTitle": "Admin-kontroleskerm",

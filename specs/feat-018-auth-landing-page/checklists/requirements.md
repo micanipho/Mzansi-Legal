@@ -1,7 +1,7 @@
-# Specification Quality Checklist: Auth, Roles & Landing Page
+# Specification Quality Checklist: Auth Pages and Landing Page
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
-**Created**: 2026-03-30
+**Created**: 2026-03-31
 **Feature**: [spec.md](../spec.md)
 
 ## Content Quality
@@ -25,14 +25,13 @@
 ## Feature Readiness
 
 - [x] All functional requirements have clear acceptance criteria
-- [x] User scenarios cover primary flows (sign-in, register, role redirect, landing page, sign-out, i18n)
+- [x] User scenarios cover primary flows
 - [x] Feature meets measurable outcomes defined in Success Criteria
 - [x] No implementation details leak into specification
 
 ## Notes
 
-- All items pass. Spec is ready for `/speckit.plan`.
-- Merged scope from feat/017-roles-landing-page (created in error); that branch should be deleted.
-- Role source (token claims vs profile endpoint) documented as an assumption — implementation will determine the exact mechanism.
-- New primary color (deep teal) is documented as an assumption; exact shade confirmed during implementation.
-- "Forgot password", email verification, and route-level protection for regular pages are explicitly out of scope.
+- Out-of-scope items explicitly documented: social login, password reset, email verification
+- Token storage method intentionally left to implementation team
+- Admin account seeding referenced without implementation detail
+- All 5 user stories are independently testable and deliverable as MVPs

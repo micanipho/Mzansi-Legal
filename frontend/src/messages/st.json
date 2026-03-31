@@ -67,7 +67,9 @@
     "catInsuranceTitle": "Inshorense & Thobalano",
     "catInsuranceDesc": "Dikopo, ditefiso, le matlole a thobalano.",
     "catSafetyTitle": "Polokeho & Ho Hlaselwa",
-    "catSafetyDesc": "Ditaelo tsa tshireletso le polokeho lefelong la mosebetsi."
+    "catSafetyDesc": "Ditaelo tsa tshireletso le polokeho lefelong la mosebetsi.",
+    "heroCtaGuest": "Qala",
+    "heroCtaUser": "Ea ho App"
   },
   "chat": {
     "title": "Dipotso le Dikarabo tsa Molao",
@@ -175,14 +177,22 @@
   },
   "auth": {
     "loginTitle": "Kena",
+    "signInTitle": "Kena",
     "registerTitle": "Theha Akhaonto",
     "emailLabel": "Aterese ya Imeile",
     "passwordLabel": "Phasewete",
     "nameLabel": "Lebitso le feletseng",
+    "languageLabel": "Puo e Ratehang",
     "loginButton": "Kena",
+    "signInButton": "Kena",
     "registerButton": "Ngodisa",
     "switchToRegister": "Ha o na akhaonto? Ngodisa",
-    "switchToLogin": "O setse o na le akhaonto? Kena"
+    "switchToSignIn": "O setse o na le akhaonto? Kena",
+    "switchToLogin": "O setse o na le akhaonto? Kena",
+    "invalidCredentials": "Imeile kapa phasewete e fosahetseng. Ke kopa o leke hape.",
+    "emailTaken": "Aterese ena ya imeile e setse e ngodisitswe.",
+    "signOutMenuItem": "Tswa",
+    "adminDashboardLink": "Lephata la Motsamaisi"
   },
   "admin": {
     "dashboardTitle": "Lephata la Motsamaisi",

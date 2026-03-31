@@ -4,13 +4,14 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { Scale } from "lucide-react";
-import { startTransition } from "react";
+import { startTransition, useState, useRef, useEffect } from "react";
 import {
   appRoutes,
   createLocalizedPath,
   supportedLocales,
 } from "@/i18n/routing";
 import { buildLocaleSwitchHref } from "@/i18n/localeSwitch";
+import { useAuth } from "@/hooks/useAuth";
 import { C, fontSans, fontSerif, shadowOrganic } from "@/styles/theme";
 
 const NAV_LINKS = [
@@ -21,6 +22,13 @@ const NAV_LINKS = [
   { labelKey: "dashboard", path: appRoutes.adminDashboard },
 ] as const;
 
+function getUserInitials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  if (parts.length === 1) return parts[0][0].toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
 export default function AppNavbar() {
   const locale = useLocale();
   const pathname = usePathname();
@@ -28,6 +36,22 @@ export default function AppNavbar() {
   const router = useRouter();
   const tNav = useTranslations("nav");
   const tCommon = useTranslations("common");
+  const tAuth = useTranslations("auth");
+  const { user, signOut } = useAuth();
+
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const isActive = (path: string) => {
     const full = createLocalizedPath(locale, path);
@@ -155,23 +179,114 @@ export default function AppNavbar() {
             </select>
           </label>
 
-          <Link
-            href={createLocalizedPath(locale, appRoutes.ask)}
-            className="app-navbar-link"
-            style={{
-              background: C.primary,
-              color: C.primaryFg,
-              padding: "10px 24px",
-              borderRadius: 9999,
-              fontSize: 14,
-              fontWeight: 700,
-              textDecoration: "none",
-              fontFamily: fontSans,
-              whiteSpace: "nowrap",
-            }}
-          >
-            {tNav("getStarted")}
-          </Link>
+          {user ? (
+            /* User avatar + dropdown */
+            <div ref={dropdownRef} style={{ position: "relative" }}>
+              <button
+                onClick={() => setDropdownOpen((v) => !v)}
+                aria-haspopup="menu"
+                aria-expanded={dropdownOpen}
+                aria-label={`${user.name} — open menu`}
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: 9999,
+                  background: C.primary,
+                  color: C.primaryFg,
+                  fontFamily: fontSerif,
+                  fontWeight: 700,
+                  fontSize: 15,
+                  border: "none",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                }}
+              >
+                {getUserInitials(user.name)}
+              </button>
+
+              {dropdownOpen && (
+                <div
+                  role="menu"
+                  style={{
+                    position: "absolute",
+                    top: "calc(100% + 8px)",
+                    right: 0,
+                    minWidth: 200,
+                    background: "#fff",
+                    border: `1px solid ${C.border}`,
+                    borderRadius: 16,
+                    boxShadow: shadowOrganic,
+                    overflow: "hidden",
+                    zIndex: 100,
+                  }}
+                >
+                  {user.isAdmin && (
+                    <Link
+                      href={createLocalizedPath(locale, appRoutes.adminDashboard)}
+                      role="menuitem"
+                      onClick={() => setDropdownOpen(false)}
+                      style={{
+                        display: "block",
+                        padding: "12px 16px",
+                        textDecoration: "none",
+                        color: C.fg,
+                        fontSize: 14,
+                        fontWeight: 600,
+                        fontFamily: fontSans,
+                        borderBottom: `1px solid ${C.border}`,
+                      }}
+                    >
+                      {tAuth("adminDashboardLink")}
+                    </Link>
+                  )}
+                  <button
+                    role="menuitem"
+                    onClick={() => {
+                      setDropdownOpen(false);
+                      signOut();
+                    }}
+                    style={{
+                      display: "block",
+                      width: "100%",
+                      padding: "12px 16px",
+                      textAlign: "left",
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      color: C.fg,
+                      fontSize: 14,
+                      fontWeight: 600,
+                      fontFamily: fontSans,
+                    }}
+                  >
+                    {tAuth("signOutMenuItem")}
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            /* Sign In link for unauthenticated users */
+            <Link
+              href={createLocalizedPath(locale, appRoutes.auth)}
+              className="app-navbar-link"
+              style={{
+                background: C.primary,
+                color: C.primaryFg,
+                padding: "10px 24px",
+                borderRadius: 9999,
+                fontSize: 14,
+                fontWeight: 700,
+                textDecoration: "none",
+                fontFamily: fontSans,
+                whiteSpace: "nowrap",
+              }}
+            >
+              {tAuth("signInTitle")}
+            </Link>
+          )}
         </div>
       </nav>
     </header>

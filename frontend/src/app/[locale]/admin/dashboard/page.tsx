@@ -1,8 +1,14 @@
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 import { Activity, FileText, Globe2, ShieldAlert } from "lucide-react";
-import { getTranslations } from "next-intl/server";
 import InsightChart from "@/components/dashboard/InsightChart";
 import SectionCard from "@/components/dashboard/SectionCard";
 import SummaryCard from "@/components/dashboard/SummaryCard";
+import { useAuth } from "@/hooks/useAuth";
+import { appRoutes, createLocalizedPath } from "@/i18n/routing";
 import { C } from "@/styles/theme";
 
 const insightData = [
@@ -11,8 +17,40 @@ const insightData = [
   { label: "Credit", value: 42, tone: "danger" },
 ];
 
-export default async function AdminDashboardPage() {
-  const t = await getTranslations("admin");
+export default function AdminDashboardPage() {
+  const t = useTranslations("admin");
+  const locale = useLocale();
+  const router = useRouter();
+  const { user, isLoading } = useAuth();
+
+  useEffect(() => {
+    if (isLoading) return;
+
+    if (!user) {
+      // Not authenticated — redirect to auth
+      router.push(createLocalizedPath(locale, appRoutes.auth));
+      return;
+    }
+
+    if (!user.isAdmin) {
+      // Authenticated but not admin — redirect to home
+      router.push(createLocalizedPath(locale, appRoutes.home));
+    }
+  }, [isLoading, user, locale, router]);
+
+  // Show spinner while loading
+  if (isLoading) {
+    return (
+      <main className="page-shell" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <span style={{ color: C.mutedFg }}>{/* loading */}</span>
+      </main>
+    );
+  }
+
+  // Guard: only render when user is confirmed admin
+  if (!user || !user.isAdmin) {
+    return null;
+  }
 
   return (
     <main className="page-shell" style={{ display: "flex", flexDirection: "column", gap: 32 }}>
@@ -22,7 +60,7 @@ export default async function AdminDashboardPage() {
             width: "fit-content",
             padding: "6px 14px",
             borderRadius: 9999,
-            background: "rgba(93, 112, 82, 0.1)",
+            background: "rgba(13, 115, 119, 0.1)",
             color: C.primary,
             fontWeight: 800,
             fontSize: 12,

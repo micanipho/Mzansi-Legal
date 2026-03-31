@@ -8,10 +8,10 @@
   --ml-bg-rgb: 253, 252, 248;
   --ml-fg: #2c2c24;
   --ml-fg-rgb: 44, 44, 36;
-  --ml-primary: #5d7052;
-  --ml-primary-rgb: 93, 112, 82;
-  --ml-primary-fg: #f3f4f1;
-  --ml-primary-strong: #4d6045;
+  --ml-primary: #0d7377;
+  --ml-primary-rgb: 13, 115, 119;
+  --ml-primary-fg: #f0fafa;
+  --ml-primary-strong: #0a5c60;
   --ml-secondary: #c18c5d;
   --ml-secondary-rgb: 193, 140, 93;
   --ml-secondary-fg: #ffffff;
@@ -28,7 +28,7 @@
   --ml-accent-rgb: 230, 220, 205;
   --ml-info-soft: #eff6ff;
   --ml-info-border: #bfdbfe;
-  --ml-shadow-organic: 0 4px 20px rgba(93, 112, 82, 0.15);
+  --ml-shadow-organic: 0 4px 20px rgba(13, 115, 119, 0.15);
   --ml-grain-opacity: 0.16;
 }
 
@@ -197,7 +197,7 @@ textarea:focus-visible {
   opacity: var(--ml-grain-opacity);
   background-image:
     radial-gradient(circle at 20% 20%, rgba(44, 44, 36, 0.08) 0 0.7px, transparent 0.8px),
-    radial-gradient(circle at 80% 30%, rgba(93, 112, 82, 0.08) 0 0.6px, transparent 0.7px),
+    radial-gradient(circle at 80% 30%, rgba(13, 115, 119, 0.08) 0 0.6px, transparent 0.7px),
     radial-gradient(circle at 40% 70%, rgba(193, 140, 93, 0.08) 0 0.7px, transparent 0.8px);
   background-size: 14px 14px, 16px 16px, 18px 18px;
   mix-blend-mode: multiply;

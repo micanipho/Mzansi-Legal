@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import AppNavbar from "@/components/layout/AppNavbar";
 import OrganicBackground from "@/components/layout/OrganicBackground";
 import AntdProvider from "@/components/providers/AntdProvider";
+import AuthProvider from "@/components/providers/AuthProvider";
 import { routing } from "@/i18n/routing";
 
 export const metadata: Metadata = {
@@ -38,13 +39,15 @@ export default async function LocaleLayout({
       <NextIntlClientProvider messages={messages}>
         <AntdRegistry>
           <AntdProvider>
-            <div className="app-shell">
-              <OrganicBackground />
-              <AppNavbar />
-              <div id="main-content" className="shell-main">
-                {children}
+            <AuthProvider>
+              <div className="app-shell">
+                <OrganicBackground />
+                <AppNavbar />
+                <div id="main-content" className="shell-main">
+                  {children}
+                </div>
               </div>
-            </div>
+            </AuthProvider>
           </AntdProvider>
         </AntdRegistry>
       </NextIntlClientProvider>

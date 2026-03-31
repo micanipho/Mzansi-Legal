@@ -61,8 +61,8 @@ export const antdTheme: ThemeConfig = {
     prefix: "ml",
   },
   token: {
-    colorPrimary: C.primary,
-    colorSuccess: C.primary,
+    colorPrimary: "#0d7377",
+    colorSuccess: "#0d7377",
     colorWarning: C.secondary,
     colorError: C.destructive,
     colorInfo: "#1677ff",

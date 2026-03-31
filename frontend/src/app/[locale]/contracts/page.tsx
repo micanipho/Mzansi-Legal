@@ -1,11 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
+import { useEffect } from "react";
 import { FileSearch, ArrowRight, UploadCloud, ShieldCheck, TriangleAlert } from "lucide-react";
 import { demoContracts } from "@/components/contracts/contractData";
 import { appRoutes, createLocalizedPath } from "@/i18n/routing";
 import { C, R, fontSans, fontSerif, shadowOrganic } from "@/styles/theme";
+import { useAuth } from "@/hooks/useAuth";
 
 function getScoreTone(score: number) {
   if (score >= 75) {
@@ -21,7 +24,28 @@ function getScoreTone(score: number) {
 
 export default function ContractsPage() {
   const locale = useLocale();
+  const router = useRouter();
   const t = useTranslations("contracts");
+  const { user, isLoading } = useAuth();
+
+  // In-page auth guard fallback (middleware handles most cases, this is backup)
+  useEffect(() => {
+    if (!isLoading && !user) {
+      router.push(createLocalizedPath(locale, appRoutes.auth));
+    }
+  }, [isLoading, user, locale, router]);
+
+  if (isLoading) {
+    return (
+      <main className="page-shell" style={{ display: "flex", alignItems: "center", justifyContent: "center", fontFamily: fontSans }}>
+        <span style={{ color: C.mutedFg }}>{/* loading */}</span>
+      </main>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <main className="page-shell" style={{ display: "flex", flexDirection: "column", gap: 32, fontFamily: fontSans }}>

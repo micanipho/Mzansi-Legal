@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { appRoutes, createLocalizedPath } from "@/i18n/routing";
 import { C, R, shadowOrganic, fontSerif, fontSans } from "@/styles/theme";
+import { useAuth } from "@/hooks/useAuth";
 
 const STATS = [
   { num: "2,847", labelKey: "statQuestionsAnswered" as const, r: R.o1 },
@@ -20,15 +21,15 @@ const STATS = [
 ];
 
 const CATEGORIES = [
-  { Icon: Briefcase,     titleKey: "catEmploymentTitle" as const, descKey: "catEmploymentDesc" as const, tagKey: "legal"     as const, tagColor: `rgba(93,112,82,0.12)`,   tagText: C.primary,   r: R.o1 },
-  { Icon: HomeIcon,      titleKey: "catHousingTitle"    as const, descKey: "catHousingDesc"    as const, tagKey: "legal"     as const, tagColor: `rgba(93,112,82,0.12)`,   tagText: C.primary,   r: R.o2 },
-  { Icon: Shield,        titleKey: "catConsumerTitle"   as const, descKey: "catConsumerDesc"   as const, tagKey: "legal"     as const, tagColor: `rgba(93,112,82,0.12)`,   tagText: C.primary,   r: R.o3 },
+  { Icon: Briefcase,     titleKey: "catEmploymentTitle" as const, descKey: "catEmploymentDesc" as const, tagKey: "legal"     as const, tagColor: `rgba(13,115,119,0.12)`,   tagText: C.primary,   r: R.o1 },
+  { Icon: HomeIcon,      titleKey: "catHousingTitle"    as const, descKey: "catHousingDesc"    as const, tagKey: "legal"     as const, tagColor: `rgba(13,115,119,0.12)`,   tagText: C.primary,   r: R.o2 },
+  { Icon: Shield,        titleKey: "catConsumerTitle"   as const, descKey: "catConsumerDesc"   as const, tagKey: "legal"     as const, tagColor: `rgba(13,115,119,0.12)`,   tagText: C.primary,   r: R.o3 },
   { Icon: CreditCard,    titleKey: "catDebtTitle"       as const, descKey: "catDebtDesc"       as const, tagKey: "financial" as const, tagColor: `rgba(193,140,93,0.12)`,  tagText: C.secondary, r: R.o4 },
   { Icon: Calculator,    titleKey: "catTaxTitle"        as const, descKey: "catTaxDesc"        as const, tagKey: "financial" as const, tagColor: `rgba(193,140,93,0.12)`,  tagText: C.secondary, r: R.o1 },
-  { Icon: Lock,          titleKey: "catPrivacyTitle"    as const, descKey: "catPrivacyDesc"    as const, tagKey: "legal"     as const, tagColor: `rgba(93,112,82,0.12)`,   tagText: C.primary,   r: R.o2 },
+  { Icon: Lock,          titleKey: "catPrivacyTitle"    as const, descKey: "catPrivacyDesc"    as const, tagKey: "legal"     as const, tagColor: `rgba(13,115,119,0.12)`,   tagText: C.primary,   r: R.o2 },
   { Icon: FileText,      titleKey: "catContractTitle"   as const, descKey: "catContractDesc"   as const, tagKey: "contracts" as const, tagColor: `rgba(230,220,205,0.55)`,   tagText: C.secondary, r: R.o3 },
   { Icon: TrendingUp,    titleKey: "catInsuranceTitle"  as const, descKey: "catInsuranceDesc"  as const, tagKey: "financial" as const, tagColor: `rgba(193,140,93,0.12)`,  tagText: C.secondary, r: R.o4 },
-  { Icon: AlertTriangle, titleKey: "catSafetyTitle"     as const, descKey: "catSafetyDesc"     as const, tagKey: "legal"     as const, tagColor: `rgba(93,112,82,0.12)`,   tagText: C.primary,   r: R.o1 },
+  { Icon: AlertTriangle, titleKey: "catSafetyTitle"     as const, descKey: "catSafetyDesc"     as const, tagKey: "legal"     as const, tagColor: `rgba(13,115,119,0.12)`,   tagText: C.primary,   r: R.o1 },
 ];
 
 const TRENDING: Record<string, { q: string; catKey: string }[]> = {
@@ -68,6 +69,7 @@ export default function HomePage() {
   const t  = useTranslations("home");
   const tc = useTranslations("categories");
   const [query, setQuery] = useState("");
+  const { user } = useAuth();
 
   const ask = (q?: string) => {
     const text = (q ?? query).trim();
@@ -203,6 +205,38 @@ export default function HomePage() {
               {text}
             </Link>
           ))}
+        </div>
+
+        {/* Auth-aware CTA button */}
+        <div style={{ marginTop: 24, display: "flex", justifyContent: "center" }}>
+          <Link
+            href={user ? createLocalizedPath(locale, appRoutes.ask) : createLocalizedPath(locale, "auth")}
+            style={{
+              display: "inline-block",
+              background: C.primary,
+              color: C.primaryFg,
+              padding: "16px 40px",
+              borderRadius: 9999,
+              fontWeight: 700,
+              fontSize: 16,
+              border: "none",
+              cursor: "pointer",
+              fontFamily: fontSans,
+              textDecoration: "none",
+              boxShadow: `0 4px 16px ${C.primary}33`,
+              transition: "transform 0.2s ease, box-shadow 0.2s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "translateY(-2px)";
+              e.currentTarget.style.boxShadow = `0 6px 20px ${C.primary}44`;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = `0 4px 16px ${C.primary}33`;
+            }}
+          >
+            {user ? t("heroCtaUser") : t("heroCtaGuest")}
+          </Link>
         </div>
       </section>
 
@@ -370,7 +404,7 @@ export default function HomePage() {
                   style={{
                     width: 40, height: 40,
                     flexShrink: 0,
-                    background: `rgba(93,112,82,0.1)`,
+                    background: `rgba(13,115,119,0.1)`,
                     color: C.primary,
                     fontFamily: fontSerif,
                     fontWeight: 700,

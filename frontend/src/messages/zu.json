@@ -67,7 +67,9 @@
     "catInsuranceTitle": "Inshurensi & Umhlalaphansi",
     "catInsuranceDesc": "Izicelo, izinkokhelo, nezimali zohlelo.",
     "catSafetyTitle": "Ukuphepha & Ukuhlukunyezwa",
-    "catSafetyDesc": "Iziqondiso zokuvikelwa nokuphepha emsebenzini."
+    "catSafetyDesc": "Iziqondiso zokuvikelwa nokuphepha emsebenzini.",
+    "heroCtaGuest": "Qala",
+    "heroCtaUser": "Iya Kuhlelo"
   },
   "chat": {
     "title": "Imibuzo Nezimpendulo Zomthetho",
@@ -175,14 +177,22 @@
   },
   "auth": {
     "loginTitle": "Ngena",
+    "signInTitle": "Ngena",
     "registerTitle": "Dala I-Akhawunti",
     "emailLabel": "Ikheli Le-imeyili",
     "passwordLabel": "Iphasiwedi",
     "nameLabel": "Igama Eligcwele",
+    "languageLabel": "Ulimi Oluthandekayo",
     "loginButton": "Ngena",
+    "signInButton": "Ngena",
     "registerButton": "Bhalisa",
     "switchToRegister": "Awunayo i-akhawunti? Bhalisa",
-    "switchToLogin": "Senekhona i-akhawunti? Ngena"
+    "switchToSignIn": "Senekhona i-akhawunti? Ngena",
+    "switchToLogin": "Senekhona i-akhawunti? Ngena",
+    "invalidCredentials": "I-imeyili noma iphasiwedi engalungile. Sicela uzame futhi.",
+    "emailTaken": "Le-imeyili ibhalisiwe kakade.",
+    "signOutMenuItem": "Phuma",
+    "adminDashboardLink": "Ideshibhodi Yomlawuli"
   },
   "admin": {
     "dashboardTitle": "Ibhodi Lomlawuli",

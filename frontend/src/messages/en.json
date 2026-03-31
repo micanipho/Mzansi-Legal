@@ -67,7 +67,9 @@
     "catInsuranceTitle": "Insurance & Retirement",
     "catInsuranceDesc": "Claims, payouts, and provident funds.",
     "catSafetyTitle": "Safety & Harassment",
-    "catSafetyDesc": "Protection orders and workplace safety."
+    "catSafetyDesc": "Protection orders and workplace safety.",
+    "heroCtaGuest": "Get Started",
+    "heroCtaUser": "Go to App"
   },
   "chat": {
     "title": "Legal Q&A",
@@ -175,14 +177,22 @@
   },
   "auth": {
     "loginTitle": "Login",
+    "signInTitle": "Sign In",
     "registerTitle": "Create Account",
     "emailLabel": "Email Address",
     "passwordLabel": "Password",
     "nameLabel": "Full Name",
+    "languageLabel": "Preferred Language",
     "loginButton": "Login",
+    "signInButton": "Sign In",
     "registerButton": "Register",
     "switchToRegister": "Don't have an account? Register",
-    "switchToLogin": "Already have an account? Login"
+    "switchToSignIn": "Already have an account? Sign in",
+    "switchToLogin": "Already have an account? Login",
+    "invalidCredentials": "Invalid email or password. Please try again.",
+    "emailTaken": "This email address is already registered.",
+    "signOutMenuItem": "Sign Out",
+    "adminDashboardLink": "Admin Dashboard"
   },
   "admin": {
     "dashboardTitle": "Admin Dashboard",

@@ -1,20 +1,25 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { C, fontSans } from "@/styles/theme";
 import { useChat } from "@/hooks/useChat";
+import { useAuth } from "@/hooks/useAuth";
+import { appRoutes, createLocalizedPath } from "@/i18n/routing";
 import ChatInput from "./ChatInput";
 import ChatThread from "./ChatThread";
 
 export default function QaChatPage() {
   const locale = useLocale();
+  const router = useRouter();
   const t = useTranslations("chat");
   const searchParams = useSearchParams();
   const initialQuestion = searchParams.get("q") ?? "";
 
   const { messages, isLoading, error, sendMessage } = useChat();
+  const { user } = useAuth();
 
   useEffect(() => {
     if (initialQuestion) {
@@ -24,6 +29,11 @@ export default function QaChatPage() {
   }, []);
 
   const handleSend = (text: string) => {
+    // Submit guard: redirect to auth if not signed in
+    if (!user) {
+      router.push(createLocalizedPath(locale, appRoutes.auth));
+      return;
+    }
     void sendMessage(text, locale);
   };
 

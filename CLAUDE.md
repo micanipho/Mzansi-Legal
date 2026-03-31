@@ -1,6 +1,6 @@
 ﻿# Mzansi-legal Development Guidelines
 
-Auto-generated from all feature plans. Last updated: 2026-03-30
+Auto-generated from all feature plans. Last updated: 2026-03-31
 
 ## Active Technologies
 - C# / .NET 9.0 + ABP Zero 10.x, Npgsql.EntityFrameworkCore.PostgreSQL 9.0.4, EF Core 9.0.5 (003-abp-backend-setup)
@@ -24,6 +24,8 @@ Auto-generated from all feature plans. Last updated: 2026-03-30
 - PostgreSQL 15+ via Npgsql — no new migrations; reuses `DocumentChunks`, `ChunkEmbeddings`, `Conversations`, `Questions`, `Answers`, `AnswerCitations` tables from prior features (005, 009) (feat/014-rag-qa-service)
 - TypeScript / Next.js 16.2 (frontend); C# / .NET 9 + ABP Zero (backend — no changes) + Ant Design 6.x, next-intl 4.x, lucide-react (existing); no new packages required (feat/016-auth-pages-integration)
 - `localStorage` for JWT token + role; no new DB tables (feat/016-auth-pages-integration)
+- TypeScript / Next.js 16.2 (frontend); C# / .NET 9 + ABP Zero (backend — seed update only) + Ant Design 6.x, next-intl 4.x, lucide-react (existing); no new npm packages required (feat/018-auth-landing-page)
+- JWT token in cookies (`ml_token`, `ml_user`); no localStorage; no new DB tables (feat/018-auth-landing-page)
 
 - C# on .NET 9.0 + ABP Zero 10.x, Npgsql.EntityFrameworkCore.PostgreSQL 9.0.x, EF Core 9.0.5 (003-abp-backend-setup)
 
@@ -44,9 +46,9 @@ tests/
 C# on .NET 9.0: Follow standard conventions
 
 ## Recent Changes
+- feat/018-auth-landing-page: Added TypeScript / Next.js 16.2 (frontend); C# / .NET 9 + ABP Zero (backend — seed update only) + Ant Design 6.x, next-intl 4.x, lucide-react (existing); no new npm packages required
 - feat/016-auth-pages-integration: Added TypeScript / Next.js 16.2 (frontend); C# / .NET 9 + ABP Zero (backend — no changes) + Ant Design 6.x, next-intl 4.x, lucide-react (existing); no new packages required
 - feat/014-rag-qa-service: Added C# on .NET 9.0 + ABP Zero 10.x + `System.Net.Http.Json` (in-box with .NET 9), `Ardalis.GuardClauses` (already in project), `IHttpClientFactory` (ASP.NET Core built-in), existing `IEmbeddingAppService` and `EmbeddingHelper.CosineSimilarity`
-- 013-railway-docker-deploy: Added C# on .NET 9.0 + ABP Zero 10.x, EF Core 9.0.5, Npgsql.EntityFrameworkCore.PostgreSQL 9.0.x, ASP.NET Core 9.0
 
 
 <!-- MANUAL ADDITIONS START -->
