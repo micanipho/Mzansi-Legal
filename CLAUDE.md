@@ -26,6 +26,8 @@ Auto-generated from all feature plans. Last updated: 2026-03-31
 - `localStorage` for JWT token + role; no new DB tables (feat/016-auth-pages-integration)
 - TypeScript / Next.js 16.2 (frontend); C# / .NET 9 + ABP Zero (backend — seed update only) + Ant Design 6.x, next-intl 4.x, lucide-react (existing); no new npm packages required (feat/018-auth-landing-page)
 - JWT token in cookies (`ml_token`, `ml_user`); no localStorage; no new DB tables (feat/018-auth-landing-page)
+- TypeScript 5.x / Next.js 16.2 (App Router, `[locale]` i18n segment) + Ant Design 6.x, next-intl 4.x, lucide-react, antd-style createStyles (already installed — no new packages) (feat/019-full-ui-pages)
+- JWT tokens in cookies (`ml_token`, `ml_user`); no new database tables (feat/019-full-ui-pages)
 
 - C# on .NET 9.0 + ABP Zero 10.x, Npgsql.EntityFrameworkCore.PostgreSQL 9.0.x, EF Core 9.0.5 (003-abp-backend-setup)
 
@@ -46,9 +48,9 @@ tests/
 C# on .NET 9.0: Follow standard conventions
 
 ## Recent Changes
+- feat/019-full-ui-pages: Added TypeScript 5.x / Next.js 16.2 (App Router, `[locale]` i18n segment) + Ant Design 6.x, next-intl 4.x, lucide-react, antd-style createStyles (already installed — no new packages)
 - feat/018-auth-landing-page: Added TypeScript / Next.js 16.2 (frontend); C# / .NET 9 + ABP Zero (backend — seed update only) + Ant Design 6.x, next-intl 4.x, lucide-react (existing); no new npm packages required
 - feat/016-auth-pages-integration: Added TypeScript / Next.js 16.2 (frontend); C# / .NET 9 + ABP Zero (backend — no changes) + Ant Design 6.x, next-intl 4.x, lucide-react (existing); no new packages required
-- feat/014-rag-qa-service: Added C# on .NET 9.0 + ABP Zero 10.x + `System.Net.Http.Json` (in-box with .NET 9), `Ardalis.GuardClauses` (already in project), `IHttpClientFactory` (ASP.NET Core built-in), existing `IEmbeddingAppService` and `EmbeddingHelper.CosineSimilarity`
 
 
 <!-- MANUAL ADDITIONS START -->
