@@ -1,14 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { Activity, FileText, Globe2, ShieldAlert } from "lucide-react";
 import InsightChart from "@/components/dashboard/InsightChart";
 import SectionCard from "@/components/dashboard/SectionCard";
 import SummaryCard from "@/components/dashboard/SummaryCard";
-import { useAuth } from "@/hooks/useAuth";
-import { appRoutes, createLocalizedPath } from "@/i18n/routing";
+import AdminGuard from "@/components/guards/AdminGuard";
 import { C } from "@/styles/theme";
 
 const insightData = [
@@ -19,41 +16,10 @@ const insightData = [
 
 export default function AdminDashboardPage() {
   const t = useTranslations("admin");
-  const locale = useLocale();
-  const router = useRouter();
-  const { user, isLoading } = useAuth();
-
-  useEffect(() => {
-    if (isLoading) return;
-
-    if (!user) {
-      // Not authenticated — redirect to auth
-      router.push(createLocalizedPath(locale, appRoutes.auth));
-      return;
-    }
-
-    if (!user.isAdmin) {
-      // Authenticated but not admin — redirect to home
-      router.push(createLocalizedPath(locale, appRoutes.home));
-    }
-  }, [isLoading, user, locale, router]);
-
-  // Show spinner while loading
-  if (isLoading) {
-    return (
-      <main className="page-shell" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <span style={{ color: C.mutedFg }}>{/* loading */}</span>
-      </main>
-    );
-  }
-
-  // Guard: only render when user is confirmed admin
-  if (!user || !user.isAdmin) {
-    return null;
-  }
 
   return (
-    <main className="page-shell" style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+    <AdminGuard>
+      <main className="page-shell" style={{ display: "flex", flexDirection: "column", gap: 32 }}>
       <section style={{ maxWidth: 860, display: "flex", flexDirection: "column", gap: 12 }}>
         <span
           style={{
@@ -157,6 +123,7 @@ export default function AdminDashboardPage() {
           ))}
         </div>
       </SectionCard>
-    </main>
+      </main>
+    </AdminGuard>
   );
 }

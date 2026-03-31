@@ -3,9 +3,11 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Alert, Button } from "antd";
 import { Minus, Plus, Share2, Play } from "lucide-react";
 import { appRoutes, createLocalizedPath } from "@/i18n/routing";
 import { C, R, shadowOrganic, fontSerif, fontSans } from "@/styles/theme";
+import { useAuth } from "@/hooks/useAuth";
 
 // Filter values are kept as stable English keys for category matching
 const FILTERS = ["All", "Employment", "Housing", "Consumer", "Debt & Credit", "Tax", "Privacy"];
@@ -51,6 +53,7 @@ export default function MyRightsPage() {
   const t  = useTranslations("rights");
   const tc = useTranslations("categories");
   const tChat = useTranslations("chat");
+  const { user } = useAuth();
   const [activeFilter, setActiveFilter] = useState("All");
   const [expanded, setExpanded]         = useState<string | null>(CARDS[0].id);
   const [exploredIds, setExploredIds]   = useState<Set<string>>(new Set([CARDS[0].id]));
@@ -64,6 +67,11 @@ export default function MyRightsPage() {
     if (opening) {
       setExploredIds((prev) => new Set(prev).add(id));
     }
+  };
+
+  const handleSignIn = () => {
+    const returnUrl = encodeURIComponent(`/${locale}${appRoutes.rights}`);
+    router.push(`${createLocalizedPath(locale, "auth")}?returnUrl=${returnUrl}`);
   };
 
   const getFilterLabel = (f: string) =>
@@ -93,33 +101,56 @@ export default function MyRightsPage() {
         </p>
       </section>
 
-      {/* Knowledge score */}
-      <section
-        style={{
-          background: C.muted,
-          border: `1px solid ${C.border}`,
-          borderRadius: R.o2,
-          padding: 32,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: 24,
-          flexWrap: "wrap",
-          boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
-        }}
-      >
-        <div style={{ flex: 1, minWidth: 200 }}>
-          <h2 style={{ fontSize: 17, fontWeight: 700, color: C.fg, marginBottom: 16, fontFamily: fontSans }}>
-            {t("knowledgeScore", { explored, total: TOTAL_TOPICS })}
-          </h2>
-          <div style={{ height: 16, background: C.border, borderRadius: 9999, overflow: "hidden" }}>
-            <div style={{ height: "100%", background: C.primary, borderRadius: 9999, width: `${percent}%`, transition: "width 1s ease" }} />
+      {/* Guest Banner - Only show for non-logged-in users */}
+      {!user && (
+        <Alert
+          type="info"
+          message={t("guestProgressBanner")}
+          description={t("guestProgressDesc")}
+          action={
+            <Button
+              type="primary"
+              size="small"
+              onClick={handleSignIn}
+              style={{ whiteSpace: "nowrap" }}
+            >
+              {tChat("guestBannerAction")}
+            </Button>
+          }
+          style={{ borderRadius: 12 }}
+          showIcon
+        />
+      )}
+
+      {/* Knowledge score - Only show for logged-in users */}
+      {user && (
+        <section
+          style={{
+            background: C.muted,
+            border: `1px solid ${C.border}`,
+            borderRadius: R.o2,
+            padding: 32,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 24,
+            flexWrap: "wrap",
+            boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
+          }}
+        >
+          <div style={{ flex: 1, minWidth: 200 }}>
+            <h2 style={{ fontSize: 17, fontWeight: 700, color: C.fg, marginBottom: 16, fontFamily: fontSans }}>
+              {t("knowledgeScore", { explored, total: TOTAL_TOPICS })}
+            </h2>
+            <div style={{ height: 16, background: C.border, borderRadius: 9999, overflow: "hidden" }}>
+              <div style={{ height: "100%", background: C.primary, borderRadius: 9999, width: `${percent}%`, transition: "width 1s ease" }} />
+            </div>
           </div>
-        </div>
-        <div style={{ fontFamily: fontSerif, fontSize: 48, fontWeight: 700, color: C.primary, flexShrink: 0 }}>
-          {percent}%
-        </div>
-      </section>
+          <div style={{ fontFamily: fontSerif, fontSize: 48, fontWeight: 700, color: C.primary, flexShrink: 0 }}>
+            {percent}%
+          </div>
+        </section>
+      )}
 
       {/* Filter tabs */}
       <section

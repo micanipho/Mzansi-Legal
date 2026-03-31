@@ -3,7 +3,8 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Alert, Button } from "antd";
 import { C, fontSans } from "@/styles/theme";
 import { useChat } from "@/hooks/useChat";
 import { useAuth } from "@/hooks/useAuth";
@@ -20,6 +21,7 @@ export default function QaChatPage() {
 
   const { messages, isLoading, error, sendMessage } = useChat();
   const { user } = useAuth();
+  const [showSavePrompt, setShowSavePrompt] = useState(false);
 
   useEffect(() => {
     if (initialQuestion) {
@@ -29,12 +31,13 @@ export default function QaChatPage() {
   }, []);
 
   const handleSend = (text: string) => {
-    // Submit guard: redirect to auth if not signed in
-    if (!user) {
-      router.push(createLocalizedPath(locale, appRoutes.auth));
-      return;
-    }
+    // Allow guests to chat, no redirect
     void sendMessage(text, locale);
+  };
+
+  const handleSignIn = () => {
+    const returnUrl = encodeURIComponent(`/${locale}${appRoutes.ask}`);
+    router.push(`${createLocalizedPath(locale, "auth")}?returnUrl=${returnUrl}`);
   };
 
   return (
@@ -50,6 +53,31 @@ export default function QaChatPage() {
       role="log"
       aria-live="polite"
     >
+      {/* Guest Banner */}
+      {!user && (
+        <Alert
+          type="info"
+          message={t("guestBannerTitle")}
+          description={t("guestBannerDesc")}
+          action={
+            <Button
+              type="primary"
+              size="small"
+              onClick={handleSignIn}
+              style={{ whiteSpace: "nowrap" }}
+            >
+              {t("guestBannerAction")}
+            </Button>
+          }
+          style={{
+            borderRadius: 12,
+            position: "sticky",
+            top: 16,
+            zIndex: 10,
+          }}
+          showIcon
+        />
+      )}
       <ChatThread
         messages={messages}
         isLoading={isLoading}

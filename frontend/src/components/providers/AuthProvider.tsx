@@ -38,7 +38,7 @@ export interface AuthUser {
 export interface AuthContextValue {
   user: AuthUser | null;
   isLoading: boolean;
-  signIn: (credentials: SignInCredentials) => Promise<void>;
+  signIn: (credentials: SignInCredentials, returnUrl?: string) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
   signOut: () => void;
 }
@@ -112,7 +112,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   // ── signIn ──────────────────────────────────────────────────────────────
 
   const signIn = useCallback(
-    async (credentials: SignInCredentials) => {
+    async (credentials: SignInCredentials, returnUrl?: string) => {
       const result = await apiSignIn(credentials);
 
       const payload = decodeJwtPayload(result.accessToken);
@@ -158,11 +158,13 @@ export default function AuthProvider({ children }: AuthProviderProps) {
 
       setUser(authUser);
 
-      // Role-based redirect
-      if (isAdmin) {
+      // Redirect logic: returnUrl takes precedence, then role-based default
+      if (returnUrl) {
+        router.push(returnUrl);
+      } else if (isAdmin) {
         router.push(createLocalizedPath(locale, appRoutes.adminDashboard));
       } else {
-        router.push(createLocalizedPath(locale, appRoutes.home));
+        router.push(createLocalizedPath(locale, appRoutes.ask));
       }
     },
     [locale, router]

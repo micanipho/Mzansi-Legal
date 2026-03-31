@@ -3,7 +3,7 @@ import { AntdRegistry } from "@ant-design/nextjs-registry";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
-import AppNavbar from "@/components/layout/AppNavbar";
+import ConditionalNav from "@/components/layout/ConditionalNav";
 import OrganicBackground from "@/components/layout/OrganicBackground";
 import AntdProvider from "@/components/providers/AntdProvider";
 import AuthProvider from "@/components/providers/AuthProvider";
@@ -42,7 +42,7 @@ export default async function LocaleLayout({
             <AuthProvider>
               <div className="app-shell">
                 <OrganicBackground />
-                <AppNavbar />
+                <ConditionalNav />
                 <div id="main-content" className="shell-main">
                   {children}
                 </div>

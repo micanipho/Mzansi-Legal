@@ -1,13 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { MessageSquare, ChevronRight, Clock, PlusCircle } from "lucide-react";
 import Link from "next/link";
 import { appRoutes, createLocalizedPath } from "@/i18n/routing";
 import { C, R, fontSans, fontSerif, shadowOrganic } from "@/styles/theme";
-import { useAuth } from "@/hooks/useAuth";
+import AuthGuard from "@/components/guards/AuthGuard";
 
 interface HistoryItem {
   conversationId: string;
@@ -63,32 +62,14 @@ function formatDate(iso: string, locale: string): string {
 export default function HistoryPage() {
   const t = useTranslations("history");
   const locale = useLocale();
-  const router = useRouter();
-  const { user, isLoading } = useAuth();
   const [items] = useState<HistoryItem[]>(MOCK_HISTORY);
 
-  useEffect(() => {
-    if (isLoading) return;
-    if (!user) {
-      router.push(createLocalizedPath(locale, appRoutes.auth));
-    }
-  }, [isLoading, user, locale, router]);
-
-  if (isLoading) {
-    return (
-      <main className="page-shell" style={{ display: "flex", alignItems: "center", justifyContent: "center", fontFamily: fontSans }}>
-        <span style={{ color: C.mutedFg }}>{t("title")}&hellip;</span>
-      </main>
-    );
-  }
-
-  if (!user) return null;
-
   return (
-    <main
-      className="page-shell"
-      style={{ display: "flex", flexDirection: "column", gap: 40, fontFamily: fontSans }}
-    >
+    <AuthGuard>
+      <main
+        className="page-shell"
+        style={{ display: "flex", flexDirection: "column", gap: 40, fontFamily: fontSans }}
+      >
       {/* Page header */}
       <section style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
         <div>
@@ -296,6 +277,7 @@ export default function HistoryPage() {
           })}
         </section>
       )}
-    </main>
+      </main>
+    </AuthGuard>
   );
 }
