@@ -67,6 +67,7 @@ dist/
 !.env.example
 appsettings.Development.json
 appsettings.Local.json
+appsettings.Production.json
 
 # =========================
 # OS Files
@@ -86,6 +87,11 @@ $RECYCLE.BIN/
 .vscode/
 !.vscode/settings.json
 !.vscode/extensions.json
+
+# =========================
+# Seed Data (PDFs are large binaries — place manually per quickstart.md)
+# =========================
+seed-data/**/*.pdf
 
 # =========================
 # Misc

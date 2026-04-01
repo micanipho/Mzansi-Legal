@@ -1,82 +1,101 @@
 import type { ThemeConfig } from "antd";
 
-/** MzansiLegal design tokens — matched to reference implementation */
-
+/** Shared shell tokens sourced from CSS variables. */
 export const C = {
-  bg:          '#FDFCF8',
-  fg:          '#2C2C24',
-  primary:     '#5D7052',
-  primaryFg:   '#F3F4F1',
-  secondary:   '#C18C5D',
-  secondaryFg: '#FFFFFF',
-  muted:       '#F0EBE5',
-  mutedFg:     '#78786C',
-  border:      '#DED8CF',
-  destructive: '#A85448',
-  card:        '#FEFEFA',
-  accent:      '#E6DCCD',
+  bg: "var(--ml-bg)",
+  fg: "var(--ml-fg)",
+  primary: "var(--ml-primary)",
+  primaryFg: "var(--ml-primary-fg)",
+  secondary: "var(--ml-secondary)",
+  secondaryFg: "var(--ml-secondary-fg)",
+  muted: "var(--ml-muted)",
+  mutedFg: "var(--ml-muted-fg)",
+  border: "var(--ml-border)",
+  destructive: "var(--ml-destructive)",
+  card: "var(--ml-card)",
+  accent: "var(--ml-accent)",
+  paper: "var(--ml-paper)",
 } as const;
+
+export const RGB = {
+  primary: "var(--ml-primary-rgb)",
+  secondary: "var(--ml-secondary-rgb)",
+  accent: "var(--ml-accent-rgb)",
+  muted: "var(--ml-muted-rgb)",
+  border: "var(--ml-border-rgb)",
+  destructive: "var(--ml-destructive-rgb)",
+  fg: "var(--ml-fg-rgb)",
+  bg: "var(--ml-bg-rgb)",
+} as const;
+
+export function alpha(rgbValue: string, opacity: number): string {
+  return `rgba(${rgbValue}, ${opacity})`;
+}
 
 /** Organic border radii */
 export const R = {
-  o1: '32px 16px 24px 32px',
-  o2: '16px 32px 32px 24px',
-  o3: '24px 24px 16px 32px',
-  o4: '32px 32px 16px 24px',
+  o1: "32px 16px 24px 32px",
+  o2: "16px 32px 32px 24px",
+  o3: "24px 24px 16px 32px",
+  o4: "32px 32px 16px 24px",
 } as const;
 
-export const shadowOrganic = '0 4px 20px rgba(93, 112, 82, 0.15)';
-export const fontSerif = "'Fraunces', serif";
-export const fontSans  = "'Nunito', sans-serif";
+export const shadowOrganic = "var(--ml-shadow-organic)";
+export const fontSerif = "var(--ml-font-serif)";
+export const fontSans = "var(--ml-font-sans)";
 
 /** Kept for components that still import `brand` */
 export const brand = {
-  dark:        C.fg,
-  cta:         C.primary,
-  ctaHover:    '#4d6045',
-  cream:       C.bg,
-  cardBg:      C.card,
-  border:      C.border,
+  dark: C.fg,
+  cta: C.primary,
+  ctaHover: "var(--ml-primary-strong)",
+  cream: C.bg,
+  cardBg: C.card,
+  border: C.border,
   borderLight: C.accent,
 } as const;
 
 export const antdTheme: ThemeConfig = {
+  cssVar: {
+    key: "mzansilegal",
+    prefix: "ml",
+  },
   token: {
-    colorPrimary:          C.primary,
-    colorSuccess:          '#5D7052',
-    colorWarning:          C.secondary,
-    colorError:            C.destructive,
-    colorInfo:             '#1677ff',
-    colorText:             C.fg,
-    colorTextSecondary:    C.mutedFg,
-    colorBgLayout:         C.bg,
-    colorBgContainer:      C.card,
-    colorBorder:           C.border,
-    colorBorderSecondary:  C.accent,
-    fontFamily:            fontSans,
-    fontSize:              15,
-    borderRadius:          8,
-    borderRadiusLG:        12,
-    borderRadiusSM:        4,
-    boxShadow:             shadowOrganic,
+    colorPrimary: "#4a5a3a",
+    colorSuccess: "#4a5a3a",
+    colorWarning: C.secondary,
+    colorError: C.destructive,
+    colorInfo: "#1677ff",
+    colorText: C.fg,
+    colorTextSecondary: C.mutedFg,
+    colorBgLayout: C.bg,
+    colorBgContainer: C.card,
+    colorBorder: C.border,
+    colorBorderSecondary: C.accent,
+    fontFamily: fontSans,
+    fontSize: 15,
+    borderRadius: 8,
+    borderRadiusLG: 12,
+    borderRadiusSM: 4,
+    boxShadow: shadowOrganic,
   },
   components: {
     Button: {
-      borderRadius:  24,
+      borderRadius: 24,
       paddingInline: 20,
-      primaryColor:  C.primaryFg,
+      primaryColor: C.primaryFg,
     },
     Card: {
-      borderRadius:         16,
+      borderRadius: 16,
       colorBorderSecondary: C.border,
     },
     Input: {
-      borderRadius:    24,
+      borderRadius: 24,
       colorBgContainer: C.card,
     },
     Tag: {
       borderRadius: 24,
-      fontSize:     11,
+      fontSize: 11,
     },
   },
 };

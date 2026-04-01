@@ -4,16 +4,27 @@
     "tagline": "Your AI-powered legal rights assistant",
     "loading": "Loading...",
     "error": "Something went wrong. Please try again.",
-    "disclaimer": "This information is for guidance only and does not constitute legal advice. Always consult a qualified legal professional."
+    "disclaimer": "This information is for guidance only and does not constitute legal advice. Always consult a qualified legal professional.",
+    "signIn": "Sign in",
+    "locales": {
+      "en": "English",
+      "zu": "isiZulu",
+      "st": "Sesotho",
+      "af": "Afrikaans"
+    }
   },
   "nav": {
     "home": "Home",
     "chat": "Ask a Question",
+    "ask": "Ask",
     "rights": "My Rights",
     "contracts": "Contract Check",
+    "dashboard": "Dashboard",
     "history": "History",
     "settings": "Settings",
     "admin": "Admin",
+    "language": "Language",
+    "getStarted": "Get started",
     "login": "Login",
     "register": "Register",
     "logout": "Logout"
@@ -57,7 +68,9 @@
     "catInsuranceTitle": "Insurance & Retirement",
     "catInsuranceDesc": "Claims, payouts, and provident funds.",
     "catSafetyTitle": "Safety & Harassment",
-    "catSafetyDesc": "Protection orders and workplace safety."
+    "catSafetyDesc": "Protection orders and workplace safety.",
+    "heroCtaGuest": "Get Started",
+    "heroCtaUser": "Go to App"
   },
   "chat": {
     "title": "Legal Q&A",
@@ -70,7 +83,10 @@
     "relatedQuestions": "Related questions",
     "listenIn": "Listen in {language}",
     "disclaimer": "MzansiLegal provides legal information, not legal advice.",
-    "newConversation": "New Conversation"
+    "newConversation": "New Conversation",
+    "guestBannerAction": "Sign in",
+    "guestBannerTitle": "Ask a legal or financial rights question",
+    "guestBannerDesc": "Ask a legal or financial rights question in any language."
   },
   "rights": {
     "title": "My Rights Explorer",
@@ -82,6 +98,8 @@
     "askAboutThis": "Ask about this",
     "askFollowUp": "Ask a follow-up",
     "share": "Share",
+    "guestProgressBanner": "Sign in to save your progress",
+    "guestProgressDesc": "Create a free account to track which rights you have explored across sessions.",
     "evictionCite": "Constitution, Section 26(3)",
     "payslipCite": "BCEA, Section 33",
     "defectiveGoodsCite": "CPA, Section 56",
@@ -110,8 +128,8 @@
   },
   "contracts": {
     "title": "Contract Health Check",
-    "uploadTitle": "Upload Your Contract",
-    "uploadHint": "Upload a PDF contract to analyse for risks and red flags.",
+    "uploadTitle": "Upload or review a contract",
+    "uploadHint": "Choose a recent contract analysis or open the featured demo to show how MzansiLegal flags risk and explains the next move.",
     "uploadButton": "Upload & Analyse",
     "loading": "Analysing\u2026",
     "pdfLimit": "PDF up to 10 MB \u00b7 Lease, employment, credit, or service agreement",
@@ -121,10 +139,32 @@
     "caution": "Caution",
     "standard": "Standard",
     "standardClauses": "Standard clauses",
-    "allStandard": "All standard clauses are in order",
-    "plainSummary": "Plain-language summary",
+    "allStandard": "Most standard clauses are in order",
+    "plainSummary": "Plain-language recommendation",
     "summary": "Summary",
-    "followUp": "Ask a follow-up question about this contract"
+    "followUp": "Ask a follow-up question about this contract",
+    "viewFeatured": "Open featured analysis",
+    "whyItMattersTitle": "Why this demo matters",
+    "whyItMattersBody": "Show an MD that the platform can turn a raw contract into a decision-ready explanation, not just a chatbot answer.",
+    "recentAnalyses": "Recent analyses",
+    "recentAnalysesHint": "Open any sample record to see the dedicated detail route and recommendation flow.",
+    "openAnalysis": "Open analysis",
+    "scoreSuffix": "out of 100",
+    "cardMeta": "Uploaded {date} \u00b7 {pages} pages \u00b7 {clauses} clauses",
+    "detailMeta": "Uploaded {date} \u00b7 {pages} pages \u00b7 {clauses} clauses \u00b7 Analysed in {language}",
+    "askAboutContract": "Ask about this contract",
+    "followUpPrompt": "Help me understand the risk in",
+    "standardSummary": "{count} clauses match the expected definitions, jurisdiction, and severability patterns for this contract type.",
+    "verdict": {
+      "good": "Low risk overall",
+      "review": "Needs review before signing",
+      "high-risk": "High-risk terms detected"
+    },
+    "benefits": {
+      "fairness": "Surface fairness issues quickly",
+      "risk": "Highlight clauses that shift risk unfairly",
+      "nextStep": "Point the user to the next action"
+    }
   },
   "history": {
     "title": "My Conversation History",
@@ -143,17 +183,75 @@
   },
   "auth": {
     "loginTitle": "Login",
+    "signInTitle": "Sign In",
     "registerTitle": "Create Account",
     "emailLabel": "Email Address",
     "passwordLabel": "Password",
     "nameLabel": "Full Name",
+    "languageLabel": "Preferred Language",
     "loginButton": "Login",
+    "signInButton": "Sign In",
     "registerButton": "Register",
     "switchToRegister": "Don't have an account? Register",
-    "switchToLogin": "Already have an account? Login"
+    "switchToSignIn": "Already have an account? Sign in",
+    "switchToLogin": "Already have an account? Login",
+    "confirmPasswordLabel": "Confirm Password",
+    "passwordMismatch": "Passwords do not match.",
+    "invalidCredentials": "Invalid email or password. Please try again.",
+    "emailTaken": "This email address is already registered.",
+    "signOutMenuItem": "Sign Out",
+    "adminDashboardLink": "Admin Dashboard"
   },
   "admin": {
     "dashboardTitle": "Admin Dashboard",
+    "shellEyebrow": "Platform signal",
+    "shellDescription": "A high-level view of what the platform is processing, where risks are emerging, and how much value the demo is creating.",
+    "insightTitle": "Monthly red-flag patterns",
+    "insightDescription": "Use this view to show how the platform can surface patterns across uploaded documents, not just answer one question at a time.",
+    "insightChartTitle": "Red-flag rate by document category",
+    "coverageTitle": "Coverage snapshot",
+    "coverageDescription": "A quick read on reach, trust, and platform readiness for the next demo conversation.",
+    "activityTitle": "Recent platform activity",
+    "activityDescription": "Representative admin updates that make the dashboard feel like a live product surface.",
+    "emptyState": {
+      "title": "No live metrics yet",
+      "description": "Connect ingestion and analysis telemetry to populate this chart automatically."
+    },
+    "stats": {
+      "documents": "Acts indexed",
+      "documentsDescription": "Legislation sources currently available for citations and grounded answers.",
+      "analyses": "Contract analyses",
+      "analysesDescription": "Analyses completed this month across the demo corpus.",
+      "alerts": "High-risk alerts",
+      "alertsDescription": "Documents that surfaced serious issues needing escalation or follow-up."
+    },
+    "coverage": {
+      "languages": "Supported languages",
+      "languagesDetail": "Users can switch between four localized shells without leaving their current journey.",
+      "sources": "Citation readiness",
+      "sourcesDetail": "Grounded answer coverage across the seeded acts and contract demos.",
+      "risk": "Flag rate",
+      "riskDetail": "Share of recent sample analyses that produced at least one major red flag."
+    },
+    "activity": {
+      "items": {
+        "0": {
+          "title": "Housing lease uploaded to the demo vault",
+          "description": "A new lease analysis was generated and linked to the contract detail route for follow-up questions.",
+          "meta": "7 minutes ago"
+        },
+        "1": {
+          "title": "Employment sample refreshed with updated guidance",
+          "description": "The demo corpus now highlights overtime and payslip issues more clearly in the detail flow.",
+          "meta": "21 minutes ago"
+        },
+        "2": {
+          "title": "Credit agreement triggered a high-risk alert",
+          "description": "Fee stacking and aggressive default terms pushed the document above the escalation threshold.",
+          "meta": "42 minutes ago"
+        }
+      }
+    },
     "totalQuestions": "Total Questions",
     "totalUsers": "Total Users",
     "pendingReview": "Pending Review",

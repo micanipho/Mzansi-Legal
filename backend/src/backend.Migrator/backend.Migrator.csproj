@@ -10,7 +10,7 @@
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
   </PropertyGroup>
   <ItemGroup>
-    <None Update="appsettings.json;log4net.config">
+    <None Update="appsettings.json;appsettings.Development.json;appsettings.Production.json;log4net.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
@@ -19,6 +19,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\backend.Core\backend.Core.csproj" />
+    <ProjectReference Include="..\backend.Application\backend.Application.csproj" />
     <ProjectReference Include="..\backend.EntityFrameworkCore\backend.EntityFrameworkCore.csproj" />
   </ItemGroup>
 </Project>

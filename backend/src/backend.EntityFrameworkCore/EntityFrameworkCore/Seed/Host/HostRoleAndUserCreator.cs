@@ -74,14 +74,17 @@ public class HostRoleAndUserCreator
             {
                 TenantId = null,
                 UserName = AbpUserBase.AdminUserName,
-                Name = "admin",
-                Surname = "admin",
-                EmailAddress = "admin@aspnetboilerplate.com",
+                Name = "Admin",
+                Surname = "User",
+                // IMPORTANT: Change this email and password before going to production.
+                EmailAddress = "admin@mzansilegal.co.za",
                 IsEmailConfirmed = true,
                 IsActive = true
             };
 
-            user.Password = new PasswordHasher<User>(new OptionsWrapper<PasswordHasherOptions>(new PasswordHasherOptions())).HashPassword(user, "123qwe");
+            // Default admin password — MUST be changed post-deployment via admin portal.
+            // Meets ABP Zero requirements: uppercase, lowercase, digit, min 8 chars.
+            user.Password = new PasswordHasher<User>(new OptionsWrapper<PasswordHasherOptions>(new PasswordHasherOptions())).HashPassword(user, "Admin@2024!");
             user.SetNormalizedNames();
 
             adminUserForHost = _context.Users.Add(user).Entity;

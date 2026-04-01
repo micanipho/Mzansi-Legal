@@ -1,16 +1,16 @@
 import type { Metadata } from "next";
+import { AntdRegistry } from "@ant-design/nextjs-registry";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
-import { routing } from "@/i18n/routing";
-import { AntdRegistry } from "@ant-design/nextjs-registry";
-import AntdProvider from "@/components/providers/AntdProvider";
-import AppNavbar from "@/components/layout/AppNavbar";
+import ConditionalNav from "@/components/layout/ConditionalNav";
 import OrganicBackground from "@/components/layout/OrganicBackground";
-import "@/styles/globals.css";
+import AntdProvider from "@/components/providers/AntdProvider";
+import AuthProvider from "@/components/providers/AuthProvider";
+import { routing } from "@/i18n/routing";
 
 export const metadata: Metadata = {
-  title: "MzansiLegal — Know Your Rights",
+  title: "MzansiLegal - Know Your Rights",
   description:
     "AI-powered multilingual legal and financial rights assistant for South Africans",
 };
@@ -32,30 +32,25 @@ export default async function LocaleLayout({
   const messages = await getMessages();
 
   return (
-    <html lang={locale}>
-      <body>
-        <a href="#main-content" className="skip-to-content">
-          Skip to content
-        </a>
-        <NextIntlClientProvider messages={messages}>
-          <AntdRegistry>
-            <AntdProvider>
-              <div
-                style={{
-                  position: "relative",
-                  minHeight: "100vh",
-                  width: "100%",
-                  overflowX: "hidden",
-                }}
-              >
+    <>
+      <a href="#main-content" className="skip-to-content">
+        Skip to content
+      </a>
+      <NextIntlClientProvider messages={messages}>
+        <AntdRegistry>
+          <AntdProvider>
+            <AuthProvider>
+              <div className="app-shell">
                 <OrganicBackground />
-                <AppNavbar />
-                <div id="main-content">{children}</div>
+                <ConditionalNav />
+                <div id="main-content" className="shell-main">
+                  {children}
+                </div>
               </div>
-            </AntdProvider>
-          </AntdRegistry>
-        </NextIntlClientProvider>
-      </body>
-    </html>
+            </AuthProvider>
+          </AntdProvider>
+        </AntdRegistry>
+      </NextIntlClientProvider>
+    </>
   );
 }

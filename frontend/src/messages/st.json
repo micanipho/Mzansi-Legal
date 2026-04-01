@@ -4,16 +4,27 @@
     "tagline": "Motlatsi wa hao wa molao o sebetsang ka AI",
     "loading": "E a laola...",
     "error": "Ho entswe phoso. Ke kopa u leke hape.",
-    "disclaimer": "Tlhahisoleseding ena ke ho ho tataisa feela ebile ha e emele keletso ya molao. Hloka ho bua le setsebi sa molao se batlang se rutiloeng."
+    "disclaimer": "Tlhahisoleseding ena ke ho ho tataisa feela ebile ha e emele keletso ya molao. Hloka ho bua le setsebi sa molao se batlang se rutiloeng.",
+    "signIn": "Kena",
+    "locales": {
+      "en": "English",
+      "zu": "isiZulu",
+      "st": "Sesotho",
+      "af": "Afrikaans"
+    }
   },
   "nav": {
     "home": "Lapeng",
     "chat": "Botsa Potso",
+    "ask": "Botsa",
     "rights": "Ditokelo Tsa Ka",
     "contracts": "Hlahloba Tumelano",
+    "dashboard": "Dashboard",
     "history": "Nalane",
     "settings": "Maemo",
     "admin": "Motsamaisi",
+    "language": "Puo",
+    "getStarted": "Qala ho Botsa",
     "login": "Kena",
     "register": "Ngodisa",
     "logout": "Tswa"
@@ -57,7 +68,9 @@
     "catInsuranceTitle": "Inshorense & Thobalano",
     "catInsuranceDesc": "Dikopo, ditefiso, le matlole a thobalano.",
     "catSafetyTitle": "Polokeho & Ho Hlaselwa",
-    "catSafetyDesc": "Ditaelo tsa tshireletso le polokeho lefelong la mosebetsi."
+    "catSafetyDesc": "Ditaelo tsa tshireletso le polokeho lefelong la mosebetsi.",
+    "heroCtaGuest": "Qala",
+    "heroCtaUser": "Ea ho App"
   },
   "chat": {
     "title": "Dipotso le Dikarabo tsa Molao",
@@ -70,7 +83,10 @@
     "relatedQuestions": "Dipotso tse amanang",
     "listenIn": "Mamela ka {language}",
     "disclaimer": "MzansiLegal e fana ka tlhahisoleseding ya molao, e seng keletso ya molao.",
-    "newConversation": "Poledisano e Ntjha"
+    "newConversation": "Poledisano e Ntjha",
+    "guestBannerAction": "Kena",
+    "guestBannerTitle": "Botsa potso ya molao kapa ya ditokelo tsa ditjhelete",
+    "guestBannerDesc": "Botsa potso ya molao kapa ya ditokelo tsa ditjhelete ka puo efe kapa efe."
   },
   "rights": {
     "title": "Mhloli wa Ditokelo Tsa Ka",
@@ -82,6 +98,8 @@
     "askAboutThis": "Botsa ka sena",
     "askFollowUp": "Botsa potso ya tatellano",
     "share": "Arolelana",
+    "guestProgressBanner": "Kena ho boloka tsoelo-pele ya hao",
+    "guestProgressDesc": "Theha akhaonto mahhala ho latela ditaba tsa ditokelo tse hlahlobilweng ho pholletsa le dipupano.",
     "evictionCite": "Molao-motheo, Karolo 26(3)",
     "payslipCite": "BCEA, Karolo 33",
     "defectiveGoodsCite": "CPA, Karolo 56",
@@ -110,8 +128,8 @@
   },
   "contracts": {
     "title": "Hlahloba Bophelo ba Tumelano",
-    "uploadTitle": "Kenya Tumelano Ya Hao",
-    "uploadHint": "Kenya tumelano ya PDF ho hlahloba maqhalong le matshwao a bomvu.",
+    "uploadTitle": "Kenya kapa o hlahlobe tumelano",
+    "uploadHint": "Kgetha tlhahlobo ya moraorao ya tumelano kapa o bule demo e hlahelletseng ho bontsha kamoo MzansiLegal e bontshang kotsi le mohato o latelang.",
     "uploadButton": "Kenya & Hlahloba",
     "loading": "E a hlahloba\u2026",
     "pdfLimit": "PDF ho fihlela 10 MB \u00b7 Tumelano ya kiriso, mosebetsi, mokitlane, kapa ya ditshebeletso",
@@ -121,10 +139,32 @@
     "caution": "Tlhokomelo",
     "standard": "Tlwaelo",
     "standardClauses": "Dikarolwana tsa tlwaelo",
-    "allStandard": "Dikarolwana tsohle tsa tlwaelo di le molaong",
-    "plainSummary": "Kakaretso ya puo e bonolo",
+    "allStandard": "Boholo ba dikarolwana tsa tlwaelo bo lokile",
+    "plainSummary": "Khothaletso ka puo e bonolo",
     "summary": "Kakaretso",
-    "followUp": "Botsa potso ya tatellano mabapi le tumelano ena"
+    "followUp": "Botsa potso ya tatellano mabapi le tumelano ena",
+    "viewFeatured": "Bula tlhahlobo e hlahelletseng",
+    "whyItMattersTitle": "Hobaneng demo ena e le bohlokwa",
+    "whyItMattersBody": "Bontsha MD hore sethala se ka fetola tumelano e tala hore e be tlhaloso e loketseng qeto, eseng karabo feela ya chatbot.",
+    "recentAnalyses": "Dihlahlobo tsa moraorao",
+    "recentAnalysesHint": "Bula rekoto efe kapa efe ya sampole ho bona tsela ya dintlha le phallo ya kgothaletso.",
+    "openAnalysis": "Bula tlhahlobo",
+    "scoreSuffix": "ho 100",
+    "cardMeta": "E kentsoe ka {date} \u00b7 maqephe a {pages} \u00b7 dikgaolo tse {clauses}",
+    "detailMeta": "E kentsoe ka {date} \u00b7 maqephe a {pages} \u00b7 dikgaolo tse {clauses} \u00b7 E hlahlobiloe ka {language}",
+    "askAboutContract": "Botsa ka tumelano ena",
+    "followUpPrompt": "Nthuse ho utlwisisa kotsi ho",
+    "standardSummary": "Dikgaolo tse {count} di tsamaisana le dipaterone tse lebeletsweng tsa ditlhaloso, taolo le ho arohana bakeng sa mofuta ona wa tumelano.",
+    "verdict": {
+      "good": "Kotsi e tlase ka kakaretso",
+      "review": "E hloka tlhahlobo pele ho saenwa",
+      "high-risk": "Ho fumanwe mantsoe a kotsi e phahameng"
+    },
+    "benefits": {
+      "fairness": "Hlahisa ditaba tsa toka ka potlako",
+      "risk": "Totobatsa dikgaolo tse fetisetsang kotsi ka tsela e sa lokang",
+      "nextStep": "Supisa mosebedisi mohato o latelang"
+    }
   },
   "history": {
     "title": "Nalane ya Dipoledisano Tsa Ka",
@@ -143,17 +183,75 @@
   },
   "auth": {
     "loginTitle": "Kena",
+    "signInTitle": "Kena",
     "registerTitle": "Theha Akhaonto",
     "emailLabel": "Aterese ya Imeile",
     "passwordLabel": "Phasewete",
     "nameLabel": "Lebitso le feletseng",
+    "languageLabel": "Puo e Ratehang",
     "loginButton": "Kena",
+    "signInButton": "Kena",
     "registerButton": "Ngodisa",
     "switchToRegister": "Ha o na akhaonto? Ngodisa",
-    "switchToLogin": "O setse o na le akhaonto? Kena"
+    "switchToSignIn": "O setse o na le akhaonto? Kena",
+    "switchToLogin": "O setse o na le akhaonto? Kena",
+    "confirmPasswordLabel": "Netefatsa Phasewete",
+    "passwordMismatch": "Diphasewete ha di tshoane.",
+    "invalidCredentials": "Imeile kapa phasewete e fosahetseng. Ke kopa o leke hape.",
+    "emailTaken": "Aterese ena ya imeile e setse e ngodisitswe.",
+    "signOutMenuItem": "Tswa",
+    "adminDashboardLink": "Lephata la Motsamaisi"
   },
   "admin": {
     "dashboardTitle": "Lephata la Motsamaisi",
+    "shellEyebrow": "Pontsho ya sethala",
+    "shellDescription": "Ponahalo e phahameng ya seo sethala se se sebetsang, moo dikotsi di hlahang teng, le hore demo e hlahisa boleng bo bokae.",
+    "insightTitle": "Mekgwa ya matshwao a mafubedu ya kgwedi",
+    "insightDescription": "Sebelisa pono ena ho bontsha hore sethala se ka hlahisa dipaterone ho pholletsa le ditokomane tse kentsweng, eseng ho araba potso e le nngwe feela.",
+    "insightChartTitle": "Sekgahla sa matshwao a mafubedu ka mofuta wa tokomane",
+    "coverageTitle": "Setshwantsho sa phihlello",
+    "coverageDescription": "Pono e potlakileng ya phihlello, tshepo le boitokisetso ba sethala bakeng sa puisano e latelang ya demo.",
+    "activityTitle": "Tshebetso ya moraorao ya sethala",
+    "activityDescription": "Dintlafatso tsa motsamaisi tse etsang hore dashboard e ikutlwe e le bokahodimo ba sehlahisoa se phelang.",
+    "emptyState": {
+      "title": "Ha ho metrics tse phelang hona jwale",
+      "description": "Hokela telemetry ya ho kenya le ho hlahloba ho tlatsa tjhate ena ka boiketsiso."
+    },
+    "stats": {
+      "documents": "Melao e kentsoeng",
+      "documentsDescription": "Mehlodi ya molao e fumanehang hona jwale bakeng sa dipolelo le dikarabo tse thehilweng.",
+      "analyses": "Dihlahlobo tsa ditumelano",
+      "analysesDescription": "Dihlahlobo tse phethilweng kgweding ena ho pholletsa le demo corpus.",
+      "alerts": "Ditemoso tsa kotsi e phahameng",
+      "alertsDescription": "Ditokomane tse hlahisitseng mathata a boima a hlokang ho phahamisetswa kapa ho latelwa."
+    },
+    "coverage": {
+      "languages": "Dipuo tse tshehetswang",
+      "languagesDetail": "Basebedisi ba ka fetoha pakeng tsa dikhetla tse nne tsa lehae ntle le ho tswa leetong la bona la hona jwale.",
+      "sources": "Boitokisetso ba dipolelo",
+      "sourcesDetail": "Kakaretso ya dikarabo tse thehilweng melaong e kentsweng le mehlala ya demo ya ditumelano.",
+      "risk": "Sekgahla sa matshwao",
+      "riskDetail": "Karolo ya dihlahlo tsa moraorao tse hlahisitseng bonyane letshwao le le leng le leholo le lefubedu."
+    },
+    "activity": {
+      "items": {
+        "0": {
+          "title": "Kiriso ya bodulo e kentsoe demo vault",
+          "description": "Tlhahlobo e ntjha ya kiriso e hlahisitsoe mme ya hokahanngwa le tsela ya dintlha tsa tumelano bakeng sa dipotso tse latelang.",
+          "meta": "Metsotso e 7 e fetileng"
+        },
+        "1": {
+          "title": "Sampole ya mosebetsi e ntlafaditswe ka tataiso e ntjha",
+          "description": "Demo corpus hona jwale e totobatsa ka ho hlaka ditaba tsa overtime le payslip tseleng ya dintlha.",
+          "meta": "Metsotso e 21 e fetileng"
+        },
+        "2": {
+          "title": "Tumelano ya mokitlane e hlahisitse temoso ya kotsi e phahameng",
+          "description": "Ho bokellwa ha ditefiso le mantsoe a thata a ho hloleha ho lefa ho sutumelletse tokomane hodimo ho moedi wa ho phahamisa.",
+          "meta": "Metsotso e 42 e fetileng"
+        }
+      }
+    },
     "totalQuestions": "Dipotso Tsohle",
     "totalUsers": "Basebedisi Bohle",
     "pendingReview": "E Letile ho Hlahlojwa",

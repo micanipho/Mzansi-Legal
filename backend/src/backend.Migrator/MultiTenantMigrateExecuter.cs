@@ -7,6 +7,7 @@ using Abp.MultiTenancy;
 using Abp.Runtime.Security;
 using backend.EntityFrameworkCore;
 using backend.EntityFrameworkCore.Seed;
+using backend.Migrator.Seed;
 using backend.MultiTenancy;
 using System;
 using System.Collections.Generic;
@@ -20,18 +21,24 @@ public class MultiTenantMigrateExecuter : ITransientDependency
     private readonly AbpZeroDbMigrator _migrator;
     private readonly IRepository<Tenant> _tenantRepository;
     private readonly IDbPerTenantConnectionStringResolver _connectionStringResolver;
+    private readonly LegislationIngestionRunner _ingestionRunner;
+    private readonly IUnitOfWorkManager _unitOfWorkManager;
 
     public MultiTenantMigrateExecuter(
         AbpZeroDbMigrator migrator,
         IRepository<Tenant> tenantRepository,
         Log log,
-        IDbPerTenantConnectionStringResolver connectionStringResolver)
+        IDbPerTenantConnectionStringResolver connectionStringResolver,
+        LegislationIngestionRunner ingestionRunner,
+        IUnitOfWorkManager unitOfWorkManager)
     {
         _log = log;
 
         _migrator = migrator;
         _tenantRepository = tenantRepository;
         _connectionStringResolver = connectionStringResolver;
+        _ingestionRunner = ingestionRunner;
+        _unitOfWorkManager = unitOfWorkManager;
     }
 
     public bool Run(bool skipConnVerification)
@@ -70,6 +77,25 @@ public class MultiTenantMigrateExecuter : ITransientDependency
         }
 
         _log.Write("HOST database migration completed.");
+        _log.Write("--------------------------------------------------------");
+
+        _log.Write("Legislation ingestion seed started...");
+        try
+        {
+            // Run ingestion outside a single long-lived UoW so each app-service call
+            // can execute in its own transaction boundary and avoid cross-document
+            // concurrency tracking conflicts.
+            _ingestionRunner.RunAsync().GetAwaiter().GetResult();
+        }
+        catch (Exception ex)
+        {
+            // Ingestion seed failure is non-fatal — migration itself succeeded.
+            _log.Write("Legislation ingestion seed encountered an error: " + ex.Message);
+            _log.Write(ex.ToString());
+            _log.Write("Documents can be re-processed by re-running the Migrator or using the admin UI.");
+        }
+
+        _log.Write("Legislation ingestion seed completed.");
         _log.Write("--------------------------------------------------------");
 
         var migratedDatabases = new HashSet<string>();
@@ -128,5 +154,3 @@ public class MultiTenantMigrateExecuter : ITransientDependency
         return builder.ToString();
     }
 }
-
-

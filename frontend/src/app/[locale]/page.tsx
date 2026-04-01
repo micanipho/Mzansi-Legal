@@ -4,31 +4,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
-import {
-  Search, Mic, FileText, MessageCircle, TrendingUp,
-  Shield, Home as HomeIcon, Briefcase, CreditCard,
-  Calculator, Lock, AlertTriangle,
-} from "lucide-react";
+import { Search, FileText, MessageCircle, TrendingUp } from "lucide-react";
+import { appRoutes, createLocalizedPath } from "@/i18n/routing";
 import { C, R, shadowOrganic, fontSerif, fontSans } from "@/styles/theme";
+import { useAuth } from "@/hooks/useAuth";
 
-const STATS = [
-  { num: "2,847", labelKey: "statQuestionsAnswered" as const, r: R.o1 },
-  { num: "13",    labelKey: "statActsIndexed"        as const, r: R.o2 },
-  { num: "4",     labelKey: "statLanguages"           as const, r: R.o3 },
-  { num: "342",   labelKey: "statContractsAnalysed"   as const, r: R.o4 },
-];
 
-const CATEGORIES = [
-  { Icon: Briefcase,     titleKey: "catEmploymentTitle" as const, descKey: "catEmploymentDesc" as const, tagKey: "legal"     as const, tagColor: `rgba(93,112,82,0.12)`,   tagText: C.primary,   r: R.o1 },
-  { Icon: HomeIcon,      titleKey: "catHousingTitle"    as const, descKey: "catHousingDesc"    as const, tagKey: "legal"     as const, tagColor: `rgba(93,112,82,0.12)`,   tagText: C.primary,   r: R.o2 },
-  { Icon: Shield,        titleKey: "catConsumerTitle"   as const, descKey: "catConsumerDesc"   as const, tagKey: "legal"     as const, tagColor: `rgba(93,112,82,0.12)`,   tagText: C.primary,   r: R.o3 },
-  { Icon: CreditCard,    titleKey: "catDebtTitle"       as const, descKey: "catDebtDesc"       as const, tagKey: "financial" as const, tagColor: `rgba(193,140,93,0.12)`,  tagText: C.secondary, r: R.o4 },
-  { Icon: Calculator,    titleKey: "catTaxTitle"        as const, descKey: "catTaxDesc"        as const, tagKey: "financial" as const, tagColor: `rgba(193,140,93,0.12)`,  tagText: C.secondary, r: R.o1 },
-  { Icon: Lock,          titleKey: "catPrivacyTitle"    as const, descKey: "catPrivacyDesc"    as const, tagKey: "legal"     as const, tagColor: `rgba(93,112,82,0.12)`,   tagText: C.primary,   r: R.o2 },
-  { Icon: FileText,      titleKey: "catContractTitle"   as const, descKey: "catContractDesc"   as const, tagKey: "contracts" as const, tagColor: "rgba(109,40,217,0.08)",  tagText: "#6D28D9",   r: R.o3 },
-  { Icon: TrendingUp,    titleKey: "catInsuranceTitle"  as const, descKey: "catInsuranceDesc"  as const, tagKey: "financial" as const, tagColor: `rgba(193,140,93,0.12)`,  tagText: C.secondary, r: R.o4 },
-  { Icon: AlertTriangle, titleKey: "catSafetyTitle"     as const, descKey: "catSafetyDesc"     as const, tagKey: "legal"     as const, tagColor: `rgba(93,112,82,0.12)`,   tagText: C.primary,   r: R.o1 },
-];
 
 const TRENDING: Record<string, { q: string; catKey: string }[]> = {
   en: [
@@ -67,57 +48,34 @@ export default function HomePage() {
   const t  = useTranslations("home");
   const tc = useTranslations("categories");
   const [query, setQuery] = useState("");
+  const { user } = useAuth();
 
   const ask = (q?: string) => {
     const text = (q ?? query).trim();
     if (!text) return;
-    router.push(`/${locale}/chat?q=${encodeURIComponent(text)}`);
+    router.push(createLocalizedPath(locale, appRoutes.ask, `q=${encodeURIComponent(text)}`));
   };
 
   return (
     <main
+      className="page-shell"
       style={{
-        minHeight: "100vh",
-        paddingTop: 96,
-        paddingBottom: 80,
-        paddingLeft: 16,
-        paddingRight: 16,
-        maxWidth: 1280,
-        margin: "0 auto",
         display: "flex",
         flexDirection: "column",
-        gap: 96,
+        gap: 64,
         fontFamily: fontSans,
       }}
     >
-      {/* ── Hero ─────────────────────────────────────────────── */}
-      <section style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", maxWidth: 768, margin: "0 auto", marginTop: 32 }}>
-        <div
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 8,
-            background: C.muted,
-            padding: "6px 16px",
-            borderRadius: 9999,
-            marginBottom: 32,
-            border: `1px solid rgba(222,216,207,0.5)`,
-          }}
-        >
-          <span style={{ width: 8, height: 8, borderRadius: "50%", background: C.primary, display: "inline-block" }} />
-          <span style={{ fontSize: 14, fontWeight: 500, color: C.fg }}>
-            {t("heroBadge")}
-          </span>
-        </div>
-
+      {/* Hero Section */}
+      <section style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", maxWidth: 720, margin: "0 auto", marginTop: 48 }}>
         <h1
           style={{
             fontFamily: fontSerif,
-            fontSize: "clamp(3rem, 7vw, 4.5rem)",
+            fontSize: "clamp(2.5rem, 6vw, 4rem)",
             fontWeight: 800,
             color: C.primary,
             lineHeight: 1.1,
-            marginBottom: 24,
+            marginBottom: 16,
             letterSpacing: "-0.02em",
           }}
         >
@@ -126,13 +84,13 @@ export default function HomePage() {
           <span style={{ color: C.fg }}>{t("heroSubtitle")}</span>
         </h1>
 
-        <p style={{ fontSize: 18, color: C.mutedFg, marginBottom: 40, maxWidth: 600 }}>
+        <p style={{ fontSize: 17, color: C.mutedFg, marginBottom: 40, maxWidth: 560 }}>
           {t("heroDesc")}
         </p>
 
         {/* Search bar */}
-        <div style={{ width: "100%", maxWidth: 640, position: "relative", display: "flex", alignItems: "center", marginBottom: 24 }}>
-          <div style={{ position: "absolute", left: 24, color: C.mutedFg, display: "flex" }}>
+        <div style={{ width: "100%", maxWidth: 600, position: "relative", display: "flex", alignItems: "center", marginBottom: 32 }}>
+          <div style={{ position: "absolute", left: 20, color: C.mutedFg }}>
             <Search size={20} />
           </div>
           <input
@@ -143,66 +101,57 @@ export default function HomePage() {
             onKeyDown={(e) => e.key === "Enter" && ask()}
             style={{
               width: "100%",
-              background: "#fff",
+              background: C.card,
               border: `2px solid ${C.border}`,
-              borderRadius: 9999,
-              padding: "16px 160px 16px 56px",
-              fontSize: 18,
+              borderRadius: 16,
+              padding: "16px 120px 16px 52px",
+              fontSize: 16,
               outline: "none",
               fontFamily: fontSans,
               color: C.fg,
             }}
+            aria-label="Search legal questions"
           />
-          <div style={{ position: "absolute", right: 8, display: "flex", alignItems: "center", gap: 8 }}>
-            <button
-              onClick={() => router.push(`/${locale}/chat`)}
-              style={{
-                width: 40, height: 40,
-                borderRadius: 9999,
-                background: C.muted,
-                border: "none",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: C.primary,
-              }}
-              aria-label="Voice search"
-            >
-              <Mic size={20} />
-            </button>
-            <button
-              onClick={() => ask()}
-              style={{
-                background: C.primary,
-                color: C.primaryFg,
-                padding: "12px 24px",
-                borderRadius: 9999,
-                fontWeight: 700,
-                fontSize: 14,
-                border: "none",
-                cursor: "pointer",
-                fontFamily: fontSans,
-              }}
-            >
-              {t("askButton")}
-            </button>
-          </div>
+          <button
+            onClick={() => ask()}
+            disabled={!query.trim()}
+            style={{
+              position: "absolute",
+              right: 8,
+              background: C.primary,
+              color: C.primaryFg,
+              padding: "10px 24px",
+              borderRadius: 12,
+              fontWeight: 700,
+              fontSize: 14,
+              border: "none",
+              cursor: query.trim() ? "pointer" : "not-allowed",
+              fontFamily: fontSans,
+              opacity: query.trim() ? 1 : 0.5,
+            }}
+          >
+            {t("askButton")}
+          </button>
         </div>
 
-        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 16, fontSize: 14 }}>
+        {/* Quick links */}
+        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 12, fontSize: 14, marginBottom: 16 }}>
           {[
-            { text: t("quickLink1"), href: `/${locale}/chat` },
-            { text: t("quickLink2"), href: `/${locale}/chat` },
-            { text: t("quickLink3"), href: `/${locale}/contracts` },
+            { text: t("quickLink1"), href: createLocalizedPath(locale, appRoutes.ask, `q=${encodeURIComponent(t("quickLink1"))}`) },
+            { text: t("quickLink2"), href: createLocalizedPath(locale, appRoutes.ask, `q=${encodeURIComponent(t("quickLink2"))}`) },
           ].map(({ text, href }) => (
             <Link
               key={text}
               href={href}
               style={{
                 color: C.mutedFg,
-                borderBottom: `1px dotted ${C.mutedFg}`,
                 textDecoration: "none",
+                padding: "6px 14px",
+                borderRadius: 8,
+                background: C.muted,
+                fontSize: 13,
+                fontWeight: 500,
+                transition: "background 0.2s",
               }}
             >
               {text}
@@ -211,198 +160,114 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Stats ────────────────────────────────────────────── */}
-      <section
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(2, 1fr)",
-          gap: 16,
-        }}
-        className="md-grid-4"
-      >
-        {STATS.map(({ num, labelKey, r }) => (
-          <div
-            key={labelKey}
-            style={{
-              background: C.card,
-              border: `1px solid ${C.border}`,
-              padding: 24,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              textAlign: "center",
-              borderRadius: r,
-              boxShadow: shadowOrganic,
-            }}
-          >
-            <span style={{ fontSize: 36, fontFamily: fontSerif, fontWeight: 700, color: C.primary, marginBottom: 8, display: "block" }}>
-              {num}
-            </span>
-            <span style={{ fontSize: 14, fontWeight: 500, color: C.mutedFg }}>
-              {t(labelKey)}
-            </span>
-          </div>
-        ))}
-      </section>
-
-      {/* ── CTAs ─────────────────────────────────────────────── */}
-      <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 24 }}>
+      {/* Main CTAs */}
+      <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 20, maxWidth: 900, margin: "0 auto", width: "100%" }}>
         <Link
-          href={`/${locale}/contracts`}
+          href={createLocalizedPath(locale, appRoutes.ask)}
           style={{
-            background: C.card,
-            border: `2px solid ${C.accent}`,
+            background: C.primary,
+            color: C.primaryFg,
             padding: 32,
-            borderRadius: R.o2,
-            boxShadow: shadowOrganic,
+            borderRadius: 20,
+            boxShadow: `0 4px 16px ${C.primary}33`,
             display: "flex",
             flexDirection: "column",
-            gap: 16,
+            gap: 12,
             textDecoration: "none",
+            transition: "transform 0.2s, box-shadow 0.2s",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = "translateY(-4px)";
+            e.currentTarget.style.boxShadow = `0 8px 24px ${C.primary}44`;
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "translateY(0)";
+            e.currentTarget.style.boxShadow = `0 4px 16px ${C.primary}33`;
           }}
         >
-          <div style={{ width: 48, height: 48, background: C.accent, borderRadius: 9999, display: "flex", alignItems: "center", justifyContent: "center", color: C.secondary }}>
-            <FileText size={24} />
-          </div>
+          <MessageCircle size={32} />
           <div>
-            <h3 style={{ fontFamily: fontSerif, fontSize: 24, fontWeight: 700, color: C.fg, margin: "0 0 8px" }}>{t("ctaContractTitle")}</h3>
-            <p style={{ color: C.mutedFg, margin: 0 }}>{t("ctaContractDesc")}</p>
+            <h3 style={{ fontFamily: fontSerif, fontSize: 22, fontWeight: 700, margin: "0 0 8px" }}>{t("ctaAskTitle")}</h3>
+            <p style={{ margin: 0, opacity: 0.9, fontSize: 15 }}>{t("ctaAskDesc")}</p>
           </div>
         </Link>
 
         <Link
-          href={`/${locale}/chat`}
+          href={createLocalizedPath(locale, appRoutes.contracts)}
           style={{
             background: C.card,
             border: `1px solid ${C.border}`,
             padding: 32,
-            borderRadius: R.o1,
+            borderRadius: 20,
             boxShadow: shadowOrganic,
             display: "flex",
             flexDirection: "column",
-            gap: 16,
+            gap: 12,
             textDecoration: "none",
+            transition: "transform 0.2s, box-shadow 0.2s",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = "translateY(-4px)";
+            e.currentTarget.style.boxShadow = "0 8px 24px rgba(0,0,0,0.1)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "translateY(0)";
+            e.currentTarget.style.boxShadow = shadowOrganic;
           }}
         >
-          <div style={{ width: 48, height: 48, background: C.muted, borderRadius: 9999, display: "flex", alignItems: "center", justifyContent: "center", color: C.primary }}>
-            <MessageCircle size={24} />
-          </div>
+          <FileText size={32} color={C.primary} />
           <div>
-            <h3 style={{ fontFamily: fontSerif, fontSize: 24, fontWeight: 700, color: C.fg, margin: "0 0 8px" }}>{t("ctaAskTitle")}</h3>
-            <p style={{ color: C.mutedFg, margin: 0 }}>{t("ctaAskDesc")}</p>
+            <h3 style={{ fontFamily: fontSerif, fontSize: 22, fontWeight: 700, color: C.fg, margin: "0 0 8px" }}>{t("ctaContractTitle")}</h3>
+            <p style={{ color: C.mutedFg, margin: 0, fontSize: 15 }}>{t("ctaContractDesc")}</p>
           </div>
         </Link>
       </section>
 
-      {/* ── Browse by category ───────────────────────────────── */}
-      <section>
-        <h2 style={{ fontFamily: fontSerif, fontSize: 30, fontWeight: 700, color: C.fg, marginBottom: 32 }}>
-          {t("categoriesTitle")}
-        </h2>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 24 }}>
-          {CATEGORIES.map(({ Icon, titleKey, descKey, tagKey, tagColor, tagText, r }) => (
-            <Link
-              key={titleKey}
-              href={`/${locale}/rights`}
-              style={{
-                background: C.card,
-                border: `1px solid ${C.border}`,
-                padding: 24,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "flex-start",
-                gap: 16,
-                textDecoration: "none",
-                borderRadius: r,
-                boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
-              }}
-            >
-              <div style={{ display: "flex", justifyContent: "space-between", width: "100%", alignItems: "flex-start" }}>
-                <div style={{ padding: 12, borderRadius: 9999, background: tagColor, color: tagText }}>
-                  <Icon size={20} />
-                </div>
-                <span style={{ fontSize: 11, fontWeight: 700, padding: "4px 12px", borderRadius: 9999, background: tagColor, color: tagText }}>
-                  {tc(tagKey)}
-                </span>
-              </div>
-              <div>
-                <h3 style={{ fontSize: 17, fontWeight: 700, color: C.fg, margin: "0 0 4px", fontFamily: fontSans }}>{t(titleKey)}</h3>
-                <p style={{ fontSize: 14, color: C.mutedFg, margin: 0 }}>{t(descKey)}</p>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* ── Trending ─────────────────────────────────────────── */}
+      {/* Trending Questions */}
       <section
         style={{
           background: C.card,
           border: `1px solid ${C.border}`,
-          borderRadius: 24,
-          padding: "32px 40px",
+          borderRadius: 20,
+          padding: 32,
           boxShadow: shadowOrganic,
+          maxWidth: 900,
+          margin: "0 auto",
+          width: "100%",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 24 }}>
-          <TrendingUp size={22} color={C.secondary} />
-          <h2 style={{ fontFamily: fontSerif, fontSize: 26, fontWeight: 700, color: C.fg, margin: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
+          <TrendingUp size={20} color={C.secondary} />
+          <h2 style={{ fontFamily: fontSerif, fontSize: 24, fontWeight: 700, color: C.fg, margin: 0 }}>
             {t("trendingHeader")}
           </h2>
         </div>
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          {(TRENDING[locale] ?? TRENDING.en).map(({ q, catKey }, i) => (
-            <div
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {(TRENDING[locale] ?? TRENDING.en).slice(0, 3).map(({ q }, i) => (
+            <button
               key={i}
-              style={{ borderBottom: i < (TRENDING[locale] ?? TRENDING.en).length - 1 ? `1px solid ${C.border}` : undefined }}
+              onClick={() => ask(q)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 14,
+                padding: 16,
+                background: C.muted,
+                border: "none",
+                borderRadius: 12,
+                cursor: "pointer",
+                textAlign: "left",
+                width: "100%",
+                transition: "background 0.2s",
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = C.border}
+              onMouseLeave={(e) => e.currentTarget.style.background = C.muted}
             >
-              <button
-                onClick={() => ask(q)}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 16,
-                  padding: "20px 0",
-                  background: "transparent",
-                  border: "none",
-                  cursor: "pointer",
-                  textAlign: "left",
-                  width: "100%",
-                }}
-              >
-                <div
-                  style={{
-                    width: 40, height: 40,
-                    flexShrink: 0,
-                    background: `rgba(93,112,82,0.1)`,
-                    color: C.primary,
-                    fontFamily: fontSerif,
-                    fontWeight: 700,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    borderRadius: R.o1,
-                    fontSize: 16,
-                  }}
-                >
-                  {i + 1}
-                </div>
-                <p style={{ flex: 1, fontSize: 16, fontWeight: 500, color: C.fg, margin: 0, lineHeight: 1.4 }}>{q}</p>
-                <span
-                  style={{
-                    fontSize: 13,
-                    color: C.mutedFg,
-                    background: C.muted,
-                    padding: "4px 12px",
-                    borderRadius: 9999,
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  {tc(catKey as Parameters<typeof tc>[0])}
-                </span>
-              </button>
-            </div>
+              <span style={{ fontSize: 14, fontWeight: 700, color: C.primary, minWidth: 24 }}>
+                {i + 1}.
+              </span>
+              <p style={{ flex: 1, fontSize: 15, fontWeight: 500, color: C.fg, margin: 0, lineHeight: 1.4 }}>{q}</p>
+            </button>
           ))}
         </div>
       </section>

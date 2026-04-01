@@ -6,10 +6,11 @@ using backend.EntityFrameworkCore;
 using backend.Migrator.DependencyInjection;
 using Castle.MicroKernel.Registration;
 using Microsoft.Extensions.Configuration;
+using System;
 
 namespace backend.Migrator;
 
-[DependsOn(typeof(backendEntityFrameworkModule))]
+[DependsOn(typeof(backendEntityFrameworkModule), typeof(backendApplicationModule))]
 public class backendMigratorModule : AbpModule
 {
     private readonly IConfigurationRoot _appConfiguration;
@@ -18,8 +19,11 @@ public class backendMigratorModule : AbpModule
     {
         abpProjectNameEntityFrameworkModule.SkipDbSeed = true;
 
+        var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
+
         _appConfiguration = AppConfigurations.Get(
-            typeof(backendMigratorModule).GetAssembly().GetDirectoryPathOrNull()
+            typeof(backendMigratorModule).GetAssembly().GetDirectoryPathOrNull(),
+            environmentName
         );
     }
 
@@ -41,8 +45,6 @@ public class backendMigratorModule : AbpModule
     public override void Initialize()
     {
         IocManager.RegisterAssemblyByConvention(typeof(backendMigratorModule).GetAssembly());
-        ServiceCollectionRegistrar.Register(IocManager);
+        ServiceCollectionRegistrar.Register(IocManager, _appConfiguration);
     }
 }
-
-

@@ -4,7 +4,9 @@ using Abp.AspNetCore.SignalR.Hubs;
 using Abp.Castle.Logging.Log4Net;
 using Abp.Extensions;
 using backend.Configuration;
+using backend.EntityFrameworkCore;
 using backend.Identity;
+using Microsoft.EntityFrameworkCore;
 using Castle.Facilities.Logging;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -48,6 +50,17 @@ namespace backend.Web.Host.Startup
 
             services.AddSignalR();
 
+            // Named HttpClient for OpenAI APIs (embeddings + chat completions).
+            // EmbeddingAppService and RagAppService both resolve this client by name via IHttpClientFactory.
+            services.AddHttpClient("OpenAI", client =>
+            {
+                client.BaseAddress = new Uri(_appConfiguration["OpenAI:BaseUrl"]);
+                client.Timeout = TimeSpan.FromSeconds(30);
+            });
+
+            // Hosted service that pre-loads chunk embeddings into the RAG service at startup.
+            services.AddHostedService<RagStartupService>();
+
             // Configure CORS for angular2 UI
             services.AddCors(
                 options => options.AddPolicy(
@@ -83,6 +96,10 @@ namespace backend.Web.Host.Startup
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
+            // Migrations must run before UseAbp() — ABP's seeder queries the schema
+            // immediately inside UseAbp() and will crash if tables don't exist yet.
+            ApplyDatabaseMigrations(app);
+
             app.UseAbp(options => { options.UseAbpRequestLocalization = false; }); // Initializes ABP framework.
 
             app.UseCors(_defaultCorsPolicyName); // Enable CORS!
@@ -115,6 +132,30 @@ namespace backend.Web.Host.Startup
                     .GetManifestResourceStream("backend.Web.Host.wwwroot.swagger.ui.index.html");
                 options.DisplayRequestDuration(); // Controls the display of the request duration (in milliseconds) for "Try it out" requests.
             }); // URL: /swagger
+        }
+
+        /// <summary>
+        /// Applies all pending EF Core migrations to the database. Called before UseAbp()
+        /// so the schema exists when ABP's seeder runs. Creates the DbContext directly from
+        /// configuration rather than via Windsor, which is not yet initialised at this point.
+        /// </summary>
+        private void ApplyDatabaseMigrations(IApplicationBuilder app)
+        {
+            var connectionString = _appConfiguration.GetConnectionString("Default");
+            var optionsBuilder = new DbContextOptionsBuilder<backendDbContext>();
+            backendDbContextConfigurer.Configure(optionsBuilder, connectionString);
+
+            try
+            {
+                using (var dbContext = new backendDbContext(optionsBuilder.Options))
+                {
+                    dbContext.Database.Migrate();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("Database migration failed at startup. The service will not start.", ex);
+            }
         }
 
         private void ConfigureSwagger(IServiceCollection services)

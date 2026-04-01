@@ -4,16 +4,27 @@
     "tagline": "Jou KI-aangedrewe regsassistent",
     "loading": "Laai tans...",
     "error": "Iets het verkeerd gegaan. Probeer asseblief weer.",
-    "disclaimer": "Hierdie inligting is slegs vir leiding en verteenwoordig nie regsadvies nie. Raadpleeg altyd 'n gekwalifiseerde regsdeskundige."
+    "disclaimer": "Hierdie inligting is slegs vir leiding en verteenwoordig nie regsadvies nie. Raadpleeg altyd 'n gekwalifiseerde regsdeskundige.",
+    "signIn": "Meld aan",
+    "locales": {
+      "en": "English",
+      "zu": "isiZulu",
+      "st": "Sesotho",
+      "af": "Afrikaans"
+    }
   },
   "nav": {
     "home": "Tuis",
     "chat": "Stel 'n Vraag",
+    "ask": "Vra",
     "rights": "My Regte",
     "contracts": "Kontraktoets",
+    "dashboard": "Dashboard",
     "history": "Geskiedenis",
     "settings": "Instellings",
     "admin": "Admin",
+    "language": "Taal",
+    "getStarted": "Begin Vra",
     "login": "Meld aan",
     "register": "Registreer",
     "logout": "Meld af"
@@ -57,7 +68,9 @@
     "catInsuranceTitle": "Versekering & Aftrede",
     "catInsuranceDesc": "Eise, uitbetalings en voorsieningsfondse.",
     "catSafetyTitle": "Veiligheid & Teistering",
-    "catSafetyDesc": "Beskermingsbevele en werkplek-veiligheid."
+    "catSafetyDesc": "Beskermingsbevele en werkplek-veiligheid.",
+    "heroCtaGuest": "Begin Nou",
+    "heroCtaUser": "Gaan na App"
   },
   "chat": {
     "title": "Regs V&A",
@@ -70,7 +83,10 @@
     "relatedQuestions": "Verwante vrae",
     "listenIn": "Luister in {language}",
     "disclaimer": "MzansiLegal verskaf regsbesonderhede, nie regsadvies nie.",
-    "newConversation": "Nuwe Gesprek"
+    "newConversation": "Nuwe Gesprek",
+    "guestBannerAction": "Meld aan",
+    "guestBannerTitle": "Stel 'n regs- of finansiële regtevraag",
+    "guestBannerDesc": "Stel 'n regs- of finansiële regtevraag in enige taal."
   },
   "rights": {
     "title": "My Regte-Verkenner",
@@ -82,6 +98,8 @@
     "askAboutThis": "Vra hieroor",
     "askFollowUp": "Stel 'n vervolgvraag",
     "share": "Deel",
+    "guestProgressBanner": "Meld aan om jou vordering te stoor",
+    "guestProgressDesc": "Skep 'n gratis rekening om by te hou watter regte jy oor sessies heen verken het.",
     "evictionCite": "Grondwet, Artikel 26(3)",
     "payslipCite": "WBDE, Artikel 33",
     "defectiveGoodsCite": "WVB, Artikel 56",
@@ -110,8 +128,8 @@
   },
   "contracts": {
     "title": "Kontrak Gesondheidstoets",
-    "uploadTitle": "Laai Jou Kontrak Op",
-    "uploadHint": "Laai 'n PDF-kontrak op om vir risiko's en rooi vlae te ontleed.",
+    "uploadTitle": "Laai op of hersien 'n kontrak",
+    "uploadHint": "Kies 'n onlangse kontrakanalise of maak die uitgestalde demo oop om te wys hoe MzansiLegal risiko merk en die volgende stap verduidelik.",
     "uploadButton": "Laai Op & Ontleed",
     "loading": "Besig om te ontleed\u2026",
     "pdfLimit": "PDF tot 10 MB \u00b7 Huur-, diens-, krediet- of dienslewerooreenkoms",
@@ -121,10 +139,32 @@
     "caution": "Versigtigheid",
     "standard": "Standaard",
     "standardClauses": "Standaard klousules",
-    "allStandard": "Alle standaard klousules is in orde",
-    "plainSummary": "Eenvoudige taalopvatting",
+    "allStandard": "Die meeste standaard klousules is in orde",
+    "plainSummary": "Aanbeveling in gewone taal",
     "summary": "Opsomming",
-    "followUp": "Stel 'n opvolgvraag oor hierdie kontrak"
+    "followUp": "Stel 'n opvolgvraag oor hierdie kontrak",
+    "viewFeatured": "Open uitgestalde analise",
+    "whyItMattersTitle": "Hoekom hierdie demo saak maak",
+    "whyItMattersBody": "Wys 'n MD dat die platform 'n rou kontrak in 'n besluitsgereed verduideliking kan omskep, nie net 'n chatbot-antwoord nie.",
+    "recentAnalyses": "Onlangse ontledings",
+    "recentAnalysesHint": "Maak enige voorbeeldrekord oop om die toegewyde detailroete en aanbevelingsvloei te sien.",
+    "openAnalysis": "Open analise",
+    "scoreSuffix": "uit 100",
+    "cardMeta": "Opgelaai {date} \u00b7 {pages} bladsye \u00b7 {clauses} klousules",
+    "detailMeta": "Opgelaai {date} \u00b7 {pages} bladsye \u00b7 {clauses} klousules \u00b7 Ontleed in {language}",
+    "askAboutContract": "Vra oor hierdie kontrak",
+    "followUpPrompt": "Help my om die risiko in te verstaan",
+    "standardSummary": "{count} klousules pas by die verwagte definisie-, jurisdiksie- en skeibaarheidspatrone vir hierdie kontraktipe.",
+    "verdict": {
+      "good": "Lae risiko oor die algemeen",
+      "review": "Moet hersien word voor ondertekening",
+      "high-risk": "Hoë-risiko bepalings opgespoor"
+    },
+    "benefits": {
+      "fairness": "Lig billikheidskwessies vinnig uit",
+      "risk": "Wys klousules uit wat risiko onregverdig verskuif",
+      "nextStep": "Wys die gebruiker na die volgende stap"
+    }
   },
   "history": {
     "title": "My Gespreksgeskiedenis",
@@ -143,17 +183,75 @@
   },
   "auth": {
     "loginTitle": "Meld Aan",
+    "signInTitle": "Meld Aan",
     "registerTitle": "Skep Rekening",
     "emailLabel": "E-posadres",
     "passwordLabel": "Wagwoord",
     "nameLabel": "Volle Naam",
+    "languageLabel": "Voorkeur Taal",
     "loginButton": "Meld Aan",
+    "signInButton": "Meld Aan",
     "registerButton": "Registreer",
     "switchToRegister": "Het jy nie 'n rekening nie? Registreer",
-    "switchToLogin": "Het jy al 'n rekening? Meld Aan"
+    "switchToSignIn": "Het jy al 'n rekening? Meld Aan",
+    "switchToLogin": "Het jy al 'n rekening? Meld Aan",
+    "confirmPasswordLabel": "Bevestig Wagwoord",
+    "passwordMismatch": "Wagwoorde stem nie ooreen nie.",
+    "invalidCredentials": "Ongeldige e-pos of wagwoord. Probeer asseblief weer.",
+    "emailTaken": "Hierdie e-posadres is reeds geregistreer.",
+    "signOutMenuItem": "Meld Af",
+    "adminDashboardLink": "Admin-kontroleskerm"
   },
   "admin": {
     "dashboardTitle": "Admin-kontroleskerm",
+    "shellEyebrow": "Platformsein",
+    "shellDescription": "'n Hoëvlak-aansig van wat die platform verwerk, waar risiko's ontstaan, en hoeveel waarde die demo skep.",
+    "insightTitle": "Maandelikse rooi-vlag patrone",
+    "insightDescription": "Gebruik hierdie aansig om te wys dat die platform patrone oor opgelaaide dokumente kan uitlig, nie net een vraag op 'n slag beantwoord nie.",
+    "insightChartTitle": "Rooi-vlag koers per dokumentkategorie",
+    "coverageTitle": "Dekkingsmomentopname",
+    "coverageDescription": "'n Vinnige lees van bereik, vertroue en platformgereedheid vir die volgende demo-gesprek.",
+    "activityTitle": "Onlangse platformaktiwiteit",
+    "activityDescription": "Verteenwoordigende admin-opdaterings wat die dashboard soos 'n lewende produk laat voel.",
+    "emptyState": {
+      "title": "Nog geen lewendige maatstawwe nie",
+      "description": "Koppel inname- en ontledingstelemetrie om hierdie grafiek outomaties te vul."
+    },
+    "stats": {
+      "documents": "Wette geindekseer",
+      "documentsDescription": "Wetgewingsbronne wat tans beskikbaar is vir aanhalings en gegronde antwoorde.",
+      "analyses": "Kontrakontledings",
+      "analysesDescription": "Ontledings wat hierdie maand oor die demo-korpus voltooi is.",
+      "alerts": "Hoë-risiko waarskuwings",
+      "alertsDescription": "Dokumente wat ernstige kwessies uitgelig het wat eskalasie of opvolg nodig het."
+    },
+    "coverage": {
+      "languages": "Ondersteunde tale",
+      "languagesDetail": "Gebruikers kan tussen vier gelokaliseerde skille wissel sonder om hul huidige reis te verlaat.",
+      "sources": "Aanhalingsgereedheid",
+      "sourcesDetail": "Gegronde antwoorddekking oor die ingevoerde wette en kontrakdemo's.",
+      "risk": "Vlagkoers",
+      "riskDetail": "Aandeel van onlangse voorbeeldontledings wat ten minste een groot rooi vlag opgelewer het."
+    },
+    "activity": {
+      "items": {
+        "0": {
+          "title": "Behuisingshuurkontrak na die demo-kluis opgelaai",
+          "description": "'n Nuwe huurooreenkoms-ontleding is gegenereer en aan die kontrakdetailroete gekoppel vir opvolgvrae.",
+          "meta": "7 minute gelede"
+        },
+        "1": {
+          "title": "Werksvoorbeeld met bygewerkte leiding verfris",
+          "description": "Die demo-korpus beklemtoon nou oortyd- en betaalstrokie-kwessies duideliker in die detailvloei.",
+          "meta": "21 minute gelede"
+        },
+        "2": {
+          "title": "Kredietooreenkoms het 'n hoë-risiko waarskuwing veroorsaak",
+          "description": "Fooi-opstapeling en aggressiewe wanbetalingsbepalings het die dokument bo die eskalasiedrempel gedruk.",
+          "meta": "42 minute gelede"
+        }
+      }
+    },
     "totalQuestions": "Totale Vrae",
     "totalUsers": "Totale Gebruikers",
     "pendingReview": "Wag vir Hersiening",

@@ -8,6 +8,8 @@ param(
     [int]$Number = 0,
     [switch]$Timestamp,
     [switch]$Help,
+    [ValidateSet('feat', 'bug', 'fix')]
+    [string]$Type = 'feat',
     [Parameter(Position = 0, ValueFromRemainingArguments = $true)]
     [string[]]$FeatureDescription
 )
@@ -15,19 +17,22 @@ $ErrorActionPreference = 'Stop'
 
 # Show help if requested
 if ($Help) {
-    Write-Host "Usage: ./create-new-feature.ps1 [-Json] [-ShortName <name>] [-Number N] [-Timestamp] <feature description>"
+    Write-Host "Usage: ./create-new-feature.ps1 [-Json] [-ShortName <name>] [-Number N] [-Timestamp] [-Type feat|bug|fix] <feature description>"
     Write-Host ""
     Write-Host "Options:"
     Write-Host "  -Json               Output in JSON format"
     Write-Host "  -ShortName <name>   Provide a custom short name (2-4 words) for the branch"
     Write-Host "  -Number N           Specify branch number manually (overrides auto-detection)"
     Write-Host "  -Timestamp          Use timestamp prefix (YYYYMMDD-HHMMSS) instead of sequential numbering"
+    Write-Host "  -Type <type>        Branch type prefix: feat (default), bug, or fix"
     Write-Host "  -Help               Show this help message"
     Write-Host ""
     Write-Host "Examples:"
     Write-Host "  ./create-new-feature.ps1 'Add user authentication system' -ShortName 'user-auth'"
     Write-Host "  ./create-new-feature.ps1 'Implement OAuth2 integration for API'"
     Write-Host "  ./create-new-feature.ps1 -Timestamp -ShortName 'user-auth' 'Add user authentication'"
+    Write-Host "  ./create-new-feature.ps1 -Type fix -ShortName 'login-crash' 'Fix login crash on mobile'"
+    Write-Host "  ./create-new-feature.ps1 -Type bug -ShortName 'null-ref' 'Null reference in payment flow'"
     exit 0
 }
 
@@ -51,7 +56,8 @@ function Get-HighestNumberFromSpecs {
     $highest = 0
     if (Test-Path $SpecsDir) {
         Get-ChildItem -Path $SpecsDir -Directory | ForEach-Object {
-            if ($_.Name -match '^(\d{3})-') {
+            # Match both old-style (###-name) and new-style (type-###-name)
+            if ($_.Name -match '^(?:[a-z]+-)?(\d{3})-') {
                 $num = [int]$matches[1]
                 if ($num -gt $highest) { $highest = $num }
             }
@@ -71,8 +77,8 @@ function Get-HighestNumberFromBranches {
                 # Clean branch name: remove leading markers and remote prefixes
                 $cleanBranch = $branch.Trim() -replace '^\*?\s+', '' -replace '^remotes/[^/]+/', ''
                 
-                # Extract feature number if branch matches pattern ###-*
-                if ($cleanBranch -match '^(\d{3})-') {
+                # Match both old-style (###-name) and new-style (type/###-name)
+                if ($cleanBranch -match '^(?:[a-z]+/)?(\d{3})-') {
                     $num = [int]$matches[1]
                     if ($num -gt $highest) { $highest = $num }
                 }
@@ -192,7 +198,8 @@ if ($Timestamp -and $Number -ne 0) {
 # Determine branch prefix
 if ($Timestamp) {
     $featureNum = Get-Date -Format 'yyyyMMdd-HHmmss'
-    $branchName = "$featureNum-$branchSuffix"
+    $branchName = "$Type/$featureNum-$branchSuffix"
+    $featureDirName = "$Type-$featureNum-$branchSuffix"
 } else {
     # Determine branch number
     if ($Number -eq 0) {
@@ -206,7 +213,8 @@ if ($Timestamp) {
     }
 
     $featureNum = ('{0:000}' -f $Number)
-    $branchName = "$featureNum-$branchSuffix"
+    $branchName = "$Type/$featureNum-$branchSuffix"
+    $featureDirName = "$Type-$featureNum-$branchSuffix"
 }
 
 # GitHub enforces a 244-byte limit on branch names
@@ -261,7 +269,7 @@ if ($hasGit) {
     Write-Warning "[specify] Warning: Git repository not detected; skipped branch creation for $branchName"
 }
 
-$featureDir = Join-Path $specsDir $branchName
+$featureDir = Join-Path $specsDir $featureDirName
 New-Item -ItemType Directory -Path $featureDir -Force | Out-Null
 
 $template = Resolve-Template -TemplateName 'spec-template' -RepoRoot $repoRoot
@@ -276,10 +284,11 @@ if ($template -and (Test-Path $template)) {
 $env:SPECIFY_FEATURE = $branchName
 
 if ($Json) {
-    $obj = [PSCustomObject]@{ 
+    $obj = [PSCustomObject]@{
         BRANCH_NAME = $branchName
         SPEC_FILE = $specFile
         FEATURE_NUM = $featureNum
+        TYPE = $Type
         HAS_GIT = $hasGit
     }
     $obj | ConvertTo-Json -Compress
@@ -287,6 +296,7 @@ if ($Json) {
     Write-Output "BRANCH_NAME: $branchName"
     Write-Output "SPEC_FILE: $specFile"
     Write-Output "FEATURE_NUM: $featureNum"
+    Write-Output "TYPE: $Type"
     Write-Output "HAS_GIT: $hasGit"
     Write-Output "SPECIFY_FEATURE environment variable set to: $branchName"
 }
