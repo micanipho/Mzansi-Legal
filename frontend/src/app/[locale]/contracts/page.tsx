@@ -2,10 +2,13 @@
 
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
+import { useRef } from "react";
 import { FileSearch, ArrowRight, UploadCloud, ShieldCheck, TriangleAlert } from "lucide-react";
-import { demoContracts } from "@/components/contracts/contractData";
 import { appRoutes, createLocalizedPath } from "@/i18n/routing";
 import { C, R, fontSans, fontSerif, shadowOrganic } from "@/styles/theme";
+import AuthGuard from "@/components/guards/AuthGuard";
+import { ContractsProvider, useContractsState, useContractsAction } from "@/providers/contracts-provider";
+import { useEffect } from "react";
 
 function getScoreTone(score: number) {
   if (score >= 75) {
@@ -19,12 +22,18 @@ function getScoreTone(score: number) {
   return { fg: C.destructive, bg: "rgba(168, 84, 72, 0.08)", border: "rgba(168, 84, 72, 0.2)" };
 }
 
-export default function ContractsPage() {
+function ContractsContent() {
   const locale = useLocale();
   const t = useTranslations("contracts");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { items: contracts } = useContractsState();
+  const { fetchAll } = useContractsAction();
+
+  useEffect(() => { void fetchAll(); }, []);
 
   return (
-    <main className="page-shell" style={{ display: "flex", flexDirection: "column", gap: 32, fontFamily: fontSans }}>
+    <AuthGuard>
+      <main className="page-shell" style={{ display: "flex", flexDirection: "column", gap: 32, fontFamily: fontSans }}>
       <section className="responsive-two-grid">
         <article
           className="surface-card grain-panel"
@@ -58,7 +67,7 @@ export default function ContractsPage() {
           <p style={{ margin: 0, color: C.mutedFg, fontSize: 17, lineHeight: 1.7 }}>{t("uploadHint")}</p>
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
             <Link
-              href={createLocalizedPath(locale, `${appRoutes.contracts}/${demoContracts[0].id}`)}
+              href={createLocalizedPath(locale, `${appRoutes.contracts}/${contracts[0]?.id ?? ""}`)}
               style={{
                 display: "inline-flex",
                 alignItems: "center",
@@ -74,7 +83,8 @@ export default function ContractsPage() {
               <FileSearch size={16} />
               {t("viewFeatured")}
             </Link>
-            <span
+            <button
+              onClick={() => fileInputRef.current?.click()}
               style={{
                 display: "inline-flex",
                 alignItems: "center",
@@ -85,12 +95,29 @@ export default function ContractsPage() {
                 color: C.mutedFg,
                 background: "rgba(255,255,255,0.62)",
                 fontWeight: 700,
+                cursor: "pointer",
               }}
+              aria-label={t("uploadButton")}
             >
               <UploadCloud size={16} />
-              {t("pdfLimit")}
-            </span>
+              {t("uploadButton")}
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".pdf"
+              aria-label={t("uploadButton")}
+              style={{ display: "none" }}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  // Upload handling placeholder — file selected
+                  e.target.value = "";
+                }
+              }}
+            />
           </div>
+          <p style={{ margin: 0, fontSize: 13, color: C.mutedFg }}>{t("pdfLimit")}</p>
         </article>
 
         <article
@@ -133,7 +160,7 @@ export default function ContractsPage() {
         </div>
 
         <div style={{ display: "grid", gap: 20 }}>
-          {demoContracts.map((contract) => {
+          {contracts.map((contract) => {
             const tone = getScoreTone(contract.score);
             const detailHref = createLocalizedPath(locale, `${appRoutes.contracts}/${contract.id}`);
 
@@ -233,6 +260,16 @@ export default function ContractsPage() {
           })}
         </div>
       </section>
-    </main>
+      </main>
+    </AuthGuard>
   );
 }
+
+export default function ContractsPage() {
+  return (
+    <ContractsProvider>
+      <ContractsContent />
+    </ContractsProvider>
+  );
+}
+

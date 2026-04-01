@@ -5,6 +5,7 @@ import { AlertCircle, AlertTriangle, ArrowLeft, CheckCircle, FileText, MessageSq
 import { getContractById } from "@/components/contracts/contractData";
 import { appRoutes, createLocalizedPath } from "@/i18n/routing";
 import { C, R, fontSans, fontSerif, shadowOrganic } from "@/styles/theme";
+import ContractDetailGuard from "./ContractDetailGuard";
 
 interface ContractDetailPageProps {
   params: Promise<{ locale: string; id: string }>;
@@ -45,6 +46,7 @@ export default async function ContractDetailPage({ params }: ContractDetailPageP
   const verdictTone = getVerdictTone(contract.verdict);
 
   return (
+    <ContractDetailGuard>
     <main className="page-shell page-shell--narrow" style={{ display: "flex", flexDirection: "column", gap: 32 }}>
       <Link
         href={createLocalizedPath(locale, appRoutes.contracts)}
@@ -262,5 +264,6 @@ export default async function ContractDetailPage({ params }: ContractDetailPageP
         </div>
       </section>
     </main>
+    </ContractDetailGuard>
   );
 }

@@ -1,4 +1,20 @@
-const API_BASE = process.env.NEXT_PUBLIC_BASE_URL ?? "https://localhost:44311";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:21021";
+const ABP_TENANT_HEADER = { "Abp-TenantId": "1" };
+
+/**
+ * Helper function to read a cookie value by name
+ */
+function getCookie(name: string): string | null {
+  if (typeof document === "undefined") return null;
+  const prefix = `${name}=`;
+  for (const part of document.cookie.split(";")) {
+    const trimmed = part.trim();
+    if (trimmed.startsWith(prefix)) {
+      return decodeURIComponent(trimmed.slice(prefix.length));
+    }
+  }
+  return null;
+}
 
 export interface AskQuestionRequest {
   questionText: string;
@@ -13,7 +29,7 @@ export interface RagCitationDto {
 }
 
 export interface RagAnswerResult {
-  answerText: string;
+  answerText: string | null;
   isInsufficientInformation: boolean;
   citations: RagCitationDto[];
   chunkIds: string[];
@@ -26,10 +42,17 @@ export async function askRagQuestion(
 ): Promise<RagAnswerResult> {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
+    ...ABP_TENANT_HEADER,
   };
 
   if (locale) {
     headers["Accept-Language"] = locale;
+  }
+
+  // Read JWT token from cookie and include in Authorization header
+  const token = getCookie("ml_token");
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
   }
 
   const res = await fetch(`${API_BASE}/api/app/qa/ask`, {
@@ -43,5 +66,12 @@ export async function askRagQuestion(
     throw new Error(json?.error?.message ?? `Request failed with status ${res.status}`);
   }
 
-  return res.json() as Promise<RagAnswerResult>;
+  const json = await res.json();
+  
+  // ABP wraps responses in a "result" property
+  if (json.result) {
+    return json.result as RagAnswerResult;
+  }
+  
+  return json as RagAnswerResult;
 }

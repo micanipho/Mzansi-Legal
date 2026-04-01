@@ -1,49 +1,279 @@
 "use client";
 
-import { Button, Space, Typography } from "antd";
-import { MessageOutlined } from "@ant-design/icons";
 import { useLocale, useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
+import { MessageSquare, ChevronRight, Clock, PlusCircle } from "lucide-react";
+import Link from "next/link";
 import { appRoutes, createLocalizedPath } from "@/i18n/routing";
-import { brand } from "@/styles/theme";
+import { C, R, fontSans, fontSerif, shadowOrganic } from "@/styles/theme";
+import AuthGuard from "@/components/guards/AuthGuard";
+import { HistoryProvider, useHistoryState, useHistoryAction } from "@/providers/history-provider";
+import { Spin } from "antd";
+import { useEffect } from "react";
 
-const { Text, Title } = Typography;
+const LOCALE_NAMES: Record<string, string> = {
+  en: "English",
+  zu: "isiZulu",
+  st: "Sesotho",
+  af: "Afrikaans",
+};
 
-export default function HistoryPage() {
+function formatDate(iso: string, locale: string): string {
+  try {
+    return new Intl.DateTimeFormat(locale === "zu" || locale === "st" ? "en-ZA" : `${locale}-ZA`, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    }).format(new Date(iso));
+  } catch {
+    return iso.slice(0, 10);
+  }
+}
+
+function HistoryContent() {
   const t = useTranslations("history");
   const locale = useLocale();
-  const router = useRouter();
+  const { items, isPending: isLoading, isError } = useHistoryState();
+  const { fetchAll } = useHistoryAction();
+
+  useEffect(() => { void fetchAll(); }, []);
+
+  if (isLoading) {
+    return (
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "60vh" }}>
+        <Spin size="large" />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div style={{ padding: 32, color: C.destructive, textAlign: "center" }}>Failed to load history.</div>
+    );
+  }
 
   return (
-    <main style={{ background: brand.cream, minHeight: "100vh" }}>
-      <div style={{ background: "#fff", borderBottom: `1px solid ${brand.border}`, padding: "16px 32px" }}>
-        <Text style={{ fontWeight: 700, fontSize: 15, color: brand.dark }}>{t("title")}</Text>
-      </div>
+    <AuthGuard>
+      <main
+        className="page-shell"
+        style={{ display: "flex", flexDirection: "column", gap: 40, fontFamily: fontSans }}
+      >
+      {/* Page header */}
+      <section style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
+        <div>
+          <h1
+            style={{
+              fontFamily: fontSerif,
+              fontSize: "clamp(2rem, 4vw, 2.8rem)",
+              fontWeight: 700,
+              color: C.fg,
+              margin: "0 0 8px",
+            }}
+          >
+            {t("title")}
+          </h1>
+          <p style={{ color: C.mutedFg, margin: 0, fontSize: 16 }}>
+            {t("signInPrompt")}
+          </p>
+        </div>
+        <Link
+          href={createLocalizedPath(locale, appRoutes.ask)}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            background: C.primary,
+            color: C.primaryFg,
+            padding: "12px 24px",
+            borderRadius: 9999,
+            fontWeight: 700,
+            fontSize: 14,
+            textDecoration: "none",
+            fontFamily: fontSans,
+            flexShrink: 0,
+          }}
+        >
+          <PlusCircle size={16} />
+          {t("askQuestion")}
+        </Link>
+      </section>
 
-      <div style={{ maxWidth: 760, margin: "0 auto", padding: "80px 32px", textAlign: "center" }}>
-        <MessageOutlined style={{ fontSize: 40, color: "#D1D5DB", display: "block", marginBottom: 16 }} />
-        <Title level={4} style={{ color: brand.dark, margin: "0 0 8px" }}>
-          {t("empty")}
-        </Title>
-        <Text style={{ color: "#6B7280", fontSize: 14, display: "block", marginBottom: 24 }}>
-          {t("signInPrompt")}
-        </Text>
-        <Space>
-          <Button
-            type="primary"
-            onClick={() => router.push(createLocalizedPath(locale, appRoutes.ask))}
-            style={{ background: brand.dark, borderColor: brand.dark, borderRadius: 20, fontWeight: 600 }}
+      {items.length === 0 ? (
+        /* Empty state */
+        <section
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 24,
+            padding: "80px 32px",
+            textAlign: "center",
+            background: C.card,
+            border: `1px solid ${C.border}`,
+            borderRadius: R.o2,
+            boxShadow: shadowOrganic,
+          }}
+        >
+          <div
+            style={{
+              width: 72,
+              height: 72,
+              borderRadius: 9999,
+              background: C.muted,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: C.mutedFg,
+            }}
+          >
+            <MessageSquare size={36} />
+          </div>
+          <div>
+            <h2 style={{ fontFamily: fontSerif, fontSize: 24, fontWeight: 700, color: C.fg, margin: "0 0 8px" }}>
+              {t("empty")}
+            </h2>
+            <p style={{ color: C.mutedFg, margin: 0 }}>{t("signInPrompt")}</p>
+          </div>
+          <Link
+            href={createLocalizedPath(locale, appRoutes.ask)}
+            style={{
+              background: C.primary,
+              color: C.primaryFg,
+              padding: "12px 32px",
+              borderRadius: 9999,
+              fontWeight: 700,
+              textDecoration: "none",
+              fontFamily: fontSans,
+            }}
           >
             {t("askQuestion")}
-          </Button>
-          <Button
-            href={`/${locale}/auth`}
-            style={{ borderRadius: 20, borderColor: brand.border, color: brand.dark, fontWeight: 600 }}
-          >
-            {t("signIn")}
-          </Button>
-        </Space>
-      </div>
-    </main>
+          </Link>
+        </section>
+      ) : (
+        /* Conversation list */
+        <section style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          {items.map((item, idx) => {
+            const radii = [R.o1, R.o2, R.o3, R.o4];
+            const r = radii[idx % radii.length];
+            const href = createLocalizedPath(locale, appRoutes.ask, `conversationId=${item.conversationId}`);
+
+            return (
+              <Link
+                key={item.conversationId}
+                href={href}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 20,
+                  padding: "24px 28px",
+                  background: C.card,
+                  border: `1px solid ${C.border}`,
+                  borderRadius: r,
+                  boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
+                  textDecoration: "none",
+                  transition: "box-shadow 0.18s ease, transform 0.18s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.boxShadow = shadowOrganic;
+                  e.currentTarget.style.transform = "translateY(-2px)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.boxShadow = "0 1px 4px rgba(0,0,0,0.04)";
+                  e.currentTarget.style.transform = "translateY(0)";
+                }}
+              >
+                {/* Icon */}
+                <div
+                  style={{
+                    width: 48,
+                    height: 48,
+                    borderRadius: 9999,
+                    background: `rgba(74,90,58,0.1)`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: C.primary,
+                    flexShrink: 0,
+                  }}
+                >
+                  <MessageSquare size={22} />
+                </div>
+
+                {/* Content */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p
+                    style={{
+                      fontSize: 16,
+                      fontWeight: 600,
+                      color: C.fg,
+                      margin: "0 0 6px",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {item.firstQuestion.length > 120 ? `${item.firstQuestion.slice(0, 120)}…` : item.firstQuestion}
+                  </p>
+                  <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
+                    <span
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 4,
+                        fontSize: 13,
+                        color: C.mutedFg,
+                        fontWeight: 500,
+                      }}
+                    >
+                      <Clock size={13} />
+                      {formatDate(item.startedAt, locale)}
+                    </span>
+                    <span
+                      style={{
+                        padding: "2px 10px",
+                        borderRadius: 9999,
+                        background: C.muted,
+                        color: C.mutedFg,
+                        fontSize: 12,
+                        fontWeight: 700,
+                      }}
+                    >
+                      {item.questionCount} {item.questionCount === 1 ? "question" : "questions"}
+                    </span>
+                    {item.locale !== "en" && (
+                      <span
+                        style={{
+                          padding: "2px 10px",
+                          borderRadius: 9999,
+                          background: `rgba(74,90,58,0.08)`,
+                          color: C.primary,
+                          fontSize: 12,
+                          fontWeight: 700,
+                        }}
+                      >
+                        {LOCALE_NAMES[item.locale] ?? item.locale}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Arrow */}
+                <ChevronRight size={20} color={C.mutedFg} style={{ flexShrink: 0 }} />
+              </Link>
+            );
+          })}
+        </section>
+      )}
+      </main>
+    </AuthGuard>
   );
 }
+
+export default function HistoryPage() {
+  return (
+    <HistoryProvider>
+      <HistoryContent />
+    </HistoryProvider>
+  );
+}
+

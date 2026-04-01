@@ -1,11 +1,25 @@
 import createMiddleware from "next-intl/middleware";
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { routing } from "./i18n/routing";
 
 const intlMiddleware = createMiddleware(routing);
 
-export function proxy(request: Parameters<typeof intlMiddleware>[0]) {
+/** Paths that require authentication (pattern: /[locale]/protected-path) */
+const PROTECTED_PATTERNS = [
+  /^\/(en|zu|st|af)\/contracts(\/.*)?$/,
+  /^\/(en|zu|st|af)\/admin\/dashboard(\/.*)?$/,
+];
+
+/** Extract locale from a protected pathname match */
+function getLocaleFromPath(pathname: string): string {
+  const match = pathname.match(/^\/(en|zu|st|af)/);
+  return match ? match[1] : routing.defaultLocale;
+}
+
+export function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
+
+  // ── Legacy /chat redirect ──────────────────────────────────────────────
   const localeMatch = pathname.match(/^\/(en|zu|st|af)\/chat\/?$/);
 
   if (pathname === "/chat") {
@@ -14,6 +28,18 @@ export function proxy(request: Parameters<typeof intlMiddleware>[0]) {
 
   if (localeMatch) {
     return NextResponse.redirect(new URL(`/${localeMatch[1]}/ask`, request.url));
+  }
+
+  // ── Route protection ───────────────────────────────────────────────────
+  const isProtected = PROTECTED_PATTERNS.some((pattern) => pattern.test(pathname));
+
+  if (isProtected) {
+    const token = request.cookies.get("ml_token")?.value;
+    if (!token) {
+      const locale = getLocaleFromPath(pathname);
+      const authUrl = new URL(`/${locale}/auth`, request.url);
+      return NextResponse.redirect(authUrl);
+    }
   }
 
   return intlMiddleware(request);

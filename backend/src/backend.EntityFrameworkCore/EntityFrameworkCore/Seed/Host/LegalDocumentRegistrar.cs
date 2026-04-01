@@ -53,12 +53,17 @@ public class LegalDocumentRegistrar
         Dictionary<string, Guid> categoryIndex)
     {
         var shortNameLower = definition.ShortName.ToLower();
-        var exists = _context.LegalDocuments
+        var existing = _context.LegalDocuments
             .IgnoreQueryFilters()
-            .Any(d => d.ShortName.ToLower() == shortNameLower && d.Year == definition.Year);
+            .FirstOrDefault(d => d.ShortName.ToLower() == shortNameLower && d.Year == definition.Year);
 
-        if (exists)
+        if (existing != null)
         {
+            // Patch FileName if it was seeded from an earlier manifest version that lacked it.
+            if (string.IsNullOrWhiteSpace(existing.FileName) && !string.IsNullOrWhiteSpace(definition.FileName))
+            {
+                existing.FileName = definition.FileName;
+            }
             return;
         }
 

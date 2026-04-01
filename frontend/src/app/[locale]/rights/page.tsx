@@ -3,9 +3,11 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Alert, Button } from "antd";
 import { Minus, Plus, Share2, Play } from "lucide-react";
 import { appRoutes, createLocalizedPath } from "@/i18n/routing";
 import { C, R, shadowOrganic, fontSerif, fontSans } from "@/styles/theme";
+import { useAuth } from "@/hooks/useAuth";
 
 // Filter values are kept as stable English keys for category matching
 const FILTERS = ["All", "Employment", "Housing", "Consumer", "Debt & Credit", "Tax", "Privacy"];
@@ -43,14 +45,34 @@ const LOCALE_NAMES: Record<string, string> = {
   af: "Afrikaans",
 };
 
+const TOTAL_TOPICS = 20;
+
 export default function MyRightsPage() {
   const locale = useLocale();
   const router = useRouter();
   const t  = useTranslations("rights");
   const tc = useTranslations("categories");
   const tChat = useTranslations("chat");
+  const { user } = useAuth();
   const [activeFilter, setActiveFilter] = useState("All");
   const [expanded, setExpanded]         = useState<string | null>(CARDS[0].id);
+  const [exploredIds, setExploredIds]   = useState<Set<string>>(new Set([CARDS[0].id]));
+
+  const explored = exploredIds.size;
+  const percent  = Math.round((explored / TOTAL_TOPICS) * 100);
+
+  const handleToggle = (id: string) => {
+    const opening = expanded !== id;
+    setExpanded(opening ? id : null);
+    if (opening) {
+      setExploredIds((prev) => new Set(prev).add(id));
+    }
+  };
+
+  const handleSignIn = () => {
+    const returnUrl = encodeURIComponent(`/${locale}${appRoutes.rights}`);
+    router.push(`${createLocalizedPath(locale, appRoutes.auth)}?returnUrl=${returnUrl}`);
+  };
 
   const getFilterLabel = (f: string) =>
     f === "All" ? t("allCategories") : tc(FILTER_CAT_KEYS[f] as Parameters<typeof tc>[0] ?? f);
@@ -79,33 +101,56 @@ export default function MyRightsPage() {
         </p>
       </section>
 
-      {/* Knowledge score */}
-      <section
-        style={{
-          background: C.muted,
-          border: `1px solid ${C.border}`,
-          borderRadius: R.o2,
-          padding: 32,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: 24,
-          flexWrap: "wrap",
-          boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
-        }}
-      >
-        <div style={{ flex: 1, minWidth: 200 }}>
-          <h2 style={{ fontSize: 17, fontWeight: 700, color: C.fg, marginBottom: 16, fontFamily: fontSans }}>
-            {t("knowledgeScore", { explored: 7, total: 20 })}
-          </h2>
-          <div style={{ height: 16, background: C.border, borderRadius: 9999, overflow: "hidden" }}>
-            <div style={{ height: "100%", background: C.primary, borderRadius: 9999, width: "35%", transition: "width 1s ease" }} />
+      {/* Guest Banner - Only show for non-logged-in users */}
+      {!user && (
+        <Alert
+          type="info"
+          message={t("guestProgressBanner")}
+          description={t("guestProgressDesc")}
+          action={
+            <Button
+              type="primary"
+              size="small"
+              onClick={handleSignIn}
+              style={{ whiteSpace: "nowrap" }}
+            >
+              {tChat("guestBannerAction")}
+            </Button>
+          }
+          style={{ borderRadius: 12 }}
+          showIcon
+        />
+      )}
+
+      {/* Knowledge score - Only show for logged-in users */}
+      {user && (
+        <section
+          style={{
+            background: C.muted,
+            border: `1px solid ${C.border}`,
+            borderRadius: R.o2,
+            padding: 32,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 24,
+            flexWrap: "wrap",
+            boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
+          }}
+        >
+          <div style={{ flex: 1, minWidth: 200 }}>
+            <h2 style={{ fontSize: 17, fontWeight: 700, color: C.fg, marginBottom: 16, fontFamily: fontSans }}>
+              {t("knowledgeScore", { explored, total: TOTAL_TOPICS })}
+            </h2>
+            <div style={{ height: 16, background: C.border, borderRadius: 9999, overflow: "hidden" }}>
+              <div style={{ height: "100%", background: C.primary, borderRadius: 9999, width: `${percent}%`, transition: "width 1s ease" }} />
+            </div>
           </div>
-        </div>
-        <div style={{ fontFamily: fontSerif, fontSize: 48, fontWeight: 700, color: C.primary, flexShrink: 0 }}>
-          35%
-        </div>
-      </section>
+          <div style={{ fontFamily: fontSerif, fontSize: 48, fontWeight: 700, color: C.primary, flexShrink: 0 }}>
+            {percent}%
+          </div>
+        </section>
+      )}
 
       {/* Filter tabs */}
       <section
@@ -116,6 +161,7 @@ export default function MyRightsPage() {
           <button
             key={f}
             onClick={() => setActiveFilter(f)}
+            aria-pressed={f === activeFilter}
             style={{
               whiteSpace: "nowrap",
               padding: "10px 24px",
@@ -158,7 +204,7 @@ export default function MyRightsPage() {
             >
               {/* Card header */}
               <div
-                onClick={() => setExpanded(isExpanded ? null : card.id)}
+                onClick={() => handleToggle(card.id)}
                 style={{
                   padding: "24px 32px",
                   display: "flex",
@@ -217,6 +263,7 @@ export default function MyRightsPage() {
                     flexShrink: 0,
                   }}
                   aria-label={isExpanded ? "Collapse" : "Expand"}
+                  aria-expanded={isExpanded}
                 >
                   {isExpanded ? <Minus size={20} /> : <Plus size={20} />}
                 </button>

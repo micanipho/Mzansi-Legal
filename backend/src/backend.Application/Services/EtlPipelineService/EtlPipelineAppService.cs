@@ -94,6 +94,10 @@ public class EtlPipelineAppService : ApplicationService, IEtlPipelineAppService
         };
 
         await _jobRepository.InsertAsync(job);
+        // Flush the insert to the DB so PdfIngestionAppService.IngestAsync can find
+        // the job via GetAsync. EF Core change-tracker "Added" state is not visible
+        // to a SQL query issued by a nested ApplicationService call.
+        await UnitOfWorkManager.Current.SaveChangesAsync();
         return await ExecutePipelineAsync(document, job);
     }
 

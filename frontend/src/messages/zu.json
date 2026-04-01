@@ -5,6 +5,7 @@
     "loading": "Iyalayisha...",
     "error": "Kukhona okungahambanga kahle. Sicela uzame futhi.",
     "disclaimer": "Lolu lwazi luhlose ukukuqondisa kuphela futhi alumeli iseluleko somthetho. Hlala ubona umthetho oqeqeshiwe.",
+    "signIn": "Ngena",
     "locales": {
       "en": "English",
       "zu": "isiZulu",
@@ -67,7 +68,9 @@
     "catInsuranceTitle": "Inshurensi & Umhlalaphansi",
     "catInsuranceDesc": "Izicelo, izinkokhelo, nezimali zohlelo.",
     "catSafetyTitle": "Ukuphepha & Ukuhlukunyezwa",
-    "catSafetyDesc": "Iziqondiso zokuvikelwa nokuphepha emsebenzini."
+    "catSafetyDesc": "Iziqondiso zokuvikelwa nokuphepha emsebenzini.",
+    "heroCtaGuest": "Qala",
+    "heroCtaUser": "Iya Kuhlelo"
   },
   "chat": {
     "title": "Imibuzo Nezimpendulo Zomthetho",
@@ -80,7 +83,10 @@
     "relatedQuestions": "Imibuzo efanayo",
     "listenIn": "Lalela nge-{language}",
     "disclaimer": "I-MzansiLegal inikeza ulwazi lwezomthetho, hhayi izeluleko zomthetho.",
-    "newConversation": "Ingxoxo Entsha"
+    "newConversation": "Ingxoxo Entsha",
+    "guestBannerAction": "Ngena",
+    "guestBannerTitle": "Buza umbuzo wezomthetho noma wamalungelo ezimali",
+    "guestBannerDesc": "Buza umbuzo wezomthetho noma wamalungelo ezimali ngolimi oluthile."
   },
   "rights": {
     "title": "Umhloli Wamalungelo Ami",
@@ -92,6 +98,8 @@
     "askAboutThis": "Buza ngalokhu",
     "askFollowUp": "Buza umbuzo wokulandelela",
     "share": "Yabelana",
+    "guestProgressBanner": "Ngena ukuze ugcine inqubekela yakho",
+    "guestProgressDesc": "Dala i-akhawunti mahhala ukuze ulandle ukuthi waziphi izindaba zamalungelo eziyisivulelwa phakathi kwemilingo.",
     "evictionCite": "uMthethosisekelo, Isigaba 26(3)",
     "payslipCite": "BCEA, Isigaba 33",
     "defectiveGoodsCite": "CPA, Isigaba 56",
@@ -175,14 +183,24 @@
   },
   "auth": {
     "loginTitle": "Ngena",
+    "signInTitle": "Ngena",
     "registerTitle": "Dala I-Akhawunti",
     "emailLabel": "Ikheli Le-imeyili",
     "passwordLabel": "Iphasiwedi",
     "nameLabel": "Igama Eligcwele",
+    "languageLabel": "Ulimi Oluthandekayo",
     "loginButton": "Ngena",
+    "signInButton": "Ngena",
     "registerButton": "Bhalisa",
     "switchToRegister": "Awunayo i-akhawunti? Bhalisa",
-    "switchToLogin": "Senekhona i-akhawunti? Ngena"
+    "switchToSignIn": "Senekhona i-akhawunti? Ngena",
+    "switchToLogin": "Senekhona i-akhawunti? Ngena",
+    "confirmPasswordLabel": "Qinisekisa Iphasiwedi",
+    "passwordMismatch": "Amaphasiwedi awafani.",
+    "invalidCredentials": "I-imeyili noma iphasiwedi engalungile. Sicela uzame futhi.",
+    "emailTaken": "Le-imeyili ibhalisiwe kakade.",
+    "signOutMenuItem": "Phuma",
+    "adminDashboardLink": "Ideshibhodi Yomlawuli"
   },
   "admin": {
     "dashboardTitle": "Ibhodi Lomlawuli",

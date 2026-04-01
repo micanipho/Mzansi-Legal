@@ -1,4 +1,5 @@
-const API_BASE = process.env.NEXT_PUBLIC_BASE_URL ?? "https://localhost:44311";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:21021";
+const ABP_TENANT_HEADER = { "Abp-TenantId": "1" };
 
 export interface CitationDto {
   actName: string;
@@ -36,6 +37,7 @@ export async function askQuestion(
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      ...ABP_TENANT_HEADER,
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     body: JSON.stringify(input),
@@ -68,6 +70,38 @@ export async function transcribeAudio(
   return json.result;
 }
 
+export interface ConversationSummary {
+  conversationId: string;
+  firstQuestion: string;
+  questionCount: number;
+  startedAt: string;
+  locale: string;
+}
+
+export interface ConversationsListResponse {
+  items: ConversationSummary[];
+  totalCount: number;
+}
+
+export async function getConversations(token?: string): Promise<ConversationsListResponse> {
+  const res = await fetch(`${API_BASE}/api/app/qa/conversations`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      ...ABP_TENANT_HEADER,
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+
+  const json = await res.json();
+
+  if (!res.ok) {
+    throw new Error(json?.error?.message || "Failed to fetch conversations");
+  }
+
+  return json.result as ConversationsListResponse;
+}
+
 export async function textToSpeech(
   text: string,
   language: string,
@@ -77,6 +111,7 @@ export async function textToSpeech(
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      ...ABP_TENANT_HEADER,
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     body: JSON.stringify({ text, language }),

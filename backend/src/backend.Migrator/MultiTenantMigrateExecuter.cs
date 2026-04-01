@@ -82,16 +82,16 @@ public class MultiTenantMigrateExecuter : ITransientDependency
         _log.Write("Legislation ingestion seed started...");
         try
         {
-            using (var uow = _unitOfWorkManager.Begin())
-            {
-                _ingestionRunner.RunAsync().GetAwaiter().GetResult();
-                uow.Complete();
-            }
+            // Run ingestion outside a single long-lived UoW so each app-service call
+            // can execute in its own transaction boundary and avoid cross-document
+            // concurrency tracking conflicts.
+            _ingestionRunner.RunAsync().GetAwaiter().GetResult();
         }
         catch (Exception ex)
         {
             // Ingestion seed failure is non-fatal — migration itself succeeded.
             _log.Write("Legislation ingestion seed encountered an error: " + ex.Message);
+            _log.Write(ex.ToString());
             _log.Write("Documents can be re-processed by re-running the Migrator or using the admin UI.");
         }
 
@@ -154,4 +154,3 @@ public class MultiTenantMigrateExecuter : ITransientDependency
         return builder.ToString();
     }
 }
-

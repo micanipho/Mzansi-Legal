@@ -4,7 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { C, fontSans } from "@/styles/theme";
-import { useChat } from "@/hooks/useChat";
+import { useChatState, useChatAction } from "@/providers/chat-provider";
 import ChatInput from "./ChatInput";
 import ChatThread from "./ChatThread";
 
@@ -14,7 +14,8 @@ export default function QaChatPage() {
   const searchParams = useSearchParams();
   const initialQuestion = searchParams.get("q") ?? "";
 
-  const { messages, isLoading, error, sendMessage } = useChat();
+  const { messages, isPending: isLoading, error } = useChatState();
+  const { sendMessage } = useChatAction();
 
   useEffect(() => {
     if (initialQuestion) {
@@ -24,6 +25,7 @@ export default function QaChatPage() {
   }, []);
 
   const handleSend = (text: string) => {
+    // Allow guests to chat, no redirect
     void sendMessage(text, locale);
   };
 

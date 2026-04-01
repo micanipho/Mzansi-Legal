@@ -11,6 +11,7 @@ export const appRoutes = {
   home: "",
   ask: "/ask",
   legacyChat: "/chat",
+  auth: "/auth",
   contracts: "/contracts",
   contractDetailPattern: "/contracts/[id]",
   rights: "/rights",

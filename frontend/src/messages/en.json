@@ -5,6 +5,7 @@
     "loading": "Loading...",
     "error": "Something went wrong. Please try again.",
     "disclaimer": "This information is for guidance only and does not constitute legal advice. Always consult a qualified legal professional.",
+    "signIn": "Sign in",
     "locales": {
       "en": "English",
       "zu": "isiZulu",
@@ -23,7 +24,7 @@
     "settings": "Settings",
     "admin": "Admin",
     "language": "Language",
-    "getStarted": "Start Asking",
+    "getStarted": "Get started",
     "login": "Login",
     "register": "Register",
     "logout": "Logout"
@@ -67,7 +68,9 @@
     "catInsuranceTitle": "Insurance & Retirement",
     "catInsuranceDesc": "Claims, payouts, and provident funds.",
     "catSafetyTitle": "Safety & Harassment",
-    "catSafetyDesc": "Protection orders and workplace safety."
+    "catSafetyDesc": "Protection orders and workplace safety.",
+    "heroCtaGuest": "Get Started",
+    "heroCtaUser": "Go to App"
   },
   "chat": {
     "title": "Legal Q&A",
@@ -80,7 +83,10 @@
     "relatedQuestions": "Related questions",
     "listenIn": "Listen in {language}",
     "disclaimer": "MzansiLegal provides legal information, not legal advice.",
-    "newConversation": "New Conversation"
+    "newConversation": "New Conversation",
+    "guestBannerAction": "Sign in",
+    "guestBannerTitle": "Ask a legal or financial rights question",
+    "guestBannerDesc": "Ask a legal or financial rights question in any language."
   },
   "rights": {
     "title": "My Rights Explorer",
@@ -92,6 +98,8 @@
     "askAboutThis": "Ask about this",
     "askFollowUp": "Ask a follow-up",
     "share": "Share",
+    "guestProgressBanner": "Sign in to save your progress",
+    "guestProgressDesc": "Create a free account to track which rights you have explored across sessions.",
     "evictionCite": "Constitution, Section 26(3)",
     "payslipCite": "BCEA, Section 33",
     "defectiveGoodsCite": "CPA, Section 56",
@@ -175,14 +183,24 @@
   },
   "auth": {
     "loginTitle": "Login",
+    "signInTitle": "Sign In",
     "registerTitle": "Create Account",
     "emailLabel": "Email Address",
     "passwordLabel": "Password",
     "nameLabel": "Full Name",
+    "languageLabel": "Preferred Language",
     "loginButton": "Login",
+    "signInButton": "Sign In",
     "registerButton": "Register",
     "switchToRegister": "Don't have an account? Register",
-    "switchToLogin": "Already have an account? Login"
+    "switchToSignIn": "Already have an account? Sign in",
+    "switchToLogin": "Already have an account? Login",
+    "confirmPasswordLabel": "Confirm Password",
+    "passwordMismatch": "Passwords do not match.",
+    "invalidCredentials": "Invalid email or password. Please try again.",
+    "emailTaken": "This email address is already registered.",
+    "signOutMenuItem": "Sign Out",
+    "adminDashboardLink": "Admin Dashboard"
   },
   "admin": {
     "dashboardTitle": "Admin Dashboard",

@@ -109,6 +109,37 @@ public class RagAppService : ApplicationService, IRagAppService
     }
 
     /// <summary>
+    /// Returns conversations for the current user ordered newest-first,
+    /// each decorated with the first question text and total question count.
+    /// </summary>
+    public async Task<ConversationsListDto> GetConversationsAsync()
+    {
+        var userId = AbpSession.UserId
+            ?? throw new Abp.Authorization.AbpAuthorizationException("You must be signed in to view conversation history.");
+
+        var conversations = await _conversationRepository
+            .GetAll()
+            .Include(c => c.Questions)
+            .Where(c => c.UserId == userId)
+            .OrderByDescending(c => c.StartedAt)
+            .ToListAsync();
+
+        var items = conversations.Select(c => new ConversationSummaryDto
+        {
+            ConversationId = c.Id,
+            FirstQuestion = c.Questions
+                .OrderBy(q => q.CreationTime)
+                .Select(q => q.OriginalText)
+                .FirstOrDefault() ?? string.Empty,
+            QuestionCount = c.Questions.Count,
+            StartedAt = c.StartedAt,
+            Language = c.Language.ToString().ToLowerInvariant()
+        }).ToList();
+
+        return new ConversationsListDto { Items = items, TotalCount = items.Count };
+    }
+
+    /// <summary>
     /// Embeds the user's question, scores all loaded chunks via cosine similarity,
     /// and — when relevant chunks exist — calls GPT-4o and persists the Q&amp;A chain.
     /// Returns <see cref="RagAnswerResult.IsInsufficientInformation"/> = <c>true</c>
@@ -131,24 +162,35 @@ public class RagAppService : ApplicationService, IRagAppService
             .Take(RagPromptBuilder.MaxContextChunks)
             .ToList();
 
-        // Short-circuit: no relevant context found.
+        const string disclaimer =
+            "⚠️ *No matching legislation was found in the database for this question. " +
+            "The following answer is based on general AI knowledge and is not legally authoritative. " +
+            "Please consult a qualified South African attorney for advice specific to your situation.*\n\n";
+
+        string answerText;
+
+        // Fallback: no chunks met the threshold — query the AI without legislation context.
         if (topChunks.Count == 0)
         {
+            var fallbackAnswer = await CallChatCompletionsAsync(
+                RagPromptBuilder.BuildFallbackSystemPrompt(),
+                request.QuestionText);
+
             return new RagAnswerResult
             {
+                AnswerText = disclaimer + fallbackAnswer,
                 IsInsufficientInformation = true,
                 Citations = new List<RagCitationDto>(),
                 ChunkIds = new List<Guid>(),
-                AnswerText = null,
                 AnswerId = null
             };
         }
 
-        // Build prompt and call GPT-4o.
+        // Build prompt and call GPT-4o with legislation context.
         var systemPrompt = RagPromptBuilder.BuildSystemPrompt();
         var contextBlock = RagPromptBuilder.BuildContextBlock(topChunks);
         var userPrompt = RagPromptBuilder.BuildUserPrompt(request.QuestionText, contextBlock);
-        var answerText = await CallChatCompletionsAsync(systemPrompt, userPrompt);
+        answerText = await CallChatCompletionsAsync(systemPrompt, userPrompt);
 
         // Persist the Q&A chain only when a user session exists (auth is deferred in this phase).
         Guid? answerId = null;

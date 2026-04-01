@@ -5,6 +5,7 @@
     "loading": "Laai tans...",
     "error": "Iets het verkeerd gegaan. Probeer asseblief weer.",
     "disclaimer": "Hierdie inligting is slegs vir leiding en verteenwoordig nie regsadvies nie. Raadpleeg altyd 'n gekwalifiseerde regsdeskundige.",
+    "signIn": "Meld aan",
     "locales": {
       "en": "English",
       "zu": "isiZulu",
@@ -67,7 +68,9 @@
     "catInsuranceTitle": "Versekering & Aftrede",
     "catInsuranceDesc": "Eise, uitbetalings en voorsieningsfondse.",
     "catSafetyTitle": "Veiligheid & Teistering",
-    "catSafetyDesc": "Beskermingsbevele en werkplek-veiligheid."
+    "catSafetyDesc": "Beskermingsbevele en werkplek-veiligheid.",
+    "heroCtaGuest": "Begin Nou",
+    "heroCtaUser": "Gaan na App"
   },
   "chat": {
     "title": "Regs V&A",
@@ -80,7 +83,10 @@
     "relatedQuestions": "Verwante vrae",
     "listenIn": "Luister in {language}",
     "disclaimer": "MzansiLegal verskaf regsbesonderhede, nie regsadvies nie.",
-    "newConversation": "Nuwe Gesprek"
+    "newConversation": "Nuwe Gesprek",
+    "guestBannerAction": "Meld aan",
+    "guestBannerTitle": "Stel 'n regs- of finansiële regtevraag",
+    "guestBannerDesc": "Stel 'n regs- of finansiële regtevraag in enige taal."
   },
   "rights": {
     "title": "My Regte-Verkenner",
@@ -92,6 +98,8 @@
     "askAboutThis": "Vra hieroor",
     "askFollowUp": "Stel 'n vervolgvraag",
     "share": "Deel",
+    "guestProgressBanner": "Meld aan om jou vordering te stoor",
+    "guestProgressDesc": "Skep 'n gratis rekening om by te hou watter regte jy oor sessies heen verken het.",
     "evictionCite": "Grondwet, Artikel 26(3)",
     "payslipCite": "WBDE, Artikel 33",
     "defectiveGoodsCite": "WVB, Artikel 56",
@@ -175,14 +183,24 @@
   },
   "auth": {
     "loginTitle": "Meld Aan",
+    "signInTitle": "Meld Aan",
     "registerTitle": "Skep Rekening",
     "emailLabel": "E-posadres",
     "passwordLabel": "Wagwoord",
     "nameLabel": "Volle Naam",
+    "languageLabel": "Voorkeur Taal",
     "loginButton": "Meld Aan",
+    "signInButton": "Meld Aan",
     "registerButton": "Registreer",
     "switchToRegister": "Het jy nie 'n rekening nie? Registreer",
-    "switchToLogin": "Het jy al 'n rekening? Meld Aan"
+    "switchToSignIn": "Het jy al 'n rekening? Meld Aan",
+    "switchToLogin": "Het jy al 'n rekening? Meld Aan",
+    "confirmPasswordLabel": "Bevestig Wagwoord",
+    "passwordMismatch": "Wagwoorde stem nie ooreen nie.",
+    "invalidCredentials": "Ongeldige e-pos of wagwoord. Probeer asseblief weer.",
+    "emailTaken": "Hierdie e-posadres is reeds geregistreer.",
+    "signOutMenuItem": "Meld Af",
+    "adminDashboardLink": "Admin-kontroleskerm"
   },
   "admin": {
     "dashboardTitle": "Admin-kontroleskerm",
