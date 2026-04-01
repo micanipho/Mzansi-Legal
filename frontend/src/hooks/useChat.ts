@@ -45,7 +45,7 @@ export function useChat(): UseChatReturn {
       const botMessage: ChatMessage = {
         id: crypto.randomUUID(),
         type: "bot",
-        text: result.answerText,
+        text: result.answerText ?? "",
         status: "sent",
         citations: result.citations,
         isInsufficientInformation: result.isInsufficientInformation,
