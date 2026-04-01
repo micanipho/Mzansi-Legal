@@ -76,11 +76,52 @@ export default function CitationList({ citations }: CitationListProps) {
                     fontFamily: fontSans,
                   }}
                 >
-                  {citation.actName}
+                  {citation.sourceTitle ?? citation.actName}
                 </span>
                 <span style={{ fontWeight: 700, fontSize: 13, color: C.fg, fontFamily: fontSans }}>
-                  {citation.sectionNumber}
+                  {citation.sourceLocator ?? citation.sectionNumber}
                 </span>
+              </div>
+
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 6 }}>
+                {citation.sourceRole && (
+                  <span
+                    style={{
+                      background: "rgba(15,118,110,0.10)",
+                      color: "#115e59",
+                      fontSize: 11,
+                      fontWeight: 700,
+                      padding: "2px 8px",
+                      borderRadius: 9999,
+                      fontFamily: fontSans,
+                    }}
+                  >
+                    {citation.sourceRole === "supporting" ? "Supporting source" : "Primary source"}
+                  </span>
+                )}
+                {citation.authorityType && (
+                  <span
+                    style={{
+                      background:
+                        citation.authorityType === "officialGuidance"
+                          ? "rgba(59,130,246,0.10)"
+                          : "rgba(22,163,74,0.10)",
+                      color:
+                        citation.authorityType === "officialGuidance"
+                          ? "#1d4ed8"
+                          : "#166534",
+                      fontSize: 11,
+                      fontWeight: 700,
+                      padding: "2px 8px",
+                      borderRadius: 9999,
+                      fontFamily: fontSans,
+                    }}
+                  >
+                    {citation.authorityType === "officialGuidance"
+                      ? "Official guidance"
+                      : "Binding law"}
+                  </span>
+                )}
               </div>
 
               <button

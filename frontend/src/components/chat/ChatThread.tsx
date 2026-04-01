@@ -2,11 +2,11 @@
 
 import { useEffect, useRef } from "react";
 import { C, fontSans, R, shadowOrganic } from "@/styles/theme";
-import type { ChatMessage as ChatMessageType } from "@/hooks/useChat";
+import type { IChatMessage } from "@/providers/chat-provider/context";
 import ChatMessage from "./ChatMessage";
 
 interface ChatThreadProps {
-  messages: ChatMessageType[];
+  messages: IChatMessage[];
   isLoading: boolean;
   error: string | null;
   emptyStateText?: string;

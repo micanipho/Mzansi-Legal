@@ -24,7 +24,9 @@ public static class LegislationManifest
         string ActNumber,
         int Year,
         string FileName,
-        string CategoryName);
+        string CategoryName,
+        string SourceFamily = "",
+        bool IsOfficialGuidance = false);
 
     // ── Category name constants — used in both Categories and Documents lists ──
 
@@ -60,79 +62,94 @@ public static class LegislationManifest
             "Constitution of the Republic of South Africa",
             "Constitution", "108", 1996,
             "constitution-1996.pdf",
-            CatContractAnalysis),
+            CatContractAnalysis,
+            "constitution"),
 
         new DocumentDefinition(
             "Basic Conditions of Employment Act",
             "BCEA", "75", 1997,
             "bcea-1997.pdf",
-            CatEmploymentLabour),
+            CatEmploymentLabour,
+            "bcea"),
 
         new DocumentDefinition(
             "Consumer Protection Act",
             "CPA", "68", 2008,
             "cpa-2008.pdf",
-            CatConsumerRights),
+            CatConsumerRights,
+            "cpa"),
 
         new DocumentDefinition(
             "Labour Relations Act",
             "LRA", "66", 1995,
             "lra-1995.pdf",
-            CatEmploymentLabour),
+            CatEmploymentLabour,
+            "lra"),
 
         new DocumentDefinition(
             "Protection of Personal Information Act",
             "POPIA", "4", 2013,
             "popia-2013.pdf",
-            CatPrivacyData),
+            CatPrivacyData,
+            "popia"),
 
         new DocumentDefinition(
             "Rental Housing Act",
             "RHA", "50", 1999,
             "rental-housing-act-1999.pdf",
-            CatHousingEviction),
+            CatHousingEviction,
+            "rha"),
 
         new DocumentDefinition(
             "Protection from Harassment Act",
             "PHA", "17", 2011,
             "protection-harassment-act-2011.pdf",
-            CatSafetyHarassment),
+            CatSafetyHarassment,
+            "pha"),
 
         new DocumentDefinition(
             "National Credit Act",
             "NCA", "34", 2005,
             "nca-2005.pdf",
-            CatDebtCredit),
+            CatDebtCredit,
+            "nca"),
 
         // ── Financial domain ──────────────────────────────────────────────────
         new DocumentDefinition(
             "Financial Advisory and Intermediary Services Act",
             "FAIS", "37", 2002,
             "fais-2002.pdf",
-            CatInsuranceRetirement),
+            CatInsuranceRetirement,
+            "fais"),
 
         new DocumentDefinition(
             "Tax Administration Act",
             "TAA", "28", 2011,
             "tax-admin-act-2011.pdf",
-            CatTax),
+            CatTax,
+            "taa"),
 
         new DocumentDefinition(
             "Pension Funds Act",
             "PFA", "24", 1956,
             "pension-funds-act-1956.pdf",
-            CatInsuranceRetirement),
+            CatInsuranceRetirement,
+            "pfa"),
 
         new DocumentDefinition(
             "SARS Tax Guide",
             "SARS Guide", "N/A", 2024,
             "sars-tax-guide-2024.pdf",
-            CatTax),
+            CatTax,
+            "sars",
+            true),
 
         new DocumentDefinition(
             "FSCA Regulatory Framework",
             "FSCA Materials", "N/A", 2024,
             "fsca-regulatory-2024.pdf",
-            CatInsuranceRetirement),
+            CatInsuranceRetirement,
+            "fsca",
+            true),
     };
 }
