@@ -39,6 +39,8 @@ namespace backend.Web.Host.Startup
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddHealthChecks();
+
             //MVC
             services.AddControllersWithViews(options =>
             {
@@ -115,6 +117,7 @@ namespace backend.Web.Host.Startup
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapHealthChecks("/api/health");
                 endpoints.MapHub<AbpCommonHub>("/signalr");
                 endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapControllerRoute("defaultWithArea", "{area}/{controller=Home}/{action=Index}/{id?}");
