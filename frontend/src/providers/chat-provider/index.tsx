@@ -33,9 +33,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
       const botMsg: IChatMessage = {
         id: crypto.randomUUID(),
         type: "bot",
-        text: result.isInsufficientInformation
-          ? "I could not find sufficient information in the legislation to answer your question."
-          : result.answerText || "No answer received.",
+        text: result.answerText || "No answer received.",
         status: "sent",
         citations: result.citations || [],
         isInsufficientInformation: result.isInsufficientInformation,

@@ -162,24 +162,35 @@ public class RagAppService : ApplicationService, IRagAppService
             .Take(RagPromptBuilder.MaxContextChunks)
             .ToList();
 
-        // Short-circuit: no relevant context found.
+        const string disclaimer =
+            "⚠️ *No matching legislation was found in the database for this question. " +
+            "The following answer is based on general AI knowledge and is not legally authoritative. " +
+            "Please consult a qualified South African attorney for advice specific to your situation.*\n\n";
+
+        string answerText;
+
+        // Fallback: no chunks met the threshold — query the AI without legislation context.
         if (topChunks.Count == 0)
         {
+            var fallbackAnswer = await CallChatCompletionsAsync(
+                RagPromptBuilder.BuildFallbackSystemPrompt(),
+                request.QuestionText);
+
             return new RagAnswerResult
             {
+                AnswerText = disclaimer + fallbackAnswer,
                 IsInsufficientInformation = true,
                 Citations = new List<RagCitationDto>(),
                 ChunkIds = new List<Guid>(),
-                AnswerText = null,
                 AnswerId = null
             };
         }
 
-        // Build prompt and call GPT-4o.
+        // Build prompt and call GPT-4o with legislation context.
         var systemPrompt = RagPromptBuilder.BuildSystemPrompt();
         var contextBlock = RagPromptBuilder.BuildContextBlock(topChunks);
         var userPrompt = RagPromptBuilder.BuildUserPrompt(request.QuestionText, contextBlock);
-        var answerText = await CallChatCompletionsAsync(systemPrompt, userPrompt);
+        answerText = await CallChatCompletionsAsync(systemPrompt, userPrompt);
 
         // Persist the Q&A chain only when a user session exists (auth is deferred in this phase).
         Guid? answerId = null;

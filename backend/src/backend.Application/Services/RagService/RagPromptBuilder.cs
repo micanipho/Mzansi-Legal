@@ -60,6 +60,19 @@ public static class RagPromptBuilder
     }
 
     /// <summary>
+    /// Returns a system prompt for the general-knowledge fallback path (no legislation context found).
+    /// The LLM may draw on its training knowledge but must not present the answer as legally authoritative.
+    /// </summary>
+    public static string BuildFallbackSystemPrompt()
+    {
+        return
+            "You are a South African legal and financial assistant. " +
+            "Your role is to help South African residents understand their legal rights and obligations.\n\n" +
+            "Answer the user's question using your general knowledge of South African law. " +
+            "Write in plain, accessible English. Avoid legal jargon where a simpler word exists.";
+    }
+
+    /// <summary>
     /// Builds a numbered context block containing each chunk's Act name, section number, and content.
     /// Each block is labelled as <c>[ActName — SectionNumber]</c> followed by the chunk text.
     /// </summary>
