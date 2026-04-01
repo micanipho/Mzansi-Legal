@@ -1,8 +1,13 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import { Activity, FileText, Globe2, ShieldAlert } from "lucide-react";
-import { getTranslations } from "next-intl/server";
 import InsightChart from "@/components/dashboard/InsightChart";
 import SectionCard from "@/components/dashboard/SectionCard";
 import SummaryCard from "@/components/dashboard/SummaryCard";
+import AdminGuard from "@/components/guards/AdminGuard";
+import { AdminProvider, useAdminState, useAdminAction } from "@/providers/admin-provider";
+import { useEffect } from "react";
 import { C } from "@/styles/theme";
 
 const insightData = [
@@ -11,18 +16,24 @@ const insightData = [
   { label: "Credit", value: 42, tone: "danger" },
 ];
 
-export default async function AdminDashboardPage() {
-  const t = await getTranslations("admin");
+const ACTIVITY_COLORS = [C.primary, C.secondary, C.destructive];
+
+function AdminContent() {
+  const t = useTranslations("admin");
+  const { fetchAll } = useAdminAction();
+
+  useEffect(() => { fetchAll(); }, []);
 
   return (
-    <main className="page-shell" style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+    <AdminGuard>
+      <main className="page-shell" style={{ display: "flex", flexDirection: "column", gap: 32 }}>
       <section style={{ maxWidth: 860, display: "flex", flexDirection: "column", gap: 12 }}>
         <span
           style={{
             width: "fit-content",
             padding: "6px 14px",
             borderRadius: 9999,
-            background: "rgba(93, 112, 82, 0.1)",
+            background: "rgba(74, 90, 58, 0.1)",
             color: C.primary,
             fontWeight: 800,
             fontSize: 12,
@@ -106,7 +117,7 @@ export default async function AdminDashboardPage() {
             <article
               key={index}
               style={{
-                borderLeft: `4px solid ${index === 2 ? C.destructive : index === 1 ? C.secondary : C.primary}`,
+                borderLeft: `4px solid ${ACTIVITY_COLORS[index]}`,
                 background: "rgba(255,255,255,0.62)",
                 borderRadius: 20,
                 padding: 20,
@@ -119,6 +130,15 @@ export default async function AdminDashboardPage() {
           ))}
         </div>
       </SectionCard>
-    </main>
+      </main>
+    </AdminGuard>
+  );
+}
+
+export default function AdminDashboardPage() {
+  return (
+    <AdminProvider>
+      <AdminContent />
+    </AdminProvider>
   );
 }

@@ -1,11 +1,13 @@
 using Abp.Dependency;
 using Abp.Domain.Repositories;
+using Abp.Domain.Uow;
 using Abp.Runtime.Session;
 using Ardalis.GuardClauses;
 using backend.Domains.LegalDocuments;
 using backend.Services.EtlPipelineService;
 using Castle.Core.Logging;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -20,6 +22,7 @@ public class LegislationIngestionRunner : ITransientDependency
 {
     private readonly IIocResolver _iocResolver;
     private readonly IRepository<LegalDocument, Guid> _documentRepository;
+    private readonly IUnitOfWorkManager _unitOfWorkManager;
 
     /// <summary>
     /// Initialises the runner with the IoC resolver (for ETL service resolution)
@@ -27,13 +30,16 @@ public class LegislationIngestionRunner : ITransientDependency
     /// </summary>
     public LegislationIngestionRunner(
         IIocResolver iocResolver,
-        IRepository<LegalDocument, Guid> documentRepository)
+        IRepository<LegalDocument, Guid> documentRepository,
+        IUnitOfWorkManager unitOfWorkManager)
     {
         Guard.Against.Null(iocResolver, nameof(iocResolver));
         Guard.Against.Null(documentRepository, nameof(documentRepository));
+        Guard.Against.Null(unitOfWorkManager, nameof(unitOfWorkManager));
 
         _iocResolver = iocResolver;
         _documentRepository = documentRepository;
+        _unitOfWorkManager = unitOfWorkManager;
     }
 
     /// <summary>
@@ -44,10 +50,16 @@ public class LegislationIngestionRunner : ITransientDependency
     public async Task RunAsync()
     {
         var logger = GetLogger();
-        var unprocessed = _documentRepository
-            .GetAll()
-            .Where(d => !d.IsProcessed)
-            .ToList();
+        List<PendingDocument> unprocessed;
+        using (var uow = _unitOfWorkManager.Begin())
+        {
+            unprocessed = _documentRepository
+                .GetAll()
+                .Where(d => !d.IsProcessed)
+                .Select(d => new PendingDocument(d.Id, d.Title, d.FileName))
+                .ToList();
+            uow.Complete();
+        }
 
         if (unprocessed.Count == 0)
         {
@@ -85,7 +97,7 @@ public class LegislationIngestionRunner : ITransientDependency
     }
 
     private async Task<IngestResult> TryIngestDocumentAsync(
-        LegalDocument document,
+        PendingDocument document,
         IEtlPipelineAppService etlService,
         ILogger logger)
     {
@@ -138,4 +150,6 @@ public class LegislationIngestionRunner : ITransientDependency
     }
 
     private enum IngestResult { Succeeded, Skipped, Failed }
+
+    private sealed record PendingDocument(Guid Id, string Title, string FileName);
 }

@@ -1,5 +1,13 @@
-import AskExperience from "@/components/chat/AskExperience";
+import { Suspense } from "react";
+import QaChatPage from "@/components/chat/QaChatPage";
+import { ChatProvider } from "@/providers/chat-provider";
 
 export default function AskPage() {
-  return <AskExperience />;
+  return (
+    <ChatProvider>
+      <Suspense>
+        <QaChatPage />
+      </Suspense>
+    </ChatProvider>
+  );
 }

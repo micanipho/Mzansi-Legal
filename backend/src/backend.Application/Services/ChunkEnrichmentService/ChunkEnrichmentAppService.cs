@@ -82,7 +82,7 @@ public class ChunkEnrichmentAppService : ApplicationService, IChunkEnrichmentApp
             response.EnsureSuccessStatusCode();
 
             var body = await response.Content.ReadFromJsonAsync<OpenAiChatResponse>();
-            var json = body?.Choices?.FirstOrDefault()?.Message?.Content;
+            var json = StripMarkdownFence(body?.Choices?.FirstOrDefault()?.Message?.Content);
             if (string.IsNullOrWhiteSpace(json))
             {
                 return ChunkEnrichmentResult.Fallback();
@@ -144,6 +144,30 @@ public class ChunkEnrichmentAppService : ApplicationService, IChunkEnrichmentApp
                 }
             ]
         };
+    }
+
+    /// <summary>
+    /// Strips a markdown code fence (```json ... ``` or ``` ... ```) that the model
+    /// sometimes wraps around its JSON response despite being instructed not to.
+    /// </summary>
+    private static string StripMarkdownFence(string raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+            return raw;
+
+        var trimmed = raw.Trim();
+        if (!trimmed.StartsWith("```"))
+            return trimmed;
+
+        var firstNewline = trimmed.IndexOf('\n');
+        if (firstNewline < 0)
+            return trimmed;
+
+        var inner = trimmed.Substring(firstNewline + 1);
+        if (inner.EndsWith("```"))
+            inner = inner.Substring(0, inner.Length - 3);
+
+        return inner.Trim();
     }
 
     private static string Truncate(string content, int maxLength)
