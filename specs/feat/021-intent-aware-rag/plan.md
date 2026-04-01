@@ -5,32 +5,38 @@
 
 ## Summary
 
-Upgrade the existing multilingual RAG Q&A flow from chunk-only similarity filtering to intent-aware legal source discovery. The implementation keeps the current `POST /api/app/qa/ask` endpoint and existing persistence model, but adds richer in-memory source metadata, document-level reranking, explicit source-hint handling, adaptive answer modes, and dynamic generation temperature so users can ask plain-language legal questions without naming Acts explicitly. The current general-knowledge fallback will be removed in favor of clarification or grounded insufficiency responses.
+Refine the existing multilingual legal RAG pipeline in measured slices instead of rebuilding it. The current `POST /api/app/qa/ask` flow already performs translation, embeddings, document-aware planning, answer-mode selection, and conditional persistence; this plan focuses on tightening the parts that determine whether the system finds the right Act from meaning, stays conservative when evidence is weak, and exposes that state clearly in the Ask UI. The removed general-knowledge fallback stays removed, no new schema or infrastructure is introduced, and all changes remain backward-compatible for existing consumers.
 
 ## Technical Context
 
 **Language/Version**: C# on .NET 9.0 + ABP Zero 10.x; TypeScript 5 with Next.js 16 App Router for response-consumer updates  
-**Primary Dependencies**: Existing `IEmbeddingAppService`, `ILanguageAppService`, `IHttpClientFactory`, `Ardalis.GuardClauses`, `next-intl`; no new NuGet or npm packages planned  
+**Primary Dependencies**: Existing `IEmbeddingAppService`, `ILanguageAppService`, `IHttpClientFactory`, `Ardalis.GuardClauses`, `next-intl`, plus current RAG helpers `RagIndexStore`, `RagDocumentProfileBuilder`, `RagSourceHintExtractor`, `RagQueryFocusBuilder`, `RagRetrievalPlanner`, and `RagConfidenceEvaluator`; no new NuGet or npm packages planned  
 **Storage**: PostgreSQL 15+ via Npgsql; no new migrations planned, reusing `LegalDocuments`, `Categories`, `DocumentChunks`, `ChunkEmbeddings`, `Conversations`, `Questions`, `Answers`, and `AnswerCitations`  
-**Testing**: xUnit + NSubstitute + Shouldly in `backend.Tests`; frontend validation via lint/type safety and manual keyboard/screen-reader smoke on the Ask page  
+**Testing**: xUnit + NSubstitute + Shouldly in `backend.Tests`; frontend validation via lint/type safety, manual keyboard/screen-reader smoke on the Ask page, and a benchmark prompt matrix captured in feature docs/tests  
 **Target Platform**: Linux server deployment on Railway plus modern evergreen browsers  
 **Project Type**: Web application (ABP web service + Next.js frontend)  
 **Performance Goals**: Direct or cautious grounded response target <= 8 seconds under normal conditions; clarification/insufficient response <= 6 seconds; overall user-visible acceptance ceiling <= 10 seconds  
-**Constraints**: No uncited general-knowledge legal fallback; preserve multilingual responses and current endpoint path; keep response contract backward-compatible for existing frontend consumers; no vector database or new infrastructure in this milestone  
-**Scale/Scope**: ~13 seeded Acts / ~1,000 embedded chunks, single ask endpoint, one retrieval pipeline, small Ask-page UI enhancement for caution/clarification states
+**Constraints**: No uncited general-knowledge legal fallback; preserve multilingual responses and current endpoint path; keep response contract backward-compatible; no vector database or new infrastructure in this milestone; current corpus remains legislation-first with no case-law ingestion changes in this feature  
+**Scale/Scope**: ~13 seeded Acts / ~1,000 embedded chunks, single ask endpoint, one retrieval pipeline, small Ask-page UI enhancement for caution/clarification states, and benchmark-led calibration of existing retrieval weights
+
+## Current System Snapshot
+
+- `RagAppService` already detects language, translates to English for search, embeds the question, plans retrieval, evaluates confidence, generates grounded answers or clarification prompts, and persists only grounded answers.
+- `RagIndexStore`, `RagDocumentProfileBuilder`, `RagSourceHintExtractor`, `RagQueryFocusBuilder`, `RagRetrievalPlanner`, and `RagConfidenceEvaluator` are already present in the backend and covered by unit tests.
+- The next planning focus is not scaffolding; it is calibration and hardening: benchmark coverage, retrieval weight tuning, safer answer-mode thresholds, Ask-page representation, and rollout criteria.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-- [x] **Layer Gate**: No new domain entities are required. Retrieval helpers, enums, and DTOs stay in `backend.Application/Services/RagService/`; existing `DocumentChunk`, `LegalDocument`, `Category`, `Question`, `Answer`, and `AnswerCitation` remain in their current layers.
-- [x] **Naming Gate**: Existing `IRagAppService` / `RagAppService` naming is preserved. New helper classes and DTO/enums follow established `Rag*` naming under the `RagService` folder structure.
-- [x] **Coding Standards Gate**: The plan splits retrieval ranking, confidence selection, and prompt construction into focused classes to keep methods under scroll height, preserve guard clauses, avoid deep nesting, and centralize magic numbers as named constants.
-- [x] **Skill Gate**: `speckit.plan`, `speckit.tasks`, and `follow-git-workflow` govern the workflow. `add-styling` applies if the Ask-page caution/clarification presentation needs a dedicated style treatment during implementation. No `add-endpoint` scaffold is needed because the feature reuses the existing endpoint.
-- [x] **Multilingual Gate**: All new user-facing states (`direct`, `cautious`, `clarification`, `insufficient`) will remain localized through existing multilingual answer generation and localized frontend labels in English, isiZulu, Sesotho, and Afrikaans.
-- [x] **Citation Gate**: The updated `/api/app/qa/ask` contract will explicitly define direct/cautious/clarification behavior, citation expectations for grounded answers, and the removal of general-knowledge fallback behavior.
-- [x] **Accessibility Gate**: Any new frontend cue for caution or clarification will be rendered in the existing accessible chat flow using semantic alert/status regions, keyboard-accessible controls, and localized text.
-- [x] **ETL/Ingestion Gate**: No ingestion pipeline stages change in this feature. Existing `DocumentChunk.Keywords` and `TopicClassification` enrichment metadata are reused read-only.
+- [x] **Layer Gate**: No new domain entities are required. Refinements stay in `backend.Application/Services/RagService/`, existing DTOs, controller comments, and the current frontend Ask flow.
+- [x] **Naming Gate**: Existing `IRagAppService` / `RagAppService` naming is preserved. Helper classes and enums continue using the established `Rag*` naming pattern.
+- [x] **Coding Standards Gate**: The refinement path keeps ranking, confidence evaluation, prompt construction, and orchestration in focused classes so methods remain short, guard clauses stay at entry points, and scoring constants stay centralized.
+- [x] **Skill Gate**: `speckit.plan`, `speckit.tasks`, and `follow-git-workflow` govern the workflow. `add-styling` applies only if the Ask-page state treatment needs dedicated styling work during implementation.
+- [x] **Multilingual Gate**: All new user-facing states (`direct`, `cautious`, `clarification`, `insufficient`) remain localized through existing multilingual answer generation and frontend locale files in English, isiZulu, Sesotho, and Afrikaans.
+- [x] **Citation Gate**: The `/api/app/qa/ask` contract continues to require citations for grounded legal claims and explicitly forbids the removed general-knowledge legal fallback.
+- [x] **Accessibility Gate**: Any caution or clarification UI treatment remains within the accessible chat flow using semantic alert/status regions, keyboard-accessible controls, and localized text.
+- [x] **ETL/Ingestion Gate**: No ingestion pipeline stages change in this feature. Existing `DocumentChunk.Keywords`, `TopicClassification`, `LegalDocument` metadata, and document/category relationships are reused read-only.
 
 ## Project Structure
 
@@ -56,308 +62,299 @@ backend/
     |-- backend.Application/
     |   `-- Services/
     |       `-- RagService/
-    |           |-- IRagAppService.cs                 [MODIFY - contract unchanged]
-    |           |-- RagAppService.cs                  [MODIFY]
-    |           |-- RagPromptBuilder.cs               [MODIFY]
-    |           |-- RagRetrievalPlanner.cs            [NEW]
-    |           |-- RagConfidenceEvaluator.cs         [NEW]
-    |           |-- RagSourceHintExtractor.cs         [NEW]
+    |           |-- IRagAppService.cs                 [VERIFY]
+    |           |-- RagAppService.cs                  [REFINE]
+    |           |-- RagPromptBuilder.cs               [REFINE]
+    |           |-- RagQueryFocusBuilder.cs           [REFINE]
+    |           |-- RagSourceHintExtractor.cs         [REFINE]
+    |           |-- RagDocumentProfileBuilder.cs      [REFINE]
+    |           |-- RagRetrievalPlanner.cs            [REFINE]
+    |           |-- RagConfidenceEvaluator.cs         [REFINE]
+    |           |-- RagIndexStore.cs                  [VERIFY]
     |           `-- DTO/
-    |               |-- RagAnswerResult.cs           [MODIFY]
-    |               |-- RagCitationDto.cs            [MODIFY - comments/contract notes only if needed]
-    |               |-- RagAnswerMode.cs             [NEW]
-    |               `-- RagConfidenceBand.cs         [NEW]
+    |               |-- RagAnswerResult.cs            [VERIFY/REFINE]
+    |               |-- RagCitationDto.cs             [VERIFY]
+    |               |-- RagAnswerMode.cs              [VERIFY]
+    |               `-- RagConfidenceBand.cs          [VERIFY]
     |-- backend.Web.Host/
     |   `-- Controllers/
-    |       `-- QaController.cs                      [MODIFY - doc comments only; route unchanged]
-    `-- backend.Core/                                [NO SCHEMA CHANGE]
+    |       `-- QaController.cs                       [VERIFY]
+    `-- backend.Core/                                 [NO SCHEMA CHANGE]
 
 backend/
 `-- test/
     `-- backend.Tests/
         `-- RagServiceTests/
-            |-- RagAppServiceTests.cs                [MODIFY]
-            |-- RagPromptBuilderTests.cs             [MODIFY]
-            |-- RagRetrievalPlannerTests.cs          [NEW]
-            `-- RagConfidenceEvaluatorTests.cs       [NEW]
+            |-- RagAppServiceTests.cs                 [EXPAND]
+            |-- RagPromptBuilderTests.cs              [EXPAND]
+            |-- RagQueryFocusBuilderTests.cs          [EXPAND]
+            |-- RagDocumentProfileBuilderTests.cs     [EXPAND]
+            |-- RagRetrievalPlannerTests.cs           [EXPAND]
+            |-- RagConfidenceEvaluatorTests.cs        [EXPAND]
+            `-- RagIndexStoreTests.cs                 [VERIFY]
 
 frontend/
 `-- src/
     |-- services/
-    |   `-- qa.service.ts                            [MODIFY]
+    |   `-- qa.service.ts                             [VERIFY/REFINE]
     |-- hooks/
-    |   `-- useChat.ts                               [MODIFY]
+    |   `-- useChat.ts                                [VERIFY/REFINE]
     |-- providers/
     |   `-- chat-provider/
-    |       |-- context.tsx                          [MODIFY]
-    |       `-- index.tsx                            [MODIFY]
+    |       |-- context.tsx                           [VERIFY/REFINE]
+    |       `-- index.tsx                             [VERIFY/REFINE]
     |-- components/
     |   `-- chat/
-    |       `-- ChatMessage.tsx                      [MODIFY]
+    |       `-- ChatMessage.tsx                       [VERIFY/REFINE]
     `-- messages/
-        |-- en.json                                  [MODIFY]
-        |-- zu.json                                  [MODIFY]
-        |-- st.json                                  [MODIFY]
-        `-- af.json                                  [MODIFY]
+        |-- en.json                                   [VERIFY/REFINE]
+        |-- zu.json                                   [VERIFY/REFINE]
+        |-- st.json                                   [VERIFY/REFINE]
+        `-- af.json                                   [VERIFY/REFINE]
 ```
 
-**Structure Decision**: Keep the implementation centered in the existing backend `RagService` module and the current Ask-page chat consumer. No new route, database project, or ingestion module is introduced.
+**Structure Decision**: Keep the implementation centered in the existing backend `RagService` module and the current Ask-page chat consumer. The system is refined in place; no new route, database project, or ingestion subsystem is introduced.
 
 ## Complexity Tracking
 
 No constitution violations require justification.
 
+## Bit-by-Bit Refinement Map
+
+| Slice | Goal | Exit Signal |
+|-------|------|-------------|
+| 1. Retrieval Inputs | Stabilize indexed chunk metadata, document profiles, and focus-query behavior | Indexed metadata remains deterministic across startup loads and supports document/category-aware ranking without extra DB calls |
+| 2. Ranking Calibration | Tune document reranking, hint boosts, and supporting-document selection | Plain-language, wrong-Act-hint, and multi-source benchmark prompts consistently select the expected primary source family |
+| 3. Safety Modes | Tighten `Direct`, `Cautious`, `Clarification`, and `Insufficient` thresholds | Ambiguous prompts stop routing to `Direct`; clarification and insufficiency are treated as correct safety outcomes |
+| 4. Contract + UI | Keep the contract append-only while exposing mode/confidence clearly in the Ask flow | Frontend state and localized copy reflect answer posture in all four locales without breaking existing consumers |
+| 5. Verification | Lock behavior with tests and smoke checks | Backend tests pass, benchmark snapshot is recorded, and Ask-page smoke cases match the contract |
+
 ## Implementation Strategy
 
-### Slice 1 - Retrieval Foundation
+### Slice 1 - Stabilize the Retrieval Baseline
 
-1. Expand the in-memory chunk index so every loaded retrieval record carries:
-   - `DocumentId`
-   - full Act title
-   - Act short name
-   - Act number/year label when available
-   - category name
-   - section title/number
-   - chunk keywords
-   - topic classification
-   - embedding vector
-2. Replace the current "top-5 above 0.7" retrieval rule with a two-step approach:
-   - wider semantic candidate generation from chunk embeddings
-   - document-level reranking based on semantic strength plus metadata alignment
-3. Treat explicit Act names as boosts, not hard filters, so a mistaken Act name does not override clearly stronger factual matches.
+1. Treat the current retrieval surface as the starting point:
+   - `RagIndexStore`
+   - `RagDocumentProfileBuilder`
+   - `RagQueryFocusBuilder`
+   - `RagSourceHintExtractor`
+   - `RagRetrievalPlanner`
+   - `RagConfidenceEvaluator`
+2. Verify that startup load and metadata normalization are deterministic:
+   - document/category loading
+   - keyword parsing
+   - alias generation
+   - document centroid vectors
+3. Keep all retrieval metadata in memory so `AskAsync()` stays DB-free after startup.
 
-### Slice 2 - Confidence and Answer Behavior
+### Slice 2 - Calibrate Document-Aware Ranking
 
-1. Introduce a retrieval decision object that computes:
-   - answer mode
-   - confidence band
-   - selected documents
-   - selected chunks
-   - optional clarification question
-2. Define clear transitions:
-   - `Direct`: enough aligned support to answer confidently with citations
-   - `Cautious`: grounded answer available, but evidence is broad, diffuse, or only partially aligned
-   - `Clarification`: likely domain identified, but a decisive fact is missing or the question is too ambiguous
-   - `Insufficient`: the corpus cannot responsibly support the question
-3. Use answer mode to drive both prompt wording and temperature selection.
+1. Tune the weighting between:
+   - chunk semantic similarity
+   - document centroid similarity
+   - metadata alignment
+   - keyword overlap
+   - source hint boost
+   - semantic breadth
+2. Keep explicit Act names as boosts only, never as hard filters.
+3. Limit supporting documents and per-document chunk counts so the prompt remains focused.
 
-### Slice 3 - Contract and Frontend
+### Slice 3 - Tighten Confidence and Safety Behavior
 
-1. Extend `RagAnswerResult` with backward-compatible fields:
+1. Re-evaluate answer-mode thresholds using benchmark prompts across:
+   - plain-language direct answers
+   - broad ambiguous questions
+   - wrong-source hints
+   - unsupported topics
+2. Treat `Clarification` and `Insufficient` as first-class safe responses rather than failure cases.
+3. Keep persistence limited to grounded `Direct` and `Cautious` answers.
+
+### Slice 4 - Preserve the Contract While Surfacing State
+
+1. Keep `RagAnswerResult` append-only for consumers:
    - `answerMode`
    - `confidenceBand`
    - `clarificationQuestion`
-   - existing `detectedLanguageCode` remains
-2. Keep the existing endpoint and existing fields so current consumers continue to work.
-3. Update the Ask-page chat UI to surface caution or clarification states with localized copy instead of relying only on raw answer text.
+   - existing fields unchanged
+2. Keep `POST /api/app/qa/ask` as the only endpoint for this feature.
+3. Ensure the Ask-page UI clearly communicates caution or clarification states with localized, accessible copy.
 
-### Slice 4 - Testing and Calibration
+### Slice 5 - Benchmark and Verify Before Task Breakdown
 
-1. Add deterministic unit tests for:
-   - source hint extraction
-   - document reranking
-   - confidence/mode selection
-   - prompt selection and temperature policy
-   - removal of the general-knowledge fallback
-2. Add integration-style assertions for semantically equivalent questions resolving to the same primary source.
-3. Run manual smoke checks on the Ask page for keyboard navigation, localized caution copy, and citation rendering.
+1. Maintain a lightweight benchmark prompt matrix aligned to the research decisions:
+   - plain-language questions without Act names
+   - semantically equivalent variants
+   - wrong explicit Act names
+   - multi-source questions
+   - ambiguous prompts
+   - unsupported questions
+2. Use that matrix to guide threshold tuning and regression tests before new implementation tasks are declared complete.
+3. Capture deferred follow-ons separately instead of expanding this milestone:
+   - court-hierarchy weighting once judgments join the corpus
+   - human review sampling/telemetry persistence
+   - broader operational analytics
 
 ## Implementation Steps
 
-### Step 1 - Canonicalize the Retrieval Index
+### Step 1 - Reconstruct and Lock the Current Baseline
 
 **Action**:
-1. Update the startup load in `RagAppService.InitialiseAsync()` to include `Document.Category`.
-2. Replace the current minimal loaded record with a richer indexed chunk shape.
-3. Parse `DocumentChunk.Keywords` once at load time into a reusable normalized collection.
+1. Restore the filled plan and align it to the existing backend/frontend files.
+2. Confirm the current service surface and test suite match the intended design.
+3. Record the benchmark scenarios that will drive calibration.
 
-**Expected Result**: Retrieval logic can reason about document title, short name, category, and enrichment metadata without extra database calls during `AskAsync()`.
+**Expected Result**: Planning artifacts reflect the real system state instead of a greenfield scaffold.
 
 ---
 
-### Step 2 - Add Explicit Source Hint Extraction
+### Step 2 - Verify the In-Memory Retrieval Inputs
 
 **Action**:
-1. Create `RagSourceHintExtractor.cs`.
-2. Match translated question text against known document titles, short names, and common title fragments.
-3. Capture category-level hints from metadata terms when present.
-4. Ensure hint matches boost ranking but do not exclude stronger semantically matched documents.
+1. Review `RagAppService.InitialiseAsync()` and `RagIndexStore` to confirm the startup load remains atomic and DB-free after initialization.
+2. Revisit `RagDocumentProfileBuilder` to ensure document profiles carry stable metadata phrases, aliases, and centroid vectors.
+3. Revisit `RagQueryFocusBuilder` to confirm focus terms narrow broad queries without deleting the user's actual meaning.
 
-**Expected Result**: A user can name an Act if they know it, but they do not have to.
+**Expected Result**: Retrieval starts from a clean, deterministic in-memory representation of documents and chunks.
 
 ---
 
-### Step 3 - Implement Hybrid Document Reranking
+### Step 3 - Refine Source Hints and Document Ranking
 
 **Action**:
-1. Create `RagRetrievalPlanner.cs`.
-2. Generate a wider semantic candidate pool from chunk embeddings using a softer floor than the final answer threshold.
-3. Group candidates by document and compute a document score from:
-   - top chunk similarity
-   - average strength of the top chunks
-   - topic/category alignment
-   - keyword overlap
-   - explicit source hint boost
-4. Select the strongest primary document plus supporting documents when they materially contribute new legal support.
-5. Cap per-document chunk count so one long Act does not crowd out genuinely relevant supporting sources.
+1. Recalibrate `RagSourceHintExtractor` boost weights for Act titles, short names, Act numbers, and categories.
+2. Recalibrate `RagRetrievalPlanner` weighting across semantic, metadata, keyword, and breadth signals.
+3. Ensure supporting documents are only included when they add distinct legal coverage rather than duplicate the primary source.
 
-**Expected Result**: Source selection becomes document-aware and better aligned to meaning rather than only lexical proximity.
+**Expected Result**: Plain-language and wrong-hint scenarios still converge on the correct governing Act or Act set.
 
 ---
 
-### Step 4 - Add Confidence and Answer Mode Evaluation
+### Step 4 - Recalibrate Confidence and Answer Modes
 
 **Action**:
-1. Create `RagConfidenceEvaluator.cs`.
-2. Compute confidence from retrieval signals such as:
-   - primary document score
-   - score gap between the top document and the next alternative
-   - number of aligned high-scoring chunks
-   - whether selected chunks agree on topic/category
-   - whether the question remains ambiguous after source selection
-3. Map confidence to `RagAnswerMode` and `RagConfidenceBand`.
+1. Revisit `RagConfidenceEvaluator` thresholds for `Direct`, `Cautious`, `Clarification`, and `Insufficient`.
+2. Keep ambiguity detection strict for short, broad, or closely competing source families.
+3. Preserve the rule that only grounded `Direct` and `Cautious` answers are persisted.
 
-**Expected Result**: The service makes a deterministic, testable decision about whether to answer directly, answer cautiously, ask for clarification, or decline.
+**Expected Result**: The system becomes more conservative when the legal signal is weak or diffuse, without suppressing confident grounded answers.
 
 ---
 
-### Step 5 - Update Prompt and Temperature Policy
+### Step 5 - Harden Prompt and Response Behavior
 
 **Action**:
-1. Extend `RagPromptBuilder` to support mode-specific system instructions.
-2. Define bounded temperature policy:
+1. Reconfirm `RagPromptBuilder` instructions per mode.
+2. Keep bounded temperature policy:
    - `Direct`: `0.2`
    - `Cautious`: `0.1`
    - `Clarification`: `0.0`
-   - `Insufficient`: no answer-generation call when a templated insufficiency response is safer
-3. Keep citation instructions strict for `Direct` and `Cautious`.
-4. For `Clarification`, instruct the model to ask one focused follow-up question and avoid legal conclusions.
+   - `Insufficient`: no open-ended legal generation
+3. Ensure clarification uses one focused follow-up question and insufficiency stays deterministic.
 
-**Expected Result**: Response tone becomes more conservative as certainty drops, without making grounded answers robotic.
+**Expected Result**: The answer posture tracks retrieval certainty and remains legally conservative.
 
 ---
 
-### Step 6 - Refactor `RagAppService.AskAsync()`
+### Step 6 - Keep the Service Orchestration Coherent
 
 **Action**:
-1. Keep the existing multilingual flow: detect language, translate to English for search.
-2. Replace the current single-threshold retrieval path with:
-   - semantic candidate generation
-   - source hint extraction
-   - retrieval planning
-   - confidence evaluation
-3. Remove the current general-knowledge fallback path entirely.
-4. Return either:
-   - grounded direct answer
-   - grounded cautious answer
-   - clarification response
-   - explicit insufficient-grounding response
-5. Persist only grounded direct/cautious answers in the existing Q&A chain to preserve current `AnswerId` expectations.
+1. Verify `RagAppService.AskAsync()` remains ordered as:
+   - detect language
+   - translate to English for search
+   - embed the question
+   - build semantic matches
+   - extract source hints
+   - build retrieval plan
+   - evaluate confidence
+   - choose response mode
+   - persist only grounded answers
+2. Confirm non-grounded responses never fabricate citations or produce general-knowledge legal advice.
+3. Keep `IRagAppService` and controller docs aligned with the refined behavior.
 
-**Expected Result**: The endpoint behaves safely when grounding is weak and materially better when users do not mention Act names.
+**Expected Result**: The backend flow stays simple, deterministic, and safe from retrieval to response.
 
 ---
 
-### Step 7 - Extend the API DTO Contract
+### Step 7 - Verify Contract and Ask-Page Representation
 
 **Action**:
-1. Add `RagAnswerMode` and `RagConfidenceBand` enums.
-2. Extend `RagAnswerResult` with:
-   - `AnswerMode`
-   - `ConfidenceBand`
-   - `ClarificationQuestion`
-3. Keep existing fields intact (`answerText`, `isInsufficientInformation`, `citations`, `chunkIds`, `answerId`, `detectedLanguageCode`).
-4. Update controller comments and contract docs to reflect the new behavior.
+1. Confirm `RagAnswerResult` and `qa-ask.md` still match the implemented backend behavior.
+2. Verify the Ask-page consumer propagates `answerMode`, `confidenceBand`, and `clarificationQuestion` through service types, provider state, and message rendering.
+3. Confirm all four locale files provide clear caution/clarification copy with semantic status presentation.
 
-**Expected Result**: The frontend gets structured state for caution/clarification while existing consumers remain compatible.
+**Expected Result**: Users can tell when the system is answering directly, being cautious, or asking for more detail.
 
 ---
 
-### Step 8 - Update the Ask-Page Consumer
+### Step 8 - Expand Regression and Benchmark Coverage
 
 **Action**:
-1. Extend `frontend/src/services/qa.service.ts` types with the new response fields.
-2. Propagate the fields through `useChat`, `chat-provider`, and `ChatMessage`.
-3. Add localized labels/messages for:
-   - clarification needed
-   - cautious answer
-   - insufficient information
-4. Render the new state with semantic alert/status treatment and no extra interaction cost.
+1. Expand `RagRetrievalPlannerTests.cs` and `RagConfidenceEvaluatorTests.cs` with benchmark-style cases:
+   - plain-language eviction phrasing
+   - semantically equivalent variants
+   - wrong Act hint
+   - multi-source answer
+   - ambiguous short prompt
+   - unsupported topic
+2. Expand `RagPromptBuilderTests.cs`, `RagQueryFocusBuilderTests.cs`, and `RagAppServiceTests.cs` for mode-specific behavior and non-persistence rules.
+3. Keep test names tied to user-observable behavior rather than just internal scores.
 
-**Expected Result**: Users can immediately tell when the system is answering confidently versus asking for more detail.
-
----
-
-### Step 9 - Add Backend Tests
-
-**Action**:
-1. Add `RagRetrievalPlannerTests.cs`:
-   - plain-language eviction phrasing selects housing/constitutional sources
-   - semantically equivalent variants keep the same primary source
-   - wrong Act hint does not outrank stronger factual matches
-2. Add `RagConfidenceEvaluatorTests.cs`:
-   - high-confidence document set -> `Direct`
-   - mixed but grounded support -> `Cautious`
-   - ambiguous request -> `Clarification`
-   - no responsible grounding -> `Insufficient`
-3. Extend `RagAppServiceTests.cs` and `RagPromptBuilderTests.cs` for dynamic temperature and no-general-fallback behavior.
-
-**Expected Result**: The retrieval and response-mode decisions are protected by deterministic tests.
+**Expected Result**: Retrieval and safety behavior are locked down by deterministic tests, not memory of manual tuning.
 
 ---
 
-### Step 10 - Verify End-to-End Behavior
+### Step 9 - Run the Final Verification Loop
 
 **Action**:
 1. Run backend tests.
 2. Smoke-test the Ask page with:
    - `"Can my landlord evict me without a court order?"` -> direct answer with citations
    - `"Can they evict me?"` -> clarification
-   - semantically equivalent eviction variants -> same primary legal source
+   - semantically equivalent eviction variants -> same primary legal source family
+   - wrong-source hint question -> stronger factual source still wins
    - unsupported topic -> insufficient response with no general legal advice
-3. Check localized UI labels for all supported languages.
+3. Record any deferred follow-ons instead of stretching this milestone.
 
-**Expected Result**: The feature meets the spec's user-facing behavior before task breakdown begins.
+**Expected Result**: The feature is ready for task breakdown and implementation refinement with a clear benchmark and verification trail.
 
 ## Dependencies & Order
 
 ```text
-Step 1  (index metadata)         -> existing RAG + document/category models
-Step 2  (source hints)           -> Step 1
-Step 3  (retrieval planner)      -> Steps 1, 2
-Step 4  (confidence evaluator)   -> Step 3
-Step 5  (prompt/temperature)     -> Step 4
-Step 6  (RagAppService flow)     -> Steps 3, 4, 5
-Step 7  (DTO + contract)         -> Step 6
-Step 8  (frontend consumer)      -> Step 7
-Step 9  (tests)                  -> Steps 3, 4, 5, 6, 7
-Step 10 (smoke verification)     -> Steps 6, 7, 8, 9
+Step 1  (restore baseline docs)          -> current feature artifacts + existing code
+Step 2  (verify retrieval inputs)        -> Step 1
+Step 3  (ranking calibration)            -> Step 2
+Step 4  (confidence calibration)         -> Step 3
+Step 5  (prompt behavior)                -> Step 4
+Step 6  (service orchestration)          -> Steps 3, 4, 5
+Step 7  (contract + Ask UI verification) -> Step 6
+Step 8  (tests + benchmark expansion)    -> Steps 3, 4, 5, 6, 7
+Step 9  (final verification loop)        -> Step 8
 ```
 
 ## Critical Path
 
 ```text
-Indexed metadata -> hybrid retrieval planner -> confidence/mode selection -> prompt policy
--> RagAppService refactor -> DTO contract -> tests -> frontend cue -> smoke verification
+Retrieval inputs -> ranking calibration -> confidence calibration -> prompt behavior
+-> service orchestration verification -> contract/UI verification -> tests -> final smoke check
 ```
 
 ## Failure Handling
 
 | Failure | Diagnosis | Resolution |
 |---------|-----------|------------|
-| Plain-language questions still require Act names | Document reranking still overweights explicit hints or exact wording | Reduce hint boost, widen semantic candidate pool, and recalibrate source scoring against benchmark prompts |
-| Wrong Act name in the question dominates the result | Hint extraction is acting as a filter instead of a boost | Keep hint signals additive only; never discard stronger semantic candidates |
-| Broad questions still receive overconfident answers | Confidence evaluator is too permissive | Tighten confidence thresholds and route more cases to `Cautious` or `Clarification` |
-| Retrieval quality improves but latency regresses | Candidate pool or context size is too large | Cap candidate pool, cap chunks per document, and skip generation for `Insufficient` responses |
-| Frontend shows no distinction between direct and clarification modes | New DTO fields are not propagated through chat state | Update `qa.service.ts`, chat state types, and `ChatMessage.tsx` together |
-| Existing clients break on response changes | Response shape became incompatible | Keep all existing fields and add only optional/append-only metadata |
+| Plain-language questions still require Act names | Metadata alignment or ranking weights still underweight semantic meaning | Widen candidate pool, rebalance metadata/semantic weights, and retest against benchmark prompts |
+| Wrong Act name dominates the result | Hint boosts are too strong | Keep hint signals additive only and lower boost caps until factual matches win |
+| Ambiguous prompts still receive `Direct` answers | Confidence thresholds or ambiguity heuristics are too permissive | Raise direct-answer thresholds and route borderline cases to `Cautious` or `Clarification` |
+| Multi-source questions collapse to one partial Act | Supporting-document inclusion is too strict | Allow a second source only when it adds distinct legal coverage and citation value |
+| Ask page hides the response posture | DTO fields are not fully propagated or localized | Verify `qa.service.ts`, provider state, `ChatMessage.tsx`, and locale strings together |
+| Benchmarks pass locally but behavior drifts later | Calibration exists only in human memory | Keep benchmark scenarios in tests/spec artifacts and rerun them before closing tasks |
 
 ## Deliverables
 
 | Deliverable | Location |
 |-------------|----------|
-| Research decision log | `specs/feat/021-intent-aware-rag/research.md` |
-| Data model/design notes | `specs/feat/021-intent-aware-rag/data-model.md` |
-| Quick implementation guide | `specs/feat/021-intent-aware-rag/quickstart.md` |
+| Refined research decision log | `specs/feat/021-intent-aware-rag/research.md` |
+| Refined data model/design notes | `specs/feat/021-intent-aware-rag/data-model.md` |
+| Refined quick implementation guide | `specs/feat/021-intent-aware-rag/quickstart.md` |
 | API contract | `specs/feat/021-intent-aware-rag/contracts/qa-ask.md` |
-| Implementation plan | `specs/feat/021-intent-aware-rag/plan.md` |
+| Refined implementation plan | `specs/feat/021-intent-aware-rag/plan.md` |

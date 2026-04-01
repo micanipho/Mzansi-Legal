@@ -159,6 +159,51 @@ No new route, no new design system, and no new page flow.
 
 ---
 
+### R-010: Calibrate Retrieval and Safety with a Small Benchmark Set Before Declaring the Feature Done
+
+**Decision**: Maintain a lightweight benchmark prompt pack that covers:
+
+- plain-language questions without Act names
+- semantically equivalent phrasing variants
+- wrong explicit Act hints
+- multi-source legal questions
+- short ambiguous prompts
+- unsupported questions
+
+These benchmark cases will be used to tune retrieval weights and answer-mode thresholds before implementation is considered complete.
+
+**Rationale**: The deep research report emphasizes retrieval quality, groundedness, and human-reviewable evaluation. For this milestone, a compact benchmark set gives the team a repeatable way to calibrate the existing system without adding new telemetry tables or production analytics infrastructure.
+
+**Alternatives considered**:
+- **Ad-hoc manual testing only**: Too easy to forget edge cases and too hard to repeat after code changes.
+- **Production-log-driven tuning only**: Too slow and too risky for a legal assistant safety feature.
+
+---
+
+### R-011: Keep This Milestone Legislation-First and Defer Court-Hierarchy Weighting Until Judgments Are Ingested
+
+**Decision**: This milestone will keep the retriever focused on the current legislation corpus and existing document metadata. Court-hierarchy and precedential-weight ranking from the deep research report are recorded as a future refinement once judgments and court-level metadata are part of the indexed corpus.
+
+**Rationale**: The current feature scope and existing data model are centered on Acts, categories, chunks, and chunk enrichment metadata. Adding authority-weight logic without judgment coverage would create false precision and distract from the more immediate need: better Act discovery, safer confidence handling, and clearer response modes.
+
+**Alternatives considered**:
+- **Introduce court-weighting now**: Misaligned with the current corpus and likely to increase complexity without improving this milestone's real behavior.
+- **Expand the corpus inside this feature**: Too much scope for a retrieval-hardening milestone with no planned migrations or new infrastructure.
+
+---
+
+### R-012: Clarification and Insufficient Responses Are Correct Safety Outcomes, Not UX Failures
+
+**Decision**: Treat `Clarification` and `Insufficient` as first-class, testable success states when the system lacks decisive grounding. Evaluation and UI behavior must reflect that a safe follow-up question or grounded refusal is the correct response in some legal scenarios.
+
+**Rationale**: The deep research report frames legal-assistant quality as a safety problem as much as a retrieval problem. If the system is broad, ambiguous, or under-grounded, asking one focused question or declining is more correct than forcing a direct answer.
+
+**Alternatives considered**:
+- **Optimize mostly for direct answers**: Encourages overconfident legal responses.
+- **Treat all non-answer states as failure**: Hides the safety value of clarification and grounded refusal behavior.
+
+---
+
 ## Summary
 
 All planning unknowns were resolved without introducing new infrastructure or new database schema. The feature will improve source discovery by combining semantic chunk retrieval with metadata-aware document reranking, replace overconfident fallback behavior with explicit response modes, and expose enough structured metadata for the existing Ask page to represent those safer behaviors clearly.

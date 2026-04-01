@@ -1,8 +1,12 @@
-# Quickstart: Implementing Intent-Aware Legal Retrieval
+# Quickstart: Refining Intent-Aware Legal Retrieval
 
 **Feature**: `feat/021-intent-aware-rag`  
 **Branch**: `feat/021-intent-aware-rag`  
 **Date**: 2026-04-01
+
+## Goal
+
+Use the existing RAG service as the baseline and refine it in small, verifiable slices. This feature is no longer a greenfield build; the backend already has document-aware retrieval, answer modes, and supporting tests. The quickstart below focuses on calibration, hardening, and verification.
 
 ## Prerequisites
 
@@ -12,168 +16,216 @@
 - Backend tests can run from `backend/test/backend.Tests`
 - Ask page currently consumes `POST /api/app/qa/ask`
 
-## Step 1 - Expand Startup Metadata Load
+## Bit-by-Bit Order
 
-In `RagAppService.InitialiseAsync()`:
+1. Capture the current baseline and benchmark prompts
+2. Verify the startup index and document profiles
+3. Refine query focus, source hints, and document ranking
+4. Recalibrate confidence and response behavior
+5. Verify contract, persistence rules, and Ask-page state handling
+6. Expand regression coverage and re-run the benchmark pack
 
-1. Keep loading embeddings into memory at startup.
-2. Extend the include chain to load:
-   - `Document`
-   - `Document.Category`
-3. Convert each chunk into a richer in-memory indexed model that includes:
+## Step 0 - Capture the Baseline
+
+Before tuning anything:
+
+1. Run the existing RAG unit tests.
+2. Record the benchmark prompt pack for this feature:
+   - plain-language questions without Act names
+   - semantically equivalent variants
+   - wrong explicit Act hints
+   - multi-source questions
+   - ambiguous short prompts
+   - unsupported questions
+3. Note the current expected primary source family and expected answer mode for each case.
+
+Result: tuning work becomes repeatable instead of memory-based.
+
+## Step 1 - Verify Startup Index and Document Profiles
+
+Review these existing files first:
+
+- `backend/src/backend.Application/Services/RagService/RagAppService.cs`
+- `backend/src/backend.Application/Services/RagService/RagIndexStore.cs`
+- `backend/src/backend.Application/Services/RagService/RagDocumentProfileBuilder.cs`
+
+Checks:
+
+1. `InitialiseAsync()` includes `Document` and `Document.Category`.
+2. Each chunk is loaded into `IndexedChunk` with:
    - document title
    - short name
    - act number
+   - year
    - category name
-   - section title
+   - section title/number
    - parsed keywords
    - topic classification
+3. `RagDocumentProfileBuilder` produces stable metadata terms, metadata phrases, and centroid vectors.
+4. `RagIndexStore.Replace()` updates chunks and document profiles together.
 
-Result: `AskAsync()` can reason about source meaning without extra database calls.
+Result: request-time retrieval stays in memory and deterministic.
 
-## Step 2 - Add Source Hint Extraction
+## Step 2 - Refine Query Focus and Source Hints
 
-Create `RagSourceHintExtractor.cs` in `backend/src/backend.Application/Services/RagService/`.
+Review:
+
+- `backend/src/backend.Application/Services/RagService/RagQueryFocusBuilder.cs`
+- `backend/src/backend.Application/Services/RagService/RagSourceHintExtractor.cs`
 
 Responsibilities:
 
-- inspect the translated question text
-- detect explicit mentions of:
-  - full Act names
-  - short names
-  - act-number/year phrases
-  - category names
-- return hints with additive boost values
+1. Keep `RagQueryFocusBuilder` focused on stripping generic legal filler terms without losing the user's actual issue.
+2. Keep `RagSourceHintExtractor` responsible for:
+   - Act title matches
+   - short-name matches
+   - Act-number/year matches
+   - category matches
+3. Treat every hint as a boost only. Never let a hint become a hard filter.
 
-Important rule: a hint must never become a hard filter.
+Result: users can name an Act if they know it, but they do not have to.
 
-## Step 3 - Add Hybrid Retrieval Planner
+## Step 3 - Calibrate Document Ranking
 
-Create `RagRetrievalPlanner.cs`.
+Review:
 
-Flow:
+- `backend/src/backend.Application/Services/RagService/RagRetrievalPlanner.cs`
 
-1. Start from semantic chunk similarity scores.
-2. Keep a wider candidate pool than the final context size.
-3. Group by document.
-4. Score each document from:
-   - strongest chunk score
-   - average of strongest supporting chunks
-   - topic match
-   - keyword match
+Tune or verify:
+
+1. Candidate generation starts from semantic chunk similarity.
+2. Document ranking blends:
+   - chunk semantic strength
+   - document centroid similarity
+   - metadata alignment
+   - keyword overlap
+   - semantic breadth
    - source hint boost
-5. Select:
-   - strongest primary document
-   - supporting documents only when they materially add legal coverage
-6. Cap chunks per document so one source does not monopolize context.
+3. Supporting documents are included only when they add real legal coverage.
+4. Per-document chunk caps keep the prompt focused.
 
-Result: the assistant can find the right Act from meaning, not just from explicit source names.
+Result: the assistant finds the right Act from meaning, not only from vocabulary overlap.
 
-## Step 4 - Add Confidence and Mode Evaluation
+## Step 4 - Recalibrate Confidence and Mode Selection
 
-Create `RagConfidenceEvaluator.cs`.
+Review:
 
-Compute:
+- `backend/src/backend.Application/Services/RagService/RagConfidenceEvaluator.cs`
 
-- `RagConfidenceBand`: `High`, `Medium`, `Low`
-- `RagAnswerMode`: `Direct`, `Cautious`, `Clarification`, `Insufficient`
+Checks:
 
-Recommended mapping:
+1. `Direct` is reserved for clearly grounded, non-ambiguous cases.
+2. `Cautious` covers grounded but non-decisive cases.
+3. `Clarification` is used when the likely legal area is visible but a decisive fact is missing.
+4. `Insufficient` is used when the corpus cannot responsibly answer.
+5. `Clarification` and `Insufficient` are treated as safe, correct outcomes where appropriate.
 
-- strong aligned evidence -> `Direct`
-- grounded but not decisive -> `Cautious`
-- likely domain but missing facts -> `Clarification`
-- no responsible grounding -> `Insufficient`
+Result: the system becomes more careful as certainty drops.
 
-## Step 5 - Update Prompt Builder
+## Step 5 - Verify Prompt and Non-Grounded Behavior
 
-Modify `RagPromptBuilder.cs` so prompt behavior depends on answer mode.
+Review:
 
-Add or update:
+- `backend/src/backend.Application/Services/RagService/RagPromptBuilder.cs`
+- `backend/src/backend.Application/Services/RagService/RagAppService.cs`
 
-- mode-aware system prompt builder
-- clarification-specific prompt instructions
-- deterministic insufficiency message path
-- temperature selection:
-  - direct `0.2`
-  - cautious `0.1`
-  - clarification `0.0`
+Confirm:
 
-Do not generate general legal advice when grounding is absent.
+1. Prompt instructions remain mode-aware.
+2. Temperature policy stays bounded:
+   - direct `0.2`
+   - cautious `0.1`
+   - clarification `0.0`
+   - insufficient `0.0` with deterministic non-grounded response
+3. Clarification prompts ask one focused question.
+4. Non-grounded responses do not fabricate citations.
+5. General-knowledge legal fallback stays removed.
 
-## Step 6 - Refactor `RagAppService.AskAsync()`
+Result: response tone tracks retrieval certainty and stays legally conservative.
 
-Refactor the main flow to:
+## Step 6 - Confirm API Contract and Persistence Rules
 
-1. detect language
-2. translate to English for search
-3. embed translated question
-4. build semantic candidate scores
-5. extract source hints
-6. run retrieval planner
-7. run confidence evaluator
-8. choose prompt/mode
-9. either:
-   - generate grounded direct answer
-   - generate grounded cautious answer
-   - generate clarification response
-   - return insufficiency response
+Review:
 
-Persistence rule for this milestone:
+- `backend/src/backend.Application/Services/RagService/IRagAppService.cs`
+- `backend/src/backend.Application/Services/RagService/DTO/RagAnswerResult.cs`
+- `backend/src/backend.Web.Host/Controllers/QaController.cs`
+- `specs/feat/021-intent-aware-rag/contracts/qa-ask.md`
 
-- persist direct and cautious grounded answers
-- do not persist clarification or insufficient responses
+Verify:
 
-## Step 7 - Extend API DTOs
+1. `RagAnswerResult` remains append-only for consumers.
+2. `answerMode`, `confidenceBand`, and `clarificationQuestion` are documented and serialized as expected.
+3. `Direct` and `Cautious` answers keep citations.
+4. Only grounded direct/cautious answers are persisted.
+5. Clarification/insufficient responses return `answerId = null`.
 
-Update `RagAnswerResult.cs` with:
+Result: backend behavior, contract docs, and persistence policy remain aligned.
 
-- `AnswerMode`
-- `ConfidenceBand`
-- `ClarificationQuestion`
+## Step 7 - Validate the Ask-Page Consumer
 
-Keep existing fields untouched so current frontend consumers do not break.
-
-## Step 8 - Update Frontend Ask Consumer
-
-Modify:
+Review:
 
 - `frontend/src/services/qa.service.ts`
 - `frontend/src/hooks/useChat.ts`
 - `frontend/src/providers/chat-provider/context.tsx`
 - `frontend/src/providers/chat-provider/index.tsx`
 - `frontend/src/components/chat/ChatMessage.tsx`
+- `frontend/src/messages/en.json`
+- `frontend/src/messages/zu.json`
+- `frontend/src/messages/st.json`
+- `frontend/src/messages/af.json`
 
-Add localized message keys in all four locale files for:
+Checks:
 
-- cautious answer label/body
-- clarification label/body
-- insufficient information label/body
+1. Response types include `answerMode`, `confidenceBand`, and `clarificationQuestion`.
+2. Chat state carries those fields end to end.
+3. The UI surfaces:
+   - direct answer
+   - cautious answer
+   - clarification needed
+   - insufficient information
+4. Status presentation stays semantic and accessible.
+5. All four locale files contain clear state copy.
 
-Goal: users should immediately understand why the system is being careful.
+Result: users can immediately tell why the system is being careful.
 
-## Step 9 - Add Tests
+## Step 8 - Expand Regression Coverage
 
-Backend tests to add:
+Focus test files:
 
-- `RagRetrievalPlannerTests.cs`
-- `RagConfidenceEvaluatorTests.cs`
-
-Backend tests to update:
-
-- `RagAppServiceTests.cs`
-- `RagPromptBuilderTests.cs`
+- `backend/test/backend.Tests/RagServiceTests/RagRetrievalPlannerTests.cs`
+- `backend/test/backend.Tests/RagServiceTests/RagConfidenceEvaluatorTests.cs`
+- `backend/test/backend.Tests/RagServiceTests/RagPromptBuilderTests.cs`
+- `backend/test/backend.Tests/RagServiceTests/RagQueryFocusBuilderTests.cs`
+- `backend/test/backend.Tests/RagServiceTests/RagDocumentProfileBuilderTests.cs`
+- `backend/test/backend.Tests/RagServiceTests/RagAppServiceTests.cs`
 
 Scenarios to cover:
 
 - plain-language eviction question chooses the correct source
-- semantically equivalent variants keep the same primary Act
+- semantically equivalent variants keep the same primary source family
 - wrong explicit Act hint does not override stronger evidence
+- multi-source question keeps both relevant sources
 - ambiguous broad question returns clarification mode
 - unsupported topic returns insufficiency mode
-- no general-knowledge fallback path remains
+- clarification and insufficiency are never persisted as answers
 
-## Step 10 - Manual Smoke Test
+Result: behavior remains stable after tuning.
+
+## Step 9 - Run the Benchmark Prompt Pack
+
+Use the prompt pack captured in Step 0 and verify:
+
+1. Plain-language direct cases map to the expected Act or Act set.
+2. Equivalent phrasings converge on the same primary source family.
+3. Wrong-source hints do not dominate stronger factual evidence.
+4. Ambiguous prompts route to clarification instead of overconfident answers.
+5. Unsupported prompts route to insufficiency with no general legal advice.
+
+Result: the system is calibrated with repeatable evidence, not just a smoke test.
+
+## Step 10 - Manual Smoke and Sign-Off
 
 ### Direct answer
 
@@ -189,7 +241,7 @@ Expected:
 
 - `answerMode = "direct"`
 - `confidenceBand = "high"` or strong `medium`
-- citations include the governing housing / constitutional source
+- citations include the governing housing / constitutional source family
 
 ### Clarification
 
@@ -207,21 +259,18 @@ Expected:
 - `clarificationQuestion` is populated
 - no definitive legal conclusion is given
 
-### Semantically equivalent variants
+### Wrong explicit source hint
 
-Submit multiple variants such as:
-
-- `"Can my landlord evict me without court?"`
-- `"Can a property owner throw me out if I rent from them?"`
-- `"Do I need a court order before I can be evicted?"`
+Submit a prompt that mentions the wrong Act name but describes a housing eviction fact pattern.
 
 Expected:
 
-- same primary legal source family appears across variants
+- the stronger factual housing source still wins
+- the named but weaker Act does not become a hard filter
 
 ### Insufficient grounding
 
-Submit an unsupported question:
+Submit:
 
 ```json
 {
@@ -235,25 +284,35 @@ Expected:
 - `isInsufficientInformation = true`
 - no general legal advice is produced
 
+## Deferred Follow-Ons
+
+Keep these outside this milestone unless scope changes intentionally:
+
+- court-hierarchy weighting once judgments are part of the indexed corpus
+- human-review sampling and operational analytics persistence
+- broader legal-domain rollout beyond the current legislation-first corpus
+
 ## Files Changed Summary
 
 | Action | File |
 |--------|------|
-| CREATE | `backend/src/backend.Application/Services/RagService/RagRetrievalPlanner.cs` |
-| CREATE | `backend/src/backend.Application/Services/RagService/RagConfidenceEvaluator.cs` |
-| CREATE | `backend/src/backend.Application/Services/RagService/RagSourceHintExtractor.cs` |
-| CREATE | `backend/src/backend.Application/Services/RagService/DTO/RagAnswerMode.cs` |
-| CREATE | `backend/src/backend.Application/Services/RagService/DTO/RagConfidenceBand.cs` |
-| MODIFY | `backend/src/backend.Application/Services/RagService/RagAppService.cs` |
-| MODIFY | `backend/src/backend.Application/Services/RagService/RagPromptBuilder.cs` |
-| MODIFY | `backend/src/backend.Application/Services/RagService/DTO/RagAnswerResult.cs` |
-| MODIFY | `backend/src/backend.Web.Host/Controllers/QaController.cs` |
-| MODIFY | `frontend/src/services/qa.service.ts` |
-| MODIFY | `frontend/src/hooks/useChat.ts` |
-| MODIFY | `frontend/src/providers/chat-provider/context.tsx` |
-| MODIFY | `frontend/src/providers/chat-provider/index.tsx` |
-| MODIFY | `frontend/src/components/chat/ChatMessage.tsx` |
-| MODIFY | `frontend/src/messages/en.json` |
-| MODIFY | `frontend/src/messages/zu.json` |
-| MODIFY | `frontend/src/messages/st.json` |
-| MODIFY | `frontend/src/messages/af.json` |
+| REFINE | `backend/src/backend.Application/Services/RagService/RagAppService.cs` |
+| REFINE | `backend/src/backend.Application/Services/RagService/RagPromptBuilder.cs` |
+| REFINE | `backend/src/backend.Application/Services/RagService/RagQueryFocusBuilder.cs` |
+| REFINE | `backend/src/backend.Application/Services/RagService/RagSourceHintExtractor.cs` |
+| REFINE | `backend/src/backend.Application/Services/RagService/RagDocumentProfileBuilder.cs` |
+| REFINE | `backend/src/backend.Application/Services/RagService/RagRetrievalPlanner.cs` |
+| REFINE | `backend/src/backend.Application/Services/RagService/RagConfidenceEvaluator.cs` |
+| VERIFY | `backend/src/backend.Application/Services/RagService/RagIndexStore.cs` |
+| VERIFY/REFINE | `backend/src/backend.Application/Services/RagService/DTO/RagAnswerResult.cs` |
+| VERIFY | `backend/src/backend.Application/Services/RagService/IRagAppService.cs` |
+| VERIFY | `backend/src/backend.Web.Host/Controllers/QaController.cs` |
+| VERIFY/REFINE | `frontend/src/services/qa.service.ts` |
+| VERIFY/REFINE | `frontend/src/hooks/useChat.ts` |
+| VERIFY/REFINE | `frontend/src/providers/chat-provider/context.tsx` |
+| VERIFY/REFINE | `frontend/src/providers/chat-provider/index.tsx` |
+| VERIFY/REFINE | `frontend/src/components/chat/ChatMessage.tsx` |
+| VERIFY/REFINE | `frontend/src/messages/en.json` |
+| VERIFY/REFINE | `frontend/src/messages/zu.json` |
+| VERIFY/REFINE | `frontend/src/messages/st.json` |
+| VERIFY/REFINE | `frontend/src/messages/af.json` |
