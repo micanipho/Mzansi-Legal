@@ -1,3 +1,4 @@
+using Abp.Application.Services;
 using backend.Domains.QA;
 using System.Threading.Tasks;
 
@@ -7,7 +8,7 @@ namespace backend.Services.LanguageService;
 /// Detects the language of user input and translates non-English text to English
 /// for use in the English-language RAG knowledge-base search pipeline.
 /// </summary>
-public interface ILanguageAppService
+public interface ILanguageAppService : IApplicationService
 {
     /// <summary>
     /// Detects the language of the input text and returns the corresponding

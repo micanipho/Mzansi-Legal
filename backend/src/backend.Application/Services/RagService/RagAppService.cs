@@ -96,6 +96,11 @@ public class RagAppService : ApplicationService, IRagAppService
     /// </summary>
     public async Task InitialiseAsync(CancellationToken cancellationToken = default)
     {
+        // A unit of work is required for ABP repositories to obtain a DbContext.
+        // InitialiseAsync is called from a background service outside the normal ABP
+        // request pipeline, so no UoW is active — we begin one explicitly here.
+        using var uow = UnitOfWorkManager.Begin();
+
         // Load all chunks that have an embedding, including the parent document for the Act name.
         var chunks = await _chunkRepository
             .GetAll()
@@ -113,6 +118,8 @@ public class RagAppService : ApplicationService, IRagAppService
                 Score: 0f,    // score is assigned per-query, not at load time
                 Vector: c.Embedding.Vector))
             .ToList();
+
+        await uow.CompleteAsync();
     }
 
     /// <summary>

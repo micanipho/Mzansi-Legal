@@ -1,4 +1,4 @@
-using Abp.Domain.Services;
+using Abp.Application.Services;
 using Ardalis.GuardClauses;
 using backend.Services.EmbeddingService.DTO;
 using Microsoft.Extensions.Configuration;
@@ -17,7 +17,7 @@ namespace backend.Services.EmbeddingService;
 /// Text exceeding 30,000 characters is silently truncated before the API call.
 /// Domain service - no authorization or proxying required.
 /// </summary>
-public class EmbeddingAppService : DomainService, IEmbeddingAppService
+public class EmbeddingAppService : ApplicationService, IEmbeddingAppService
 {
     private const int MaxInputCharacters = 30_000;
 

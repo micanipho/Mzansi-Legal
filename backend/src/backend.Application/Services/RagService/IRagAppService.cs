@@ -1,3 +1,4 @@
+using Abp.Application.Services;
 using backend.Services.RagService.DTO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,7 +10,7 @@ namespace backend.Services.RagService;
 /// Loads legislation embeddings at startup, embeds questions, performs cosine similarity
 /// retrieval, calls the LLM, and persists the resulting Q&amp;A chain.
 /// </summary>
-public interface IRagAppService
+public interface IRagAppService : IApplicationService
 {
     /// <summary>
     /// Accepts a user's natural-language legal question and returns a grounded, cited answer.
