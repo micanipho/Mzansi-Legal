@@ -1,305 +1,274 @@
 # Data Model: Intent-Aware Legal Retrieval for RAG Answers
 
-**Feature**: `feat/021-intent-aware-rag` | **Date**: 2026-04-01  
-**Status**: No new migrations planned
+**Feature**: `feat/021-intent-aware-rag` | **Date**: 2026-04-01
 
 ## Overview
 
-This feature does not introduce new EF Core entities or schema changes. It refines the RAG service by:
+This feature refines answer planning on top of the existing legal corpus and Q&A persistence model. Most of the data already exists in the domain model. The new planning emphasis is on computed runtime models that help the system:
 
-- loading richer document and chunk metadata into memory at startup
-- building document-level profiles for reranking and specificity scoring
-- selecting answer modes from deterministic retrieval signals
-- extending the ask-response DTO with structured response-state fields
-- adding benchmark-style calibration artifacts without persisting new database records
+- infer the supported legal issue from plain-language facts
+- distinguish binding law from official guidance
+- separate primary and supporting sources
+- route ambiguous or urgent prompts into clarification or escalation-safe outcomes
 
-## Existing Persistent Entities Reused
+No new database tables are required for the current slice. Where new concepts are needed, they are derived from existing entities or carried in append-only response DTO fields.
 
-| Entity | Layer | Role in This Feature | Schema Change |
-|--------|-------|----------------------|---------------|
-| `LegalDocument` | Core | Supplies Act title, short name, act number, year, and category relationship | No |
-| `Category` | Core | Supplies document category/domain label | No |
-| `DocumentChunk` | Core | Supplies chunk text, section labels, keywords, and topic classification | No |
-| `ChunkEmbedding` | Core/EF | Supplies chunk vectors for semantic retrieval | No |
-| `Conversation` | Core | Persists grounded user Q&A history | No |
-| `Question` | Core | Persists original and translated user text | No |
-| `Answer` | Core | Persists grounded answer text | No |
-| `AnswerCitation` | Core | Persists citation traceability to selected chunks | No |
+## Persisted Domain Entities
 
-## New Application-Layer Models
+### Category
 
-### 1. `IndexedChunk` (internal retrieval cache model)
+**Backed by**: `backend.Core/Domains/LegalDocuments/Category.cs`
 
-Loaded at startup and stored in memory for the lifetime of the app instance.
+| Field | Type | Notes |
+|-------|------|-------|
+| `Id` | `Guid` | Aggregate identifier |
+| `Name` | `string` | User-facing category name |
+| `Icon` | `string` | Frontend display helper |
+| `Domain` | `DocumentDomain` | Legal or financial grouping |
+| `SortOrder` | `int` | Display order |
 
-| Property | Type | Source | Purpose |
-|----------|------|--------|---------|
-| `ChunkId` | `Guid` | `DocumentChunk.Id` | Traceability |
-| `DocumentId` | `Guid` | `DocumentChunk.DocumentId` | Document grouping |
-| `ActName` | `string` | `LegalDocument.Title` | Citation label |
-| `ActShortName` | `string` | `LegalDocument.ShortName` | Explicit source hint matching |
-| `ActNumber` | `string` | `LegalDocument.ActNumber` | Explicit source hint matching |
-| `Year` | `int` | `LegalDocument.Year` | Act-number and year matching |
-| `CategoryName` | `string` | `Category.Name` | Topic/category alignment |
-| `SectionNumber` | `string` | `DocumentChunk.SectionNumber` | Citation label |
-| `SectionTitle` | `string` | `DocumentChunk.SectionTitle` | Metadata relevance signal |
-| `Excerpt` | `string` | `DocumentChunk.Content` | Prompt context |
-| `Keywords` | `string[]` | Parsed from `DocumentChunk.Keywords` | Metadata and keyword alignment |
-| `TopicClassification` | `string` | `DocumentChunk.TopicClassification` | Topic alignment |
-| `TokenCount` | `int` | `DocumentChunk.TokenCount` | Context budgeting |
-| `Vector` | `float[]` | `ChunkEmbedding.Vector` | Semantic search |
+**Role in this feature**:
+- groups source families for retrieval weighting
+- provides a fallback signal when the user uses broad topic language
+- supports coverage-state grouping in benchmarks
 
-**Validation / rules**:
-- `Excerpt` remains non-null in memory, even if normalized to empty string for safety.
-- `Keywords` are parsed once and normalized at load time to avoid repeated string splitting on each request.
-- `IndexedChunk` is runtime-only and never persisted back to the database.
+### LegalDocument
 
----
+**Backed by**: `backend.Core/Domains/LegalDocuments/LegalDocument.cs`
 
-### 2. `DocumentProfile` (document-level reranking model)
+| Field | Type | Notes |
+|-------|------|-------|
+| `Id` | `Guid` | Aggregate identifier |
+| `Title` | `string` | Full document title |
+| `ShortName` | `string` | Citation-friendly alias |
+| `ActNumber` | `string` | Act or source identifier |
+| `Year` | `int` | Publication year |
+| `FullText` | `string` | Full source text |
+| `FileName` | `string` | Original file name |
+| `OriginalPdfId` | `Guid?` | Linked stored file |
+| `CategoryId` | `Guid` | Parent category |
+| `IsProcessed` | `bool` | ETL completion status |
+| `TotalChunks` | `int` | Number of persisted chunks |
 
-Built once from the loaded chunk set and stored in memory alongside `IndexedChunk`.
+**Role in this feature**:
+- acts as the document-level retrieval unit after chunk candidate pooling
+- anchors source-family grouping
+- provides the raw basis for derived authority labels such as law vs guidance
 
-| Property | Type | Purpose |
-|----------|------|---------|
-| `DocumentId` | `Guid` | Document identity |
-| `ActName` | `string` | Human-readable source label |
-| `ActShortName` | `string` | Alias / short-title matching |
-| `CategoryName` | `string` | Domain grouping |
-| `MetadataTerms` | `string[]` | Normalized one-word and alias terms used for specificity scoring |
-| `MetadataPhrases` | `string[]` | Normalized multi-word phrases used for phrase alignment |
-| `Vector` | `float[]` | Document centroid embedding used for document-level semantic scoring |
+**Derived runtime metadata for this feature**:
 
-**Validation / rules**:
-- One `DocumentProfile` exists per document in the in-memory index.
-- `MetadataTerms` and `MetadataPhrases` are derived from document labels, section titles, topic classifications, and keywords.
-- `Vector` is computed as the centroid of the document's chunk embeddings and is not persisted.
+| Derived field | Source | Purpose |
+|---------------|--------|---------|
+| `SourceFamily` | `Title`, `ShortName`, `Category` | Groups semantically related sources for stable ranking |
+| `AuthorityType` | Curated document rules | Distinguishes `bindingLaw` from `officialGuidance` |
+| `CoverageState` | Benchmark map | Marks `InCorpusNow`, `NeedsCorpusExpansion`, `GuidanceOnly`, or `Escalate` |
 
----
+### DocumentChunk
 
-### 3. `SourceHint`
+**Backed by**: `backend.Core/Domains/LegalDocuments/DocumentChunk.cs`
 
-Represents a signal extracted from the question that should influence document ranking.
+| Field | Type | Notes |
+|-------|------|-------|
+| `Id` | `Guid` | Chunk identifier |
+| `DocumentId` | `Guid` | Parent document |
+| `ChapterTitle` | `string` | Chapter heading |
+| `SectionNumber` | `string` | Section or locator |
+| `SectionTitle` | `string` | Section heading |
+| `Content` | `string` | Retrieval text |
+| `TokenCount` | `int` | Context-budget helper |
+| `SortOrder` | `int` | Reading order |
+| `ChunkStrategy` | `ChunkStrategy?` | ETL strategy |
+| `Keywords` | `string` | Enrichment keywords |
+| `TopicClassification` | `string` | Enrichment topic label |
 
-| Property | Type | Purpose |
-|----------|------|---------|
-| `HintText` | `string` | Raw matched phrase from the question |
-| `HintType` | `enum` | `ActTitle`, `ShortName`, `ActNumber`, `Category` |
-| `MatchedDocumentId` | `Guid?` | Direct document hint when available |
-| `MatchedCategoryName` | `string?` | Category-level hint when no document match exists |
-| `BoostWeight` | `double` | Additive ranking signal |
+**Role in this feature**:
+- remains the semantic retrieval unit
+- carries the keyword and topic signals used in document reranking
+- feeds citation locators and source excerpts back to the response contract
 
-**Rule**: `SourceHint` may boost a source but may not filter all non-matching sources out.
+### Conversation
 
----
+**Backed by**: `backend.Core/Domains/QA/Conversation.cs`
 
-### 4. `DocumentCandidate`
+| Field | Type | Notes |
+|-------|------|-------|
+| `Id` | `Guid` | Conversation identifier |
+| `UserId` | `long` | Owning user |
+| `Language` | `Language` | Preferred output language |
+| `InputMethod` | `InputMethod` | Text or voice |
+| `StartedAt` | `DateTime` | Session start |
+| `IsPublicFaq` | `bool` | FAQ publication flag |
+| `FaqCategoryId` | `Guid?` | FAQ grouping when public |
 
-Aggregated ranking view of a possible source document for the current question.
+**Role in this feature**:
+- provides multilingual continuity for ask responses
+- keeps clarification and direct answers inside the current chat experience
 
-| Property | Type | Purpose |
-|----------|------|---------|
-| `DocumentId` | `Guid` | Candidate document |
-| `ActName` | `string` | Display/citation label |
-| `ActShortName` | `string` | Alias label |
-| `CategoryName` | `string` | Topic grouping |
-| `TopMatches` | `List<SemanticChunkMatch>` | Best matching chunk candidates for the document |
-| `MaxChunkSemanticScore` | `float` | Strongest chunk similarity |
-| `MeanTopChunkScore` | `float` | Stability of the strongest chunk set |
-| `DocumentSemanticScore` | `float` | Similarity between question vector and document centroid |
-| `MetadataAlignmentScore` | `float` | Match strength between question terms and document metadata |
-| `SemanticBreadthScore` | `float` | Breadth of supporting chunks within the document |
-| `HintBoostScore` | `float` | Explicit source-hint contribution |
-| `FinalDocumentScore` | `float` | Combined ranking score |
+### Question
 
-**Validation / rules**:
-- A `DocumentCandidate` originates from semantic matches but can be promoted by metadata alignment and source hints.
-- `FinalDocumentScore` is derived from multiple signals and is never persisted.
-- Supporting documents are selected only when they add distinct legal coverage and stay close enough to the primary document's score.
+**Backed by**: `backend.Core/Domains/QA/Question.cs`
 
----
+| Field | Type | Notes |
+|-------|------|-------|
+| `Id` | `Guid` | Question identifier |
+| `ConversationId` | `Guid` | Parent conversation |
+| `OriginalText` | `string` | User-submitted wording |
+| `TranslatedText` | `string` | Search-language text |
+| `Language` | `Language` | Submitted language |
+| `InputMethod` | `InputMethod` | Text or voice |
+| `AudioFile` | `string` | Voice artifact when present |
 
-### 5. `RetrievedChunk`
+**Role in this feature**:
+- stores the original wording used to assess ambiguity and risk triggers
+- preserves translation context for retrieval and user-visible language return
 
-Final prompt-ready chunk selected from the ranked document candidates.
+### Answer
 
-| Property | Type | Purpose |
-|----------|------|---------|
-| `ChunkId` | `Guid` | Citation traceability |
-| `DocumentId` | `Guid` | Source document grouping |
-| `ActName` | `string` | Citation label |
-| `ActShortName` | `string` | Alias context |
-| `CategoryName` | `string` | Topic grouping |
-| `SectionNumber` | `string` | Citation label |
-| `SectionTitle` | `string` | Display and context aid |
-| `Excerpt` | `string` | Prompt context excerpt |
-| `TopicClassification` | `string` | Topic context |
-| `Keywords` | `string[]` | Prompt/debug context and ranking input |
-| `SemanticScore` | `float` | Raw semantic similarity |
-| `RelevanceScore` | `float` | Blended prompt/citation relevance score |
-| `TokenCount` | `int` | Context budgeting |
+**Backed by**: `backend.Core/Domains/QA/Answer.cs`
 
-**Validation / rules**:
-- `RetrievedChunk` is a reduced, prompt-ready projection of `SemanticChunkMatch`.
-- Chunks are capped per document to prevent one long Act from crowding out supporting sources.
+| Field | Type | Notes |
+|-------|------|-------|
+| `Id` | `Guid` | Answer identifier |
+| `QuestionId` | `Guid` | Parent question |
+| `Text` | `string` | Returned answer text |
+| `Language` | `Language` | Output language |
+| `AudioFile` | `string` | Voice artifact when present |
+| `IsAccurate` | `bool?` | Admin review flag |
+| `AdminNotes` | `string` | Review notes |
 
----
+**Role in this feature**:
+- persists grounded `Direct` and `Cautious` answers only
+- does not persist clarification or insufficient outcomes in the current design
 
-### 6. `RetrievalDecision`
+### AnswerCitation
 
-Service-layer output of the retrieval planner and confidence evaluator.
+**Backed by**: `backend.Core/Domains/QA/AnswerCitation.cs`
 
-| Property | Type | Purpose |
-|----------|------|---------|
-| `SelectedChunks` | `List<RetrievedChunk>` | Final context chunks passed to the prompt |
-| `PrimaryDocumentId` | `Guid?` | Dominant governing source |
-| `SupportingDocumentIds` | `List<Guid>` | Additional sources used in the answer |
-| `RankedDocuments` | `List<DocumentCandidate>` | Ordered candidate set used for confidence evaluation |
-| `ConfidenceBand` | `RagConfidenceBand` | `High`, `Medium`, `Low` |
-| `AnswerMode` | `RagAnswerMode` | `Direct`, `Cautious`, `Clarification`, `Insufficient` |
-| `ClarificationQuestion` | `string?` | Follow-up question when needed |
-| `IsAmbiguousQuestion` | `bool` | Explicit ambiguity flag used by the confidence evaluator |
-| `IsGroundedAnswer` | `bool` | True only for direct/cautious grounded answers |
+| Field | Type | Notes |
+|-------|------|-------|
+| `Id` | `Guid` | Citation identifier |
+| `AnswerId` | `Guid` | Parent answer |
+| `ChunkId` | `Guid` | Referenced chunk |
+| `SectionNumber` | `string` | Stored locator |
+| `Excerpt` | `string` | Supporting text |
+| `RelevanceScore` | `decimal` | Retrieval relevance |
 
-**State transitions**:
+**Role in this feature**:
+- keeps persisted traceability between grounded answers and supporting source chunks
+- remains the source for user-visible citations and later review
 
-```text
-Strong aligned support       -> Direct
-Grounded but diffuse support -> Cautious
-Likely domain, missing facts -> Clarification
-No responsible grounding     -> Insufficient
-```
+### IngestionJob
 
-## Runtime Store
+**Backed by**: `backend.Core/Domains/ETL/IngestionJob.cs`
 
-### `RagIndexStore`
+| Field group | Notes |
+|-------------|-------|
+| Extract stage | Extraction timing and character counts |
+| Transform stage | Chunking timing and produced chunk counts |
+| Load stage | Persistence timing and loaded chunk counts |
+| Error and orchestration | Status, strategy, user trigger, completion, error message |
 
-Singleton application service that owns the in-memory retrieval state.
+**Role in this feature**:
+- not changed by the retrieval-hardening slice
+- remains the required tracking model if the team later expands the corpus bundles identified in legislation research
 
-| Stored Collection | Type | Purpose |
-|-------------------|------|---------|
-| `LoadedChunks` | `IReadOnlyList<IndexedChunk>` | Semantic retrieval input |
-| `DocumentProfiles` | `IReadOnlyList<DocumentProfile>` | Document reranking input |
+## Computed Runtime Models
 
-**Rules**:
-- `Replace()` updates both collections atomically after startup initialization.
-- `IsReady` is true only when both chunks and document profiles are loaded.
-- No request-time database reads are required once the store is ready.
+### SupportedLegalIssue
 
-## New DTO / Enum Changes
+**Kind**: Computed retrieval model
 
-### `RagAnswerMode`
-
-Application-layer enum serialized as a lower-case string in API responses.
-
-| Value | Meaning |
+| Field | Purpose |
 |-------|---------|
-| `Direct` | High-confidence grounded answer |
-| `Cautious` | Grounded answer with explicit limitations |
-| `Clarification` | Follow-up question required before a reliable answer |
-| `Insufficient` | Corpus cannot responsibly answer the question |
+| `IssueLabel` | Human-readable legal issue inferred from user wording |
+| `SourceFamily` | Stable grouping for ranking equivalent sources |
+| `Confidence` | Strength of issue inference before answer-mode decision |
+| `CoverageState` | Whether the issue is supported by the current corpus |
 
-### `RagConfidenceBand`
+### SourcePresentation
 
-| Value | Meaning |
+**Kind**: Computed citation and UI model
+
+| Field | Purpose |
 |-------|---------|
-| `High` | Strongly aligned retrieval evidence |
-| `Medium` | Grounded but not decisive enough for a fully direct posture |
-| `Low` | Ambiguous, weak, or insufficient support |
+| `SourceTitle` | Generic display title for any cited source |
+| `SourceLocator` | Section, rule, form number, or other locator |
+| `AuthorityType` | `bindingLaw` or `officialGuidance` |
+| `SourceRole` | `primary` or `supporting` |
+| `Excerpt` | Supporting text shown to the user |
 
-### `RagAnswerResult` (modified)
+**Notes**:
+- planned as an additive evolution of the current citation DTO
+- allows the frontend to explain when the system is citing law vs guidance
 
-Existing DTO extended with new fields:
+### ClarificationAssessment
 
-| Property | Type | Notes |
-|----------|------|-------|
-| `AnswerText` | `string?` | Existing |
-| `IsInsufficientInformation` | `bool` | Existing; now means "not enough grounded support to provide a definitive answer" |
-| `Citations` | `List<RagCitationDto>` | Existing |
-| `ChunkIds` | `List<Guid>` | Existing |
-| `AnswerId` | `Guid?` | Existing; remains null when no grounded answer is persisted |
-| `DetectedLanguageCode` | `string` | Existing |
-| `AnswerMode` | `RagAnswerMode` | New |
-| `ConfidenceBand` | `RagConfidenceBand` | New |
-| `ClarificationQuestion` | `string?` | New |
+**Kind**: Computed answer-planning model
 
-**Rules**:
-- `ClarificationQuestion` is only populated when `AnswerMode == Clarification`.
-- `Citations` are required for material claims in `Direct` and `Cautious` responses.
-- `AnswerId` remains null for `Clarification` and `Insufficient` modes in this milestone.
+| Field | Purpose |
+|-------|---------|
+| `HasMaterialFactGap` | Whether missing facts block a safe answer |
+| `GapReason` | Short description of the ambiguity |
+| `ClarificationQuestion` | Single focused follow-up question |
+| `RiskTrigger` | Urgency or high-stakes signal attached to the prompt |
 
-## Quality Calibration Artifacts
+### RagAnswerOutcome
 
-### `RetrievalBenchmarkCase` (test/spec artifact, not persisted)
+**Kind**: Computed API result model
 
-Used in spec docs and regression tests to calibrate retrieval and safety behavior.
+| Field | Purpose |
+|-------|---------|
+| `AnswerMode` | `direct`, `cautious`, `clarification`, or `insufficient` |
+| `ConfidenceBand` | `high`, `medium`, or `low` |
+| `AnswerText` | User-visible answer or limitation text |
+| `ClarificationQuestion` | Follow-up prompt when needed |
+| `Citations` | SourcePresentation collection |
+| `PersistedAnswerId` | Present only for grounded persisted answers |
 
-| Property | Type | Purpose |
-|----------|------|---------|
-| `QuestionText` | `string` | Prompt variant to test |
-| `ExpectedPrimarySource` | `string` | Governing Act or source family expected to rank first |
-| `ExpectedSupportingSources` | `string[]` | Optional supplementary sources |
-| `ExpectedAnswerMode` | `RagAnswerMode` | Safety posture expected for the prompt |
-| `RiskTag` | `string` | Example: `plain-language`, `wrong-hint`, `multi-source`, `ambiguous`, `unsupported` |
+## Validation Rules
 
-**Rule**: `RetrievalBenchmarkCase` is kept in docs/tests only and introduces no schema change.
+### Ask request
 
-## Entity Relationships
+- `QuestionText` is required and must not be blank.
+- Extremely short prompts are allowed but should bias toward clarification or escalation rather than a confident direct answer.
 
-### Persistent relationships (unchanged)
+### Source labeling
 
-```text
-Category (1) -------- (*) LegalDocument (1) -------- (*) DocumentChunk (1) -------- (0..1) ChunkEmbedding
+- A source labeled `officialGuidance` must not be presented as the controlling legal source when a binding legal source is present.
+- A response may include both `bindingLaw` and `officialGuidance`, but one or more `bindingLaw` citations must anchor grounded legal claims.
+- Guidance-only responses are allowed only when the system clearly limits what the guidance means and does not overstate legal certainty.
 
-Conversation (1) -------- (*) Question (1) -------- (0..1) Answer (1) -------- (*) AnswerCitation
-                                                                              |
-                                                                              `---- DocumentChunk
-```
+### Persistence
 
-### Runtime relationships (new in-memory models)
+- `Direct` and `Cautious` grounded answers may persist `Answer` and `AnswerCitation` records.
+- `Clarification` and `Insufficient` outcomes should not create persisted answer records in the current slice.
 
-```text
-Startup load
-  -> IndexedChunk[*]
-  -> DocumentProfile[*]
-  -> RagIndexStore
+## State Transitions
 
-Question text
-  -> SourceHint[*]
-  -> IndexedChunk[*] semantic matches
-  -> DocumentCandidate[*]
-  -> RetrievedChunk[*]
-  -> RetrievalDecision
-  -> RagAnswerResult
-```
-
-## Persistence Strategy
-
-### Grounded answers
-
-Persist exactly as today through the existing chain:
+### Answer Mode Transition
 
 ```text
-Conversation -> Question -> Answer -> AnswerCitation[*]
+Question submitted
+-> retrieval and issue inference
+-> coverage and authority assessment
+-> confidence and risk evaluation
+-> one of:
+   - Direct         (strong support, safe to answer)
+   - Cautious       (grounded but qualified)
+   - Clarification  (material fact gap)
+   - Insufficient   (weak support, unsupported area, or escalation-safe limitation)
 ```
 
-### Clarification / insufficient responses
+### Coverage State Transition
 
-No new persistence in this milestone. This preserves current `AnswerId` expectations, avoids schema churn, and matches the safety decision that non-grounded responses are not saved as legal answers.
+```text
+Scenario identified
+-> source family mapped
+-> one of:
+   - InCorpusNow
+   - GuidanceOnly
+   - NeedsCorpusExpansion
+   - Escalate
+```
 
-## No Migration Required
-
-All required source metadata already exists:
-
-- `DocumentChunk.Keywords`
-- `DocumentChunk.TopicClassification`
-- `LegalDocument.ShortName`
-- `LegalDocument.ActNumber`
-- `LegalDocument.Year`
-- `Category.Name`
-- `Question.OriginalText`
-- `Question.TranslatedText`
-- `Conversation.Language`
-- `Answer.Language`
-
-No database migration is planned for this feature.
+This second state is mainly a planning and verification tool. It keeps the benchmark matrix honest about what the current seed corpus can actually support.
