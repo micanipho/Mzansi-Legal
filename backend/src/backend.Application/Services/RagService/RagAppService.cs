@@ -4,6 +4,7 @@ using Ardalis.GuardClauses;
 using backend.Domains.LegalDocuments;
 using backend.Domains.QA;
 using backend.Services.EmbeddingService;
+using backend.Services.LanguageService;
 using backend.Services.RagService.DTO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -28,6 +29,10 @@ namespace backend.Services.RagService;
 public class RagAppService : ApplicationService, IRagAppService
 {
     private readonly IEmbeddingAppService _embeddingService;
+
+    /// <summary>Detects question language and translates non-English questions for knowledge-base search.</summary>
+    private readonly ILanguageAppService _languageService;
+
     private readonly IRepository<DocumentChunk, Guid> _chunkRepository;
     private readonly IRepository<Conversation, Guid> _conversationRepository;
     private readonly IRepository<Question, Guid> _questionRepository;
@@ -47,6 +52,7 @@ public class RagAppService : ApplicationService, IRagAppService
     /// <exception cref="InvalidOperationException">Thrown when any required OpenAI config key is missing.</exception>
     public RagAppService(
         IEmbeddingAppService embeddingService,
+        ILanguageAppService languageService,
         IRepository<DocumentChunk, Guid> chunkRepository,
         IRepository<Conversation, Guid> conversationRepository,
         IRepository<Question, Guid> questionRepository,
@@ -58,6 +64,7 @@ public class RagAppService : ApplicationService, IRagAppService
         Guard.Against.Null(configuration, nameof(configuration));
 
         _embeddingService = embeddingService;
+        _languageService = languageService;
         _chunkRepository = chunkRepository;
         _conversationRepository = conversationRepository;
         _questionRepository = questionRepository;
@@ -89,6 +96,11 @@ public class RagAppService : ApplicationService, IRagAppService
     /// </summary>
     public async Task InitialiseAsync(CancellationToken cancellationToken = default)
     {
+        // A unit of work is required for ABP repositories to obtain a DbContext.
+        // InitialiseAsync is called from a background service outside the normal ABP
+        // request pipeline, so no UoW is active — we begin one explicitly here.
+        using var uow = UnitOfWorkManager.Begin();
+
         // Load all chunks that have an embedding, including the parent document for the Act name.
         var chunks = await _chunkRepository
             .GetAll()
@@ -106,6 +118,8 @@ public class RagAppService : ApplicationService, IRagAppService
                 Score: 0f,    // score is assigned per-query, not at load time
                 Vector: c.Embedding.Vector))
             .ToList();
+
+        await uow.CompleteAsync();
     }
 
     /// <summary>
@@ -150,8 +164,12 @@ public class RagAppService : ApplicationService, IRagAppService
         Guard.Against.Null(request, nameof(request));
         Guard.Against.NullOrWhiteSpace(request.QuestionText, nameof(request.QuestionText));
 
-        // Embed the question.
-        var embeddingResult = await _embeddingService.GenerateEmbeddingAsync(request.QuestionText);
+        // Multilingual: detect input language and translate to English for knowledge-base search.
+        var detectedLanguage = await _languageService.DetectLanguageAsync(request.QuestionText);
+        var translatedText = await _languageService.TranslateToEnglishAsync(request.QuestionText, detectedLanguage);
+        var detectedLanguageCode = RagPromptBuilder.ToIsoCode(detectedLanguage);
+        // Embed the translated question for semantic search against the legislation corpus.
+        var embeddingResult = await _embeddingService.GenerateEmbeddingAsync(translatedText);
         var questionVector = embeddingResult.Vector;
 
         // Score all loaded chunks and filter to those above the similarity threshold.
@@ -173,7 +191,7 @@ public class RagAppService : ApplicationService, IRagAppService
         if (topChunks.Count == 0)
         {
             var fallbackAnswer = await CallChatCompletionsAsync(
-                RagPromptBuilder.BuildFallbackSystemPrompt(),
+                RagPromptBuilder.BuildFallbackSystemPrompt(detectedLanguage),
                 request.QuestionText);
 
             return new RagAnswerResult
@@ -182,12 +200,13 @@ public class RagAppService : ApplicationService, IRagAppService
                 IsInsufficientInformation = true,
                 Citations = new List<RagCitationDto>(),
                 ChunkIds = new List<Guid>(),
-                AnswerId = null
+                AnswerId = null,
+                DetectedLanguageCode = detectedLanguageCode
             };
         }
 
         // Build prompt and call GPT-4o with legislation context.
-        var systemPrompt = RagPromptBuilder.BuildSystemPrompt();
+        var systemPrompt = RagPromptBuilder.BuildSystemPrompt(detectedLanguage);
         var contextBlock = RagPromptBuilder.BuildContextBlock(topChunks);
         var userPrompt = RagPromptBuilder.BuildUserPrompt(request.QuestionText, contextBlock);
         answerText = await CallChatCompletionsAsync(systemPrompt, userPrompt);
@@ -196,7 +215,13 @@ public class RagAppService : ApplicationService, IRagAppService
         Guid? answerId = null;
         if (AbpSession.UserId.HasValue)
         {
-            answerId = await PersistQaAsync(AbpSession.UserId.Value, request.QuestionText, answerText, topChunks);
+            answerId = await PersistQaAsync(
+                AbpSession.UserId.Value,
+                request.QuestionText,
+                translatedText,
+                detectedLanguage,
+                answerText,
+                topChunks);
         }
 
         // Build and return the result.
@@ -215,7 +240,8 @@ public class RagAppService : ApplicationService, IRagAppService
             IsInsufficientInformation = false,
             Citations = citations,
             ChunkIds = topChunks.Select(c => c.ChunkId).ToList(),
-            AnswerId = answerId
+            AnswerId = answerId,
+            DetectedLanguageCode = detectedLanguageCode
         };
     }
 
@@ -248,13 +274,16 @@ public class RagAppService : ApplicationService, IRagAppService
     }
 
     /// <summary>
-    /// Persists the full Q&amp;A chain: Conversation → Question → Answer → AnswerCitations.
-    /// Creates a new Conversation per call for MVP simplicity.
+    /// Persists the Q&amp;A chain (Conversation → Question → Answer → AnswerCitations) for the current user.
+    /// Stores both the original question text and its English translation; records the detected language
+    /// on the Conversation, Question, and Answer entities.
     /// </summary>
     /// <returns>The ID of the persisted <see cref="Answer"/> entity.</returns>
     private async Task<Guid> PersistQaAsync(
         long userId,
-        string questionText,
+        string originalText,
+        string translatedText,
+        Language language,
         string answerText,
         IEnumerable<RagPromptBuilder.ScoredChunk> usedChunks)
     {
@@ -262,30 +291,30 @@ public class RagAppService : ApplicationService, IRagAppService
         var conversation = new Conversation
         {
             UserId = userId,
-            Language = Language.English,
+            Language = language,
             InputMethod = InputMethod.Text,
             StartedAt = DateTime.UtcNow,
             IsPublicFaq = false
         };
         var conversationId = await _conversationRepository.InsertAndGetIdAsync(conversation);
 
-        // Create Question.
+        // Create Question — store both the original text and the English translation.
         var question = new Question
         {
             ConversationId = conversationId,
-            OriginalText = questionText,
-            TranslatedText = questionText,
-            Language = Language.English,
+            OriginalText = originalText,
+            TranslatedText = translatedText,
+            Language = language,
             InputMethod = InputMethod.Text
         };
         var questionId = await _questionRepository.InsertAndGetIdAsync(question);
 
-        // Create Answer.
+        // Create Answer — response language matches the detected input language.
         var answer = new Answer
         {
             QuestionId = questionId,
             Text = answerText,
-            Language = Language.English
+            Language = language
         };
         var answerId = await _answerRepository.InsertAndGetIdAsync(answer);
 

@@ -1,4 +1,5 @@
 using Ardalis.GuardClauses;
+using backend.Domains.QA;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -41,11 +42,13 @@ public static class RagPromptBuilder
 
     /// <summary>
     /// Returns the system message establishing the assistant's identity and citation rules.
-    /// The system message is constant and does not vary per question or corpus.
+    /// When <paramref name="language"/> is not English, appends a directive instructing the LLM
+    /// to respond in the user's language while keeping Act names and section numbers in English.
     /// </summary>
-    public static string BuildSystemPrompt()
+    /// <param name="language">The detected language of the user's question. Defaults to English.</param>
+    public static string BuildSystemPrompt(Language language = Language.English)
     {
-        return
+        var prompt =
             "You are a South African legal and financial assistant. " +
             "Your role is to help South African residents understand their legal rights and obligations.\n\n" +
             "CRITICAL RULES — follow these without exception:\n" +
@@ -57,20 +60,59 @@ public static class RagPromptBuilder
             "\"I don't have enough information in the available legislation to answer this question.\"\n" +
             "4. Do NOT speculate, infer, or draw on general knowledge outside the provided context.\n" +
             "5. Write in plain, accessible English. Avoid legal jargon where a simpler word exists.";
+
+        var directive = GetLanguageDirective(language);
+        if (!string.IsNullOrEmpty(directive))
+            prompt += $"\n\n6. {directive}";
+
+        return prompt;
     }
 
     /// <summary>
     /// Returns a system prompt for the general-knowledge fallback path (no legislation context found).
-    /// The LLM may draw on its training knowledge but must not present the answer as legally authoritative.
+    /// When <paramref name="language"/> is not English, appends a directive instructing the LLM
+    /// to respond in the user's language while keeping Act names and section numbers in English.
     /// </summary>
-    public static string BuildFallbackSystemPrompt()
+    /// <param name="language">The detected language of the user's question. Defaults to English.</param>
+    public static string BuildFallbackSystemPrompt(Language language = Language.English)
     {
-        return
+        var prompt =
             "You are a South African legal and financial assistant. " +
             "Your role is to help South African residents understand their legal rights and obligations.\n\n" +
             "Answer the user's question using your general knowledge of South African law. " +
             "Write in plain, accessible English. Avoid legal jargon where a simpler word exists.";
+
+        var directive = GetLanguageDirective(language);
+        if (!string.IsNullOrEmpty(directive))
+            prompt += $"\n\n{directive}";
+
+        return prompt;
     }
+
+    /// <summary>
+    /// Maps a <see cref="Language"/> enum value to its ISO 639-1 code string (e.g. Zulu → "zu").
+    /// Returns "en" for English and any unrecognised value.
+    /// </summary>
+    public static string ToIsoCode(Language language) => language switch
+    {
+        Language.Zulu      => "zu",
+        Language.Sesotho   => "st",
+        Language.Afrikaans => "af",
+        _                  => "en"
+    };
+
+    /// <summary>
+    /// Returns the language-response directive for non-English languages, or an empty string for English.
+    /// The directive instructs the LLM to answer in the user's language while keeping all
+    /// Act names, section numbers, and legal citations in English.
+    /// </summary>
+    private static string GetLanguageDirective(Language language) => language switch
+    {
+        Language.Zulu      => "Respond in isiZulu. Keep all Act names, section numbers, and legal citations in English.",
+        Language.Sesotho   => "Respond in Sesotho. Keep all Act names, section numbers, and legal citations in English.",
+        Language.Afrikaans => "Respond in Afrikaans. Keep all Act names, section numbers, and legal citations in English.",
+        _                  => string.Empty
+    };
 
     /// <summary>
     /// Builds a numbered context block containing each chunk's Act name, section number, and content.

@@ -1,3 +1,4 @@
+using Abp.Application.Services;
 using backend.Services.EmbeddingService.DTO;
 using System.Threading.Tasks;
 
@@ -8,7 +9,7 @@ namespace backend.Services.EmbeddingService;
 /// Intended for use by the ingestion pipeline to populate ChunkEmbedding.Vector
 /// during the Loading stage.
 /// </summary>
-public interface IEmbeddingAppService
+public interface IEmbeddingAppService : IApplicationService
 {
     /// <summary>
     /// Generates a 1,536-dimensional embedding vector for the provided text.

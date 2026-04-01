@@ -1,4 +1,4 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:21021";
+const API_BASE = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:21021";
 const ABP_TENANT_HEADER = { "Abp-TenantId": "1" };
 
 export interface CitationDto {
