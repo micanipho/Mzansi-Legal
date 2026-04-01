@@ -7,7 +7,7 @@ namespace backend.Services.RagService.DTO;
 /// <summary>
 /// Output DTO returned by <see cref="IRagAppService.AskAsync"/>.
 /// Contains the generated answer, structured citations, and traceability identifiers.
-/// When <see cref="IsInsufficientInformation"/> is <c>true</c>, all other fields are null or empty.
+/// When no grounded answer is returned, citations and chunk IDs are empty and the answer ID is null.
 /// </summary>
 public class RagAnswerResult
 {
@@ -68,4 +68,11 @@ public class RagAnswerResult
     /// </summary>
     [JsonProperty("clarificationQuestion")]
     public string ClarificationQuestion { get; set; }
+
+    /// <summary>
+    /// <c>true</c> when the system detected urgent risk or deadline indicators and wants the client
+    /// to surface immediate-help language even if some legal grounding is available.
+    /// </summary>
+    [JsonProperty("requiresUrgentAttention")]
+    public bool RequiresUrgentAttention { get; set; }
 }

@@ -198,7 +198,8 @@ public class RagAppService : ApplicationService, IRagAppService
                 detectedLanguageCode,
                 RagAnswerMode.Insufficient,
                 retrievalDecision.ConfidenceBand,
-                null);
+                null,
+                retrievalDecision.RequiresUrgentAttention);
         }
 
         if (retrievalDecision.AnswerMode == RagAnswerMode.Clarification)
@@ -213,7 +214,8 @@ public class RagAppService : ApplicationService, IRagAppService
                 detectedLanguageCode,
                 RagAnswerMode.Clarification,
                 retrievalDecision.ConfidenceBand,
-                clarificationQuestion);
+                clarificationQuestion,
+                retrievalDecision.RequiresUrgentAttention);
         }
 
         var answerText = await BuildGroundedAnswerAsync(
@@ -242,7 +244,8 @@ public class RagAppService : ApplicationService, IRagAppService
             AnswerId = answerId,
             DetectedLanguageCode = detectedLanguageCode,
             AnswerMode = retrievalDecision.AnswerMode,
-            ConfidenceBand = retrievalDecision.ConfidenceBand
+            ConfidenceBand = retrievalDecision.ConfidenceBand,
+            RequiresUrgentAttention = retrievalDecision.RequiresUrgentAttention
         };
     }
 
@@ -264,11 +267,12 @@ public class RagAppService : ApplicationService, IRagAppService
         string detectedLanguageCode,
         RagAnswerMode answerMode,
         RagConfidenceBand confidenceBand,
-        string clarificationQuestion)
+        string clarificationQuestion,
+        bool requiresUrgentAttention = false)
     {
         var answerText = answerMode == RagAnswerMode.Clarification
-            ? RagPromptBuilder.BuildClarificationLead(language)
-            : RagPromptBuilder.BuildInsufficientResponse(language);
+            ? RagPromptBuilder.BuildClarificationLead(language, requiresUrgentAttention)
+            : RagPromptBuilder.BuildInsufficientResponse(language, requiresUrgentAttention);
 
         return new RagAnswerResult
         {
@@ -280,7 +284,8 @@ public class RagAppService : ApplicationService, IRagAppService
             DetectedLanguageCode = detectedLanguageCode,
             AnswerMode = answerMode,
             ConfidenceBand = confidenceBand,
-            ClarificationQuestion = answerMode == RagAnswerMode.Clarification ? clarificationQuestion : null
+            ClarificationQuestion = answerMode == RagAnswerMode.Clarification ? clarificationQuestion : null,
+            RequiresUrgentAttention = requiresUrgentAttention
         };
     }
 
@@ -289,12 +294,16 @@ public class RagAppService : ApplicationService, IRagAppService
         Language detectedLanguage,
         RetrievalDecision retrievalDecision)
     {
-        var systemPrompt = RagPromptBuilder.BuildSystemPrompt(retrievalDecision.AnswerMode, detectedLanguage);
+        var systemPrompt = RagPromptBuilder.BuildSystemPrompt(
+            retrievalDecision.AnswerMode,
+            detectedLanguage,
+            retrievalDecision.RequiresUrgentAttention);
         var contextBlock = RagPromptBuilder.BuildContextBlock(retrievalDecision.SelectedChunks);
         var userPrompt = RagPromptBuilder.BuildUserPrompt(
             originalQuestionText,
             contextBlock,
-            retrievalDecision.AnswerMode);
+            retrievalDecision.AnswerMode,
+            requiresUrgentAttention: retrievalDecision.RequiresUrgentAttention);
 
         return await CallChatCompletionsAsync(
             systemPrompt,
@@ -314,13 +323,17 @@ public class RagAppService : ApplicationService, IRagAppService
 
         try
         {
-            var systemPrompt = RagPromptBuilder.BuildSystemPrompt(RagAnswerMode.Clarification, detectedLanguage);
+            var systemPrompt = RagPromptBuilder.BuildSystemPrompt(
+                RagAnswerMode.Clarification,
+                detectedLanguage,
+                retrievalDecision.RequiresUrgentAttention);
             var contextBlock = RagPromptBuilder.BuildContextBlock(retrievalDecision.SelectedChunks);
             var userPrompt = RagPromptBuilder.BuildUserPrompt(
                 originalQuestionText,
                 contextBlock,
                 RagAnswerMode.Clarification,
-                retrievalDecision.ClarificationQuestion);
+                retrievalDecision.ClarificationQuestion,
+                retrievalDecision.RequiresUrgentAttention);
 
             var response = await CallChatCompletionsAsync(
                 systemPrompt,
@@ -439,6 +452,10 @@ public class RagAppService : ApplicationService, IRagAppService
                 ChunkId = chunk.ChunkId,
                 ActName = chunk.ActName,
                 SectionNumber = chunk.SectionNumber,
+                SourceTitle = chunk.SourceTitle,
+                SourceLocator = chunk.SourceLocator,
+                AuthorityType = chunk.AuthorityType,
+                SourceRole = chunk.SourceRole,
                 Excerpt = chunk.Excerpt.Length > 500 ? chunk.Excerpt[..500] : chunk.Excerpt,
                 RelevanceScore = chunk.RelevanceScore
             })

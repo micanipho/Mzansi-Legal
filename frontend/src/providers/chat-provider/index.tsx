@@ -40,6 +40,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         answerMode: result.answerMode,
         confidenceBand: result.confidenceBand,
         clarificationQuestion: result.clarificationQuestion,
+        requiresUrgentAttention: result.requiresUrgentAttention,
       };
 
       dispatch({ type: ChatStateEnums.CHAT_SEND_SUCCESS, botMsg });

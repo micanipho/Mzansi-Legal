@@ -22,10 +22,17 @@ public sealed class RagDocumentProfileBuilder
         var sample = group.First();
         var metadataPhrases = new HashSet<string>(StringComparer.Ordinal);
         var metadataTerms = new HashSet<string>(StringComparer.Ordinal);
+        var authorityType = RagSourceMetadata.DeriveAuthorityType(
+            sample.ActName,
+            sample.ActShortName,
+            sample.ActNumber);
+        var sourceFamily = RagSourceMetadata.BuildSourceFamily(sample.ActName, sample.ActShortName);
 
         AddMetadata(sample.ActName, metadataPhrases, metadataTerms);
         AddMetadata(sample.ActShortName, metadataPhrases, metadataTerms);
+        AddMetadata(sample.ActNumber, metadataPhrases, metadataTerms);
         AddMetadata(sample.CategoryName, metadataPhrases, metadataTerms);
+        AddMetadata(sourceFamily, metadataPhrases, metadataTerms);
 
         foreach (var chunk in group)
         {
@@ -46,7 +53,9 @@ public sealed class RagDocumentProfileBuilder
             sample.CategoryName,
             metadataTerms.ToArray(),
             metadataPhrases.ToArray(),
-            BuildCentroidVector(group.Select(chunk => chunk.Vector).ToList()));
+            BuildCentroidVector(group.Select(chunk => chunk.Vector).ToList()),
+            authorityType,
+            sourceFamily);
     }
 
     private static void AddMetadata(
@@ -108,4 +117,6 @@ public sealed record DocumentProfile(
     string CategoryName,
     IReadOnlyCollection<string> MetadataTerms,
     IReadOnlyCollection<string> MetadataPhrases,
-    float[] Vector);
+    float[] Vector,
+    string AuthorityType = RagSourceMetadata.BindingLaw,
+    string SourceFamily = "");

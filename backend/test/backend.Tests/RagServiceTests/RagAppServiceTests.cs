@@ -41,6 +41,22 @@ public class RagAppServiceTests
     }
 
     [Fact]
+    public void BuildNonGroundedResult_UrgentInsufficientMode_FlagsUrgentAttention()
+    {
+        var result = RagAppService.BuildNonGroundedResult(
+            Language.English,
+            "en",
+            RagAnswerMode.Insufficient,
+            RagConfidenceBand.Low,
+            null,
+            requiresUrgentAttention: true);
+
+        result.AnswerMode.ShouldBe(RagAnswerMode.Insufficient);
+        result.RequiresUrgentAttention.ShouldBeTrue();
+        result.AnswerText.ShouldContain("seek official or legal help right away");
+    }
+
+    [Fact]
     public void BuildNonGroundedResult_InsufficientMode_RemovesGeneralKnowledgeFallbackBehavior()
     {
         var result = RagAppService.BuildNonGroundedResult(
@@ -79,7 +95,11 @@ public class RagAppServiceTests
                 Array.Empty<string>(),
                 0.92f,
                 0.92f,
-                30),
+                30,
+                "Constitution of the Republic of South Africa",
+                "Section 26(3)",
+                RagSourceMetadata.BindingLaw,
+                RagSourceMetadata.Primary),
             new RetrievedChunk(
                 Guid.NewGuid(),
                 Guid.NewGuid(),
@@ -93,11 +113,21 @@ public class RagAppServiceTests
                 Array.Empty<string>(),
                 0.81f,
                 0.81f,
-                28)
+                28,
+                "Rental Housing Act 50 of 1999",
+                "Section 4",
+                RagSourceMetadata.BindingLaw,
+                RagSourceMetadata.Supporting)
         });
 
         citations.Count.ShouldBe(2);
         citations.Select(citation => citation.ActName).ShouldContain("Constitution of the Republic of South Africa");
         citations.Select(citation => citation.ActName).ShouldContain("Rental Housing Act 50 of 1999");
+        citations.ShouldContain(citation =>
+            citation.AuthorityType == RagSourceMetadata.BindingLaw &&
+            citation.SourceRole == RagSourceMetadata.Primary);
+        citations.ShouldContain(citation =>
+            citation.AuthorityType == RagSourceMetadata.BindingLaw &&
+            citation.SourceRole == RagSourceMetadata.Supporting);
     }
 }

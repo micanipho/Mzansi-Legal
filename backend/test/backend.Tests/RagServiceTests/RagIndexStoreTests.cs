@@ -34,12 +34,15 @@ public class RagIndexStoreTests
             "Employment & Labour",
             new[] { "ccma", "labour" },
             new[] { "ccma" },
-            new float[] { 1f, 0f });
+            new float[] { 1f, 0f },
+            RagSourceMetadata.BindingLaw,
+            "lra");
 
         store.Replace(new[] { chunk }, new[] { profile });
 
         store.IsReady.ShouldBeTrue();
         store.LoadedChunks.ShouldHaveSingleItem().ActName.ShouldBe("Labour Relations Act");
         store.DocumentProfiles.ShouldHaveSingleItem().MetadataTerms.ShouldContain("ccma");
+        store.DocumentProfiles.ShouldHaveSingleItem().AuthorityType.ShouldBe(RagSourceMetadata.BindingLaw);
     }
 }

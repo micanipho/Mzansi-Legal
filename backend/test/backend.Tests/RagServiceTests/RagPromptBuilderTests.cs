@@ -28,6 +28,18 @@ public class RagPromptBuilderTests
     }
 
     [Fact]
+    public void BuildSystemPrompt_ForUrgentCautiousMode_ExplainsUrgentHelpAndGuidanceRules()
+    {
+        var result = RagPromptBuilder.BuildSystemPrompt(
+            RagAnswerMode.Cautious,
+            Language.English,
+            requiresUrgentAttention: true);
+
+        result.ShouldContain("binding law as controlling");
+        result.ShouldContain("immediate-help note");
+    }
+
+    [Fact]
     public void BuildContextBlock_SingleChunk_IncludesActNameSectionAndSectionTitle()
     {
         var chunk = new RetrievedChunk(
@@ -43,13 +55,19 @@ public class RagPromptBuilderTests
             Array.Empty<string>(),
             0.91f,
             0.91f,
-            42);
+            42,
+            "Constitution of the Republic of South Africa",
+            "Section 26(3)",
+            RagSourceMetadata.BindingLaw,
+            RagSourceMetadata.Primary);
 
         var result = RagPromptBuilder.BuildContextBlock(new[] { chunk });
 
         result.ShouldContain("Constitution of the Republic of South Africa");
         result.ShouldContain("Section 26(3)");
         result.ShouldContain("Section title: Housing");
+        result.ShouldContain("Authority: binding law");
+        result.ShouldContain("Source role: primary");
         result.ShouldContain("No one may be evicted");
     }
 
@@ -64,6 +82,17 @@ public class RagPromptBuilderTests
 
         result.ShouldContain("Return only the follow-up question.");
         result.ShouldContain("Can you share whether this is about a rented home?");
+    }
+
+    [Fact]
+    public void BuildInsufficientResponse_ForUrgentQuestion_IncludesImmediateHelpSentence()
+    {
+        var result = RagPromptBuilder.BuildInsufficientResponse(
+            Language.English,
+            requiresUrgentAttention: true);
+
+        result.ShouldContain("legal grounding is too weak");
+        result.ShouldContain("seek official or legal help right away");
     }
 
     [Fact]

@@ -43,6 +43,7 @@ The backend may be wrapped by the ABP `result` envelope at transport level. The 
   "answerMode": "cautious",
   "confidenceBand": "medium",
   "clarificationQuestion": null,
+  "requiresUrgentAttention": false,
   "citations": [
     {
       "chunkId": "0f0be7df-c3b7-43af-b8e2-8f6f4d470001",
@@ -68,11 +69,12 @@ The backend may be wrapped by the ABP `result` envelope at transport level. The 
 | Field | Type | Required | Notes |
 |-------|------|----------|-------|
 | `answerText` | `string \| null` | Yes | Plain-language answer, clarification preface, or deterministic limitation text |
-| `isInsufficientInformation` | `boolean` | Yes | Legacy compatibility flag; `true` when the response is insufficient or escalation-oriented |
+| `isInsufficientInformation` | `boolean` | Yes | Legacy compatibility flag for non-grounded or escalation-oriented outcomes; existing clients may still see `true` for clarification responses |
 | `detectedLanguageCode` | `string` | Yes | Detected input language code |
 | `answerMode` | `"direct" \| "cautious" \| "clarification" \| "insufficient"` | Yes | Structured response posture |
 | `confidenceBand` | `"high" \| "medium" \| "low"` | Yes | Retrieval-derived confidence band |
 | `clarificationQuestion` | `string \| null` | Yes | Focused follow-up question when `answerMode = "clarification"` |
+| `requiresUrgentAttention` | `boolean` | Yes | Signals that the client should surface urgent-help language because the question appears high-stakes or time-sensitive |
 | `citations` | `Citation[]` | Yes | Supporting citations or source references |
 | `chunkIds` | `string[]` | Yes | Traceability IDs for retrieved chunks |
 | `answerId` | `string \| null` | Yes | Persisted answer ID for grounded stored answers only |
@@ -102,6 +104,7 @@ The backend may be wrapped by the ABP `result` envelope at transport level. The 
 - At least one citation should have `authorityType = "bindingLaw"` and `sourceRole = "primary"`.
 - `answerId` should be populated when persistence succeeds.
 - `clarificationQuestion` must be `null`.
+- `requiresUrgentAttention` may be `true` when the answer is grounded but the situation still appears urgent.
 
 ### `cautious`
 
@@ -110,12 +113,14 @@ The backend may be wrapped by the ABP `result` envelope at transport level. The 
 - At least one citation should have `authorityType = "bindingLaw"`.
 - `answerId` may be populated when the answer is grounded enough to persist.
 - `clarificationQuestion` must be `null`.
+- `requiresUrgentAttention` may be `true`.
 
 ### `clarification`
 
 - `clarificationQuestion` must be populated.
 - `answerText` may contain a short explanation of what is missing.
 - `answerId` must be `null`.
+- `requiresUrgentAttention` may be `true` when the system is asking for one more fact but the situation sounds urgent.
 - `citations` may be empty or may contain limited supporting context if the system already knows the relevant legal area.
 
 ### `insufficient`
@@ -123,6 +128,7 @@ The backend may be wrapped by the ABP `result` envelope at transport level. The 
 - `answerText` should contain a deterministic limitation or escalation-oriented message.
 - `isInsufficientInformation` should be `true`.
 - `answerId` must be `null`.
+- `requiresUrgentAttention` may be `true`.
 - `citations` may be empty when no grounded source is available, or may contain limited contextual sources when the system is explaining why it cannot answer fully.
 
 ## Contract Rules
@@ -139,11 +145,12 @@ The backend may be wrapped by the ABP `result` envelope at transport level. The 
 ```json
 {
   "answerText": "I need one more detail before I can answer safely.",
-  "isInsufficientInformation": false,
+  "isInsufficientInformation": true,
   "detectedLanguageCode": "en",
   "answerMode": "clarification",
   "confidenceBand": "low",
   "clarificationQuestion": "Are you asking about a court eviction notice, a landlord lockout, or a threat to evict you?",
+  "requiresUrgentAttention": false,
   "citations": [],
   "chunkIds": [],
   "answerId": null
@@ -160,6 +167,7 @@ The backend may be wrapped by the ABP `result` envelope at transport level. The 
   "answerMode": "insufficient",
   "confidenceBand": "low",
   "clarificationQuestion": null,
+  "requiresUrgentAttention": true,
   "citations": [],
   "chunkIds": [],
   "answerId": null

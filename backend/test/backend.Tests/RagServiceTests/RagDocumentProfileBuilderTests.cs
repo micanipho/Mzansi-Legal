@@ -37,6 +37,7 @@ public class RagDocumentProfileBuilderTests
         profile.MetadataTerms.ShouldContain("ccma");
         profile.MetadataPhrases.ShouldContain("ccma");
         profile.MetadataTerms.ShouldContain("lra");
+        profile.AuthorityType.ShouldBe(RagSourceMetadata.BindingLaw);
     }
 
     [Fact]
@@ -66,5 +67,35 @@ public class RagDocumentProfileBuilderTests
 
         profile.MetadataTerms.ShouldContain("ccma");
         profile.MetadataTerms.ShouldNotContain("1ccma");
+    }
+
+    [Fact]
+    public void Build_GuidanceSource_DerivesOfficialGuidanceAuthority()
+    {
+        var documentId = Guid.NewGuid();
+        var profiles = _builder.Build(new[]
+        {
+            new IndexedChunk(
+                Guid.NewGuid(),
+                documentId,
+                "SARS Tax Guide",
+                "SARS Guide",
+                "N/A",
+                2024,
+                "Tax",
+                "General",
+                "Filing guidance",
+                "This guide explains how to submit a tax return.",
+                new[] { "tax", "filing", "guide" },
+                "Tax guidance",
+                48,
+                new float[] { 1f, 0f })
+        });
+
+        var profile = profiles.ShouldHaveSingleItem();
+
+        profile.AuthorityType.ShouldBe(RagSourceMetadata.OfficialGuidance);
+        profile.SourceFamily.ShouldBe("sars guide");
+        profile.MetadataTerms.ShouldContain("guide");
     }
 }

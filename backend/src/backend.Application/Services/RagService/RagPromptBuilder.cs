@@ -40,7 +40,8 @@ public static class RagPromptBuilder
     /// <param name="language">The detected language of the user's question. Defaults to English.</param>
     public static string BuildSystemPrompt(
         RagAnswerMode answerMode,
-        Language language = Language.English)
+        Language language = Language.English,
+        bool requiresUrgentAttention = false)
     {
         var prompt =
             "You are a South African legal and financial assistant. " +
@@ -52,21 +53,27 @@ public static class RagPromptBuilder
             "3. If the context does not contain sufficient information to answer the question, " +
             "you MUST say that the available legislation is not enough.\n" +
             "4. Do NOT speculate, infer, or draw on general knowledge outside the provided context.\n" +
-            "5. Write in plain, accessible English. Avoid legal jargon where a simpler word exists.";
+            "5. Write in plain, accessible English. Avoid legal jargon where a simpler word exists.\n" +
+            "6. When both binding law and official guidance appear, present the binding law as controlling and the guidance as supporting context only.";
 
         if (answerMode == RagAnswerMode.Cautious)
         {
-            prompt += "\n6. Make the limits of the available legislation explicit before giving your grounded answer.";
+            prompt += "\n7. Make the limits of the available legislation explicit before giving your grounded answer.";
         }
 
         if (answerMode == RagAnswerMode.Clarification)
         {
-            prompt += "\n6. Ask exactly one focused follow-up question and do NOT provide a legal conclusion.";
+            prompt += "\n7. Ask exactly one focused follow-up question and do NOT provide a legal conclusion.";
+        }
+
+        if (requiresUrgentAttention)
+        {
+            prompt += "\n8. Because the question may involve immediate harm, enforcement, or deadlines, include a short immediate-help note and avoid sounding definitive where facts are still missing.";
         }
 
         var directive = GetLanguageDirective(language);
         if (!string.IsNullOrEmpty(directive))
-            prompt += $"\n\n7. {directive}";
+            prompt += $"\n\n9. {directive}";
 
         return prompt;
     }
@@ -109,11 +116,15 @@ public static class RagPromptBuilder
         var sb = new StringBuilder();
         foreach (var chunk in chunks)
         {
-            sb.AppendLine($"[{chunk.ActName} - {chunk.SectionNumber}]");
+            var sourceTitle = string.IsNullOrWhiteSpace(chunk.SourceTitle) ? chunk.ActName : chunk.SourceTitle;
+            var sourceLocator = string.IsNullOrWhiteSpace(chunk.SourceLocator) ? chunk.SectionNumber : chunk.SourceLocator;
+            sb.AppendLine($"[{sourceTitle} - {sourceLocator}]");
             if (!string.IsNullOrWhiteSpace(chunk.SectionTitle))
             {
                 sb.AppendLine($"Section title: {chunk.SectionTitle}");
             }
+            sb.AppendLine($"Authority: {(chunk.AuthorityType == RagSourceMetadata.OfficialGuidance ? "official guidance" : "binding law")}");
+            sb.AppendLine($"Source role: {(chunk.SourceRole == RagSourceMetadata.Supporting ? "supporting" : "primary")}");
             sb.AppendLine(chunk.Excerpt);
             sb.AppendLine();
         }
@@ -131,7 +142,8 @@ public static class RagPromptBuilder
         string questionText,
         string contextBlock,
         RagAnswerMode answerMode,
-        string clarificationQuestion = null)
+        string clarificationQuestion = null,
+        bool requiresUrgentAttention = false)
     {
         Guard.Against.NullOrWhiteSpace(questionText, nameof(questionText));
         Guard.Against.Null(contextBlock, nameof(contextBlock));
@@ -141,6 +153,11 @@ public static class RagPromptBuilder
             var guidance = string.IsNullOrWhiteSpace(clarificationQuestion)
                 ? "Ask one focused follow-up question that would let you identify the correct legal source."
                 : $"Ask this follow-up question, or a tighter version of it: {clarificationQuestion}";
+
+            if (requiresUrgentAttention)
+            {
+                guidance += " If the user may be in immediate danger or facing immediate enforcement, remind them briefly to seek urgent official or legal help.";
+            }
 
             return
                 $"Legislation context:\n\n{contextBlock}\n\n" +
@@ -152,6 +169,11 @@ public static class RagPromptBuilder
         var answerLead = answerMode == RagAnswerMode.Cautious
             ? "Answer carefully, explain any limits in the available legislation, and include citations for every material claim."
             : "Answer directly using only the legislation context and include citations for every material claim.";
+
+        if (requiresUrgentAttention)
+        {
+            answerLead += " Add a short immediate-help note if the situation sounds urgent.";
+        }
 
         return
             $"Legislation context:\n\n{contextBlock}\n\n" +
@@ -168,19 +190,41 @@ public static class RagPromptBuilder
         _ => 0.0d
     };
 
-    public static string BuildClarificationLead(Language language) => language switch
+    public static string BuildClarificationLead(Language language, bool requiresUrgentAttention = false)
     {
-        Language.Zulu => "Ngingakusiza, kodwa ngidinga imininingwane eyodwa ngaphambi kokuba nginike impendulo ethembekile.",
-        Language.Sesotho => "Nka thusa, empa ke hloka ntlha e le nngwe pele nka fana ka karabo e ka tsheptjwang.",
-        Language.Afrikaans => "Ek kan help, maar ek het eers een detail nodig voordat ek 'n betroubare antwoord gee.",
-        _ => "I can help with this, but I need one detail first before I give a reliable answer."
-    };
+        var lead = language switch
+        {
+            Language.Zulu => "Ngingakusiza, kodwa ngidinga imininingwane eyodwa ngaphambi kokuba nginike impendulo ethembekile.",
+            Language.Sesotho => "Nka thusa, empa ke hloka ntlha e le nngwe pele nka fana ka karabo e ka tsheptjwang.",
+            Language.Afrikaans => "Ek kan help, maar ek het eers een detail nodig voordat ek 'n betroubare antwoord gee.",
+            _ => "I can help with this, but I need one detail first before I give a reliable answer."
+        };
 
-    public static string BuildInsufficientResponse(Language language) => language switch
+        return requiresUrgentAttention
+            ? $"{lead} {BuildUrgentHelpSentence(language)}"
+            : lead;
+    }
+
+    public static string BuildInsufficientResponse(Language language, bool requiresUrgentAttention = false)
     {
-        Language.Zulu => "Angikwazi ukuphendula lo mbuzo ngokuthembeka ngisebenzisa umthetho otholakalayo kuphela. Isiseko somthetho esitholakele asanele okwamanje.",
-        Language.Sesotho => "Ha ke kgone ho araba potso ena ka tshepo ke itshetlehile feela ka molao o fumanehang. Motheo wa molao o fumanehileng ha o eso lekane hajoale.",
-        Language.Afrikaans => "Ek kan nie hierdie vraag verantwoordelik beantwoord op grond van die beskikbare wetgewing alleen nie. Die huidige regsgrondslag is nog te swak.",
-        _ => "I can't answer this responsibly from the available legislation alone. The current legal grounding is too weak."
+        var response = language switch
+        {
+            Language.Zulu => "Angikwazi ukuphendula lo mbuzo ngokuthembeka ngisebenzisa umthetho otholakalayo kuphela. Isiseko somthetho esitholakele asanele okwamanje.",
+            Language.Sesotho => "Ha ke kgone ho araba potso ena ka tshepo ke itshetlehile feela ka molao o fumanehang. Motheo wa molao o fumanehileng ha o eso lekane hajoale.",
+            Language.Afrikaans => "Ek kan nie hierdie vraag verantwoordelik beantwoord op grond van die beskikbare wetgewing alleen nie. Die huidige regsgrondslag is nog te swak.",
+            _ => "I can't answer this responsibly from the available legislation alone. The current legal grounding is too weak."
+        };
+
+        return requiresUrgentAttention
+            ? $"{response} {BuildUrgentHelpSentence(language)}"
+            : response;
+    }
+
+    private static string BuildUrgentHelpSentence(Language language) => language switch
+    {
+        Language.Zulu => "Uma lokhu kuphuthuma noma kunobungozi obuseduze, cela usizo olusemthethweni noma oluphuthumayo ngokushesha.",
+        Language.Sesotho => "Haeba taba ena e potlakile kapa e beha polokeho kotsing, kopa thuso ya semmuso kapa ya molao hanghang.",
+        Language.Afrikaans => "As dit dringend is of jou veiligheid in gevaar is, kry asseblief dadelik amptelike of regs hulp.",
+        _ => "If this is urgent or your safety may be at risk, please seek official or legal help right away."
     };
 }

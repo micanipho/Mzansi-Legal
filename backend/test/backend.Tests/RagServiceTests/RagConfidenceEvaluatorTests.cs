@@ -97,6 +97,38 @@ public class RagConfidenceEvaluatorTests
         result.ConfidenceBand.ShouldBe(RagConfidenceBand.Medium);
     }
 
+    [Fact]
+    public void Evaluate_UrgentHighConfidenceQuestion_DowngradesToCautiousAndFlagsUrgency()
+    {
+        var decision = CreateDecision(
+            primaryScore: 0.84f,
+            runnerUpScore: 0.68f,
+            chunkScores: new[] { 0.88f, 0.82f },
+            isAmbiguous: false);
+
+        var result = _evaluator.Evaluate("My landlord locked me out today. Can they do that right now?", decision);
+
+        result.AnswerMode.ShouldBe(RagAnswerMode.Cautious);
+        result.ConfidenceBand.ShouldBe(RagConfidenceBand.Medium);
+        result.RequiresUrgentAttention.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void Evaluate_UrgentUnsupportedQuestion_FlagsUrgencyOnInsufficientOutcome()
+    {
+        var decision = new RetrievalDecision
+        {
+            SelectedChunks = Array.Empty<RetrievedChunk>(),
+            RankedDocuments = Array.Empty<DocumentCandidate>(),
+            ClarificationQuestion = "Can you share more detail?"
+        };
+
+        var result = _evaluator.Evaluate("The police told me I have a hearing tomorrow for a drone issue.", decision);
+
+        result.AnswerMode.ShouldBe(RagAnswerMode.Insufficient);
+        result.RequiresUrgentAttention.ShouldBeTrue();
+    }
+
     private static RetrievalDecision CreateDecision(
         float primaryScore,
         float runnerUpScore,

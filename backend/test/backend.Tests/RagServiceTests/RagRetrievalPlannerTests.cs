@@ -108,6 +108,55 @@ public class RagRetrievalPlannerTests
     }
 
     [Fact]
+    public void BuildPlan_LawAndGuidanceQuestion_KeepsBindingLawPrimary()
+    {
+        const string question = "My landlord locked me out today. What law protects me and where do I complain?";
+        var lawId = Guid.NewGuid();
+        var guidanceId = Guid.NewGuid();
+
+        var chunks = new[]
+        {
+            CreateChunk(
+                "Rental Housing Act 50 of 1999",
+                "Rental Housing Act",
+                "Housing",
+                "Tenants can enforce their rental rights through the statutory housing process.",
+                "Rental housing",
+                new[] { "tenant", "landlord", "rights", "complaint" },
+                new float[] { 0.93f, 0.07f },
+                lawId,
+                sectionNumber: "Section 4",
+                sectionTitle: "Rights and obligations",
+                actNumber: "50"),
+            CreateChunk(
+                "Rental Housing Tribunal Guide",
+                "Tribunal Guide",
+                "Housing",
+                "The complaint form explains how to approach the rental housing tribunal.",
+                "Housing guidance",
+                new[] { "complaint", "form", "tribunal", "process" },
+                new float[] { 0.96f, 0.04f },
+                guidanceId,
+                sectionNumber: "Complaint process",
+                sectionTitle: "Tribunal complaint form",
+                actNumber: "N/A")
+        };
+
+        var plan = BuildPlan(question, new float[] { 1f, 0f }, chunks);
+
+        plan.PrimaryDocumentId.ShouldBe(lawId);
+        plan.RankedDocuments[0].DocumentId.ShouldBe(lawId);
+        plan.SelectedChunks.ShouldContain(chunk =>
+            chunk.DocumentId == lawId &&
+            chunk.AuthorityType == RagSourceMetadata.BindingLaw &&
+            chunk.SourceRole == RagSourceMetadata.Primary);
+        plan.SelectedChunks.ShouldContain(chunk =>
+            chunk.DocumentId == guidanceId &&
+            chunk.AuthorityType == RagSourceMetadata.OfficialGuidance &&
+            chunk.SourceRole == RagSourceMetadata.Supporting);
+    }
+
+    [Fact]
     public void BuildPlan_BroadCcmaRightsQuestion_UsesDocumentMeaningAndSectionAliases()
     {
         const string question = "What are my CCMA rights?";
@@ -147,6 +196,8 @@ public class RagRetrievalPlannerTests
         plan.RankedDocuments[0].ActName.ShouldBe("Labour Relations Act");
         plan.IsAmbiguousQuestion.ShouldBeFalse();
         plan.SelectedChunks.ShouldContain(chunk => chunk.ActName == "Labour Relations Act");
+        plan.SelectedChunks[0].SectionNumber.ShouldBe("191");
+        plan.SelectedChunks[0].SectionTitle.ShouldNotContain("Establishment");
     }
 
     [Fact]
@@ -215,14 +266,15 @@ public class RagRetrievalPlannerTests
         float[] vector,
         Guid? documentId = null,
         string sectionNumber = "Section 1",
-        string sectionTitle = "General")
+        string sectionTitle = "General",
+        string actNumber = "1")
     {
         return new IndexedChunk(
             Guid.NewGuid(),
             documentId ?? Guid.NewGuid(),
             actName,
             shortName,
-            "1",
+            actNumber,
             1996,
             categoryName,
             sectionNumber,

@@ -28,9 +28,17 @@ export interface RagCitationDto {
   chunkId: string;
   actName: string;
   sectionNumber: string;
+  sourceTitle?: string | null;
+  sourceLocator?: string | null;
+  authorityType?: RagCitationAuthorityType | null;
+  sourceRole?: RagCitationSourceRole | null;
   excerpt: string;
   relevanceScore: number;
 }
+
+export type RagCitationAuthorityType = "bindingLaw" | "officialGuidance";
+
+export type RagCitationSourceRole = "primary" | "supporting";
 
 export type RagAnswerMode = "direct" | "cautious" | "clarification" | "insufficient";
 
@@ -43,6 +51,7 @@ export interface RagAnswerResult {
   answerMode: RagAnswerMode;
   confidenceBand: RagConfidenceBand;
   clarificationQuestion: string | null;
+  requiresUrgentAttention: boolean;
   citations: RagCitationDto[];
   chunkIds: string[];
   answerId: string | null;
@@ -69,6 +78,8 @@ const ANSWER_MODES: RagAnswerMode[] = [
 ];
 
 const CONFIDENCE_BANDS: RagConfidenceBand[] = ["high", "medium", "low"];
+const AUTHORITY_TYPES: RagCitationAuthorityType[] = ["bindingLaw", "officialGuidance"];
+const SOURCE_ROLES: RagCitationSourceRole[] = ["primary", "supporting"];
 
 function isRagAnswerMode(value: unknown): value is RagAnswerMode {
   return (
@@ -81,6 +92,20 @@ function isRagConfidenceBand(value: unknown): value is RagConfidenceBand {
   return (
     typeof value === "string" &&
     CONFIDENCE_BANDS.includes(value as RagConfidenceBand)
+  );
+}
+
+function isRagCitationAuthorityType(value: unknown): value is RagCitationAuthorityType {
+  return (
+    typeof value === "string" &&
+    AUTHORITY_TYPES.includes(value as RagCitationAuthorityType)
+  );
+}
+
+function isRagCitationSourceRole(value: unknown): value is RagCitationSourceRole {
+  return (
+    typeof value === "string" &&
+    SOURCE_ROLES.includes(value as RagCitationSourceRole)
   );
 }
 
@@ -108,11 +133,35 @@ function normalizeConfidenceBand(value: unknown): RagConfidenceBand {
   return "medium";
 }
 
+function normalizeAuthorityType(value: unknown): RagCitationAuthorityType {
+  return isRagCitationAuthorityType(value) ? value : "bindingLaw";
+}
+
+function normalizeSourceRole(value: unknown): RagCitationSourceRole {
+  return isRagCitationSourceRole(value) ? value : "primary";
+}
+
+function normalizeCitation(citation: RagCitationDto): RagCitationDto {
+  return {
+    ...citation,
+    sourceTitle: citation.sourceTitle ?? citation.actName,
+    sourceLocator: citation.sourceLocator ?? citation.sectionNumber,
+    authorityType: normalizeAuthorityType(citation.authorityType),
+    sourceRole: normalizeSourceRole(citation.sourceRole),
+  };
+}
+
 function normalizeRagAnswerResult(result: RagAnswerResult): RagAnswerResult {
   return {
     ...result,
     answerMode: normalizeAnswerMode(result.answerMode),
     confidenceBand: normalizeConfidenceBand(result.confidenceBand),
+    requiresUrgentAttention: Boolean(result.requiresUrgentAttention),
+    clarificationQuestion: result.clarificationQuestion ?? null,
+    citations: Array.isArray(result.citations)
+      ? result.citations.map(normalizeCitation)
+      : [],
+    chunkIds: Array.isArray(result.chunkIds) ? result.chunkIds : [],
   };
 }
 

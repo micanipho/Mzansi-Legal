@@ -16,6 +16,7 @@ export interface IChatMessage {
   answerMode?: RagAnswerMode;
   confidenceBand?: RagConfidenceBand;
   clarificationQuestion?: string | null;
+  requiresUrgentAttention?: boolean;
 }
 
 export interface IChatStateContext {

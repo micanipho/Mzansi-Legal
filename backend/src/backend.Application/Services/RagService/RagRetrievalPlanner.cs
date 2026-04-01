@@ -9,9 +9,33 @@ namespace backend.Services.RagService;
 
 public sealed class RagRetrievalPlanner
 {
+    private static readonly HashSet<string> AdministrativeSectionTerms = new(StringComparer.Ordinal)
+    {
+        "application", "commencement", "definitions", "definition", "establishment", "interpretation", "objects", "purpose", "title"
+    };
+
     private static readonly HashSet<string> GenericQuestionTerms = new(StringComparer.Ordinal)
     {
         "help", "issue", "issues", "law", "legal", "matter", "problem", "rights", "situation", "thing", "things"
+    };
+
+    private static readonly HashSet<string> OperativeContentTerms = new(StringComparer.Ordinal)
+    {
+        "arbitration", "award", "conciliation", "complaint", "dismissal", "dismissals", "dispute", "disputes",
+        "employee", "employees", "entitlement", "entitlements", "hearing", "labour", "practice", "practices",
+        "referral", "remedy", "remedies", "right", "rights", "unfair", "worker", "workers"
+    };
+
+    private static readonly HashSet<string> OperativeTitleTerms = new(StringComparer.Ordinal)
+    {
+        "award", "complaint", "dismissal", "dismissals", "dispute", "disputes", "employee", "employees",
+        "entitlement", "entitlements", "hearing", "practice", "practices", "referral", "remedy", "remedies",
+        "right", "rights", "unfair", "worker", "workers"
+    };
+
+    private static readonly HashSet<string> RightsQuestionTerms = new(StringComparer.Ordinal)
+    {
+        "employee", "employees", "entitlement", "entitlements", "remedy", "remedies", "right", "rights", "worker", "workers"
     };
 
     public IReadOnlyList<SemanticChunkMatch> BuildSemanticMatches(
@@ -26,6 +50,7 @@ public sealed class RagRetrievalPlanner
             .Select(chunk => new SemanticChunkMatch(
                 chunk,
                 CalculateSemanticScore(questionVector, focusVector, chunk.Vector),
+                0f,
                 0f,
                 0f))
             .OrderByDescending(match => match.SemanticScore)
@@ -57,7 +82,8 @@ public sealed class RagRetrievalPlanner
                     match.Chunk,
                     questionTerms,
                     normalizedQuestion,
-                    questionTermSpecificity)
+                    questionTermSpecificity),
+                IntentAlignmentScore = CalculateQuestionIntentAdjustment(match.Chunk, questionTerms)
             })
             .ToList();
 
@@ -69,7 +95,7 @@ public sealed class RagRetrievalPlanner
                     .OrderByDescending(GetChunkRankingScore)
                     .ToList());
 
-        var rankedDocuments = documentProfiles
+        var rankedDocuments = MergeSourceFamilyCandidates(documentProfiles
             .Select(profile =>
                 BuildDocumentCandidate(
                     profile,
@@ -81,6 +107,7 @@ public sealed class RagRetrievalPlanner
                     normalizedQuestion,
                     questionVector,
                     questionTermSpecificity))
+            .ToList())
             .Where(candidate =>
                 candidate.FinalDocumentScore >= 0.24f ||
                 candidate.HintBoostScore > 0f ||
@@ -97,18 +124,26 @@ public sealed class RagRetrievalPlanner
             };
         }
 
-        var primaryDocument = rankedDocuments.FirstOrDefault();
-        var supportingDocuments = SelectSupportingDocuments(primaryDocument, rankedDocuments.Skip(1).ToList());
+        var primaryDocument = SelectPrimaryDocument(rankedDocuments);
+        var orderedRankedDocuments = primaryDocument is null
+            ? rankedDocuments
+            : rankedDocuments
+                .Where(candidate => candidate.DocumentId == primaryDocument.DocumentId)
+                .Concat(rankedDocuments.Where(candidate => candidate.DocumentId != primaryDocument.DocumentId))
+                .ToList();
+        var supportingDocuments = SelectSupportingDocuments(
+            primaryDocument,
+            orderedRankedDocuments.Where(candidate => candidate.DocumentId != primaryDocument?.DocumentId).ToList());
         var selectedChunks = SelectChunks(primaryDocument, supportingDocuments);
-        var isAmbiguousQuestion = IsAmbiguousQuestion(questionTerms, rankedDocuments);
+        var isAmbiguousQuestion = IsAmbiguousQuestion(questionTerms, orderedRankedDocuments);
 
         return new RetrievalDecision
         {
             SelectedChunks = selectedChunks,
             PrimaryDocumentId = primaryDocument?.DocumentId,
             SupportingDocumentIds = supportingDocuments.Select(candidate => candidate.DocumentId).ToList(),
-            RankedDocuments = rankedDocuments,
-            ClarificationQuestion = BuildClarificationQuestion(rankedDocuments, questionTerms),
+            RankedDocuments = orderedRankedDocuments,
+            ClarificationQuestion = BuildClarificationQuestion(orderedRankedDocuments, questionTerms),
             IsAmbiguousQuestion = isAmbiguousQuestion
         };
     }
@@ -176,7 +211,8 @@ public sealed class RagRetrievalPlanner
             (metadataAlignment * 0.30f) +
             (keywordAlignment * 0.05f) +
             (semanticBreadth * 0.10f) +
-            (float)Math.Min(hintBoost, 0.05d),
+            (float)Math.Min(hintBoost, 0.05d) +
+            (profile.AuthorityType == RagSourceMetadata.BindingLaw ? 0.03f : -0.02f),
             0f,
             1f);
 
@@ -192,7 +228,65 @@ public sealed class RagRetrievalPlanner
             metadataAlignment,
             semanticBreadth,
             (float)hintBoost,
-            finalScore);
+            finalScore,
+            profile.AuthorityType,
+            profile.SourceFamily);
+    }
+
+    private static IReadOnlyList<DocumentCandidate> MergeSourceFamilyCandidates(
+        IReadOnlyList<DocumentCandidate> candidates)
+    {
+        if (candidates.Count <= 1)
+        {
+            return candidates;
+        }
+
+        return candidates
+            .GroupBy(BuildSourceFamilyKey, StringComparer.Ordinal)
+            .Select(group =>
+            {
+                var orderedGroup = group
+                    .OrderByDescending(candidate => candidate.FinalDocumentScore)
+                    .ThenByDescending(candidate => candidate.DocumentSemanticScore)
+                    .ToList();
+                var leader = orderedGroup[0];
+
+                if (orderedGroup.Count == 1)
+                {
+                    return leader;
+                }
+
+                var mergedMatches = orderedGroup
+                    .SelectMany(candidate => candidate.TopMatches)
+                    .GroupBy(match => match.Chunk.ChunkId)
+                    .Select(matchGroup => matchGroup
+                        .OrderByDescending(GetChunkRankingScore)
+                        .First())
+                    .OrderByDescending(GetChunkRankingScore)
+                    .Take(4)
+                    .ToList();
+
+                return leader with
+                {
+                    TopMatches = mergedMatches,
+                    MaxChunkSemanticScore = mergedMatches.Count == 0
+                        ? leader.MaxChunkSemanticScore
+                        : mergedMatches.Max(match => match.SemanticScore),
+                    MeanTopChunkScore = mergedMatches.Count == 0
+                        ? leader.MeanTopChunkScore
+                        : (float)mergedMatches
+                            .Take(3)
+                            .Average(match => match.SemanticScore),
+                    DocumentSemanticScore = orderedGroup.Max(candidate => candidate.DocumentSemanticScore),
+                    MetadataAlignmentScore = orderedGroup.Max(candidate => candidate.MetadataAlignmentScore),
+                    SemanticBreadthScore = Math.Max(
+                        leader.SemanticBreadthScore,
+                        CalculateSemanticBreadth(mergedMatches)),
+                    HintBoostScore = orderedGroup.Max(candidate => candidate.HintBoostScore),
+                    FinalDocumentScore = orderedGroup.Max(candidate => candidate.FinalDocumentScore)
+                };
+            })
+            .ToList();
     }
 
     private static IReadOnlyList<DocumentCandidate> SelectSupportingDocuments(
@@ -206,10 +300,14 @@ public sealed class RagRetrievalPlanner
 
         return alternatives
             .Where(candidate =>
-                candidate.FinalDocumentScore >= primaryDocument.FinalDocumentScore - 0.16f &&
+                candidate.FinalDocumentScore >= primaryDocument.FinalDocumentScore -
+                    (candidate.AuthorityType == RagSourceMetadata.OfficialGuidance ? 0.22f : 0.16f) &&
                 (candidate.MaxChunkSemanticScore >= RagPromptBuilder.SupportingDocumentFloor ||
                  candidate.DocumentSemanticScore >= RagPromptBuilder.SupportingDocumentFloor - 0.05f ||
-                 candidate.MetadataAlignmentScore >= 0.35f) &&
+                 candidate.MetadataAlignmentScore >= 0.35f ||
+                 (candidate.AuthorityType == RagSourceMetadata.OfficialGuidance &&
+                  candidate.MaxChunkSemanticScore >= 0.50f &&
+                  candidate.MetadataAlignmentScore >= 0.28f)) &&
                 !string.Equals(candidate.ActName, primaryDocument.ActName, StringComparison.OrdinalIgnoreCase))
             .Take(2)
             .ToList();
@@ -227,7 +325,7 @@ public sealed class RagRetrievalPlanner
         var chunks = new List<RetrievedChunk>();
         chunks.AddRange(primaryDocument.TopMatches
             .Take(RagPromptBuilder.MaxChunksPerDocument)
-            .Select(ToRetrievedChunk));
+            .Select(match => ToRetrievedChunk(match, primaryDocument, RagSourceMetadata.Primary)));
 
         foreach (var supportingDocument in supportingDocuments)
         {
@@ -239,7 +337,7 @@ public sealed class RagRetrievalPlanner
 
             chunks.AddRange(supportingDocument.TopMatches
                 .Take(Math.Min(1, remainingSlots))
-                .Select(ToRetrievedChunk));
+                .Select(match => ToRetrievedChunk(match, supportingDocument, RagSourceMetadata.Supporting)));
         }
 
         return chunks
@@ -247,7 +345,25 @@ public sealed class RagRetrievalPlanner
             .ToList();
     }
 
-    private static RetrievedChunk ToRetrievedChunk(SemanticChunkMatch match) =>
+    private static DocumentCandidate SelectPrimaryDocument(IReadOnlyList<DocumentCandidate> rankedDocuments)
+    {
+        var leader = rankedDocuments.FirstOrDefault();
+        if (leader is null || leader.AuthorityType == RagSourceMetadata.BindingLaw)
+        {
+            return leader;
+        }
+
+        return rankedDocuments
+            .FirstOrDefault(candidate =>
+                candidate.AuthorityType == RagSourceMetadata.BindingLaw &&
+                candidate.FinalDocumentScore >= leader.FinalDocumentScore - 0.08f)
+            ?? leader;
+    }
+
+    private static RetrievedChunk ToRetrievedChunk(
+        SemanticChunkMatch match,
+        DocumentCandidate document,
+        string sourceRole) =>
         new(
             match.Chunk.ChunkId,
             match.Chunk.DocumentId,
@@ -260,13 +376,21 @@ public sealed class RagRetrievalPlanner
             match.Chunk.TopicClassification,
             match.Chunk.Keywords,
             match.SemanticScore,
-            Math.Clamp(
-                (match.SemanticScore * 0.55f) +
-                (match.MetadataAlignmentScore * 0.30f) +
-                (match.KeywordAlignmentScore * 0.15f),
-                0f,
-                1f),
-            match.Chunk.TokenCount);
+            GetChunkRankingScore(match),
+            match.Chunk.TokenCount,
+            match.Chunk.ActName,
+            RagSourceMetadata.BuildSourceLocator(match.Chunk.SectionNumber, match.Chunk.SectionTitle),
+            document.AuthorityType,
+            sourceRole);
+
+    private static string BuildSourceFamilyKey(DocumentCandidate candidate)
+    {
+        var sourceFamily = string.IsNullOrWhiteSpace(candidate.SourceFamily)
+            ? candidate.ActName
+            : candidate.SourceFamily;
+
+        return $"{candidate.AuthorityType}:{RagSourceHintExtractor.Normalize(sourceFamily)}";
+    }
 
     private static bool IsAmbiguousQuestion(
         IReadOnlyCollection<string> questionTerms,
@@ -456,11 +580,54 @@ public sealed class RagRetrievalPlanner
         return Math.Clamp(supportingCount / 3f, 0f, 1f);
     }
 
+    private static float CalculateQuestionIntentAdjustment(
+        IndexedChunk chunk,
+        IReadOnlyCollection<string> questionTerms)
+    {
+        if (!questionTerms.Any(RightsQuestionTerms.Contains))
+        {
+            return 0f;
+        }
+
+        var titleTerms = new HashSet<string>(StringComparer.Ordinal);
+        var contentTerms = new HashSet<string>(StringComparer.Ordinal);
+        AddMetadata(chunk.SectionTitle, titleTerms, new HashSet<string>(StringComparer.Ordinal));
+        AddMetadata(RagSourceHintExtractor.ExtractLeadingHeading(chunk.Excerpt), contentTerms, new HashSet<string>(StringComparer.Ordinal));
+        AddMetadata(chunk.TopicClassification, contentTerms, new HashSet<string>(StringComparer.Ordinal));
+
+        foreach (var keyword in chunk.Keywords)
+        {
+            AddMetadata(keyword, contentTerms, new HashSet<string>(StringComparer.Ordinal));
+        }
+
+        var hasAdministrativeCue = titleTerms.Overlaps(AdministrativeSectionTerms);
+        var hasOperativeTitleCue = titleTerms.Overlaps(OperativeTitleTerms);
+        var hasOperativeContentCue = contentTerms.Overlaps(OperativeContentTerms);
+
+        if (hasAdministrativeCue && !hasOperativeTitleCue)
+        {
+            return -0.22f;
+        }
+
+        if (hasOperativeTitleCue)
+        {
+            return 0.14f;
+        }
+
+        if (hasOperativeContentCue)
+        {
+            return 0.08f;
+        }
+
+        return 0f;
+    }
+
     private static float GetChunkRankingScore(SemanticChunkMatch match) =>
         Math.Clamp(
             (match.SemanticScore * 0.55f) +
             (match.MetadataAlignmentScore * 0.30f) +
-            (match.KeywordAlignmentScore * 0.15f),
+            (match.KeywordAlignmentScore * 0.15f) +
+            match.IntentAlignmentScore,
             0f,
             1f);
 
@@ -602,7 +769,8 @@ public sealed record SemanticChunkMatch(
     IndexedChunk Chunk,
     float SemanticScore,
     float KeywordAlignmentScore,
-    float MetadataAlignmentScore);
+    float MetadataAlignmentScore,
+    float IntentAlignmentScore);
 
 public sealed record DocumentCandidate(
     Guid DocumentId,
@@ -616,7 +784,9 @@ public sealed record DocumentCandidate(
     float MetadataAlignmentScore,
     float SemanticBreadthScore,
     float HintBoostScore,
-    float FinalDocumentScore);
+    float FinalDocumentScore,
+    string AuthorityType = RagSourceMetadata.BindingLaw,
+    string SourceFamily = "");
 
 public sealed record RetrievedChunk(
     Guid ChunkId,
@@ -631,7 +801,11 @@ public sealed record RetrievedChunk(
     IReadOnlyList<string> Keywords,
     float SemanticScore,
     float RelevanceScore,
-    int TokenCount);
+    int TokenCount,
+    string SourceTitle = null,
+    string SourceLocator = null,
+    string AuthorityType = RagSourceMetadata.BindingLaw,
+    string SourceRole = RagSourceMetadata.Primary);
 
 public sealed record RetrievalDecision
 {
@@ -650,6 +824,8 @@ public sealed record RetrievalDecision
     public string ClarificationQuestion { get; init; }
 
     public bool IsAmbiguousQuestion { get; init; }
+
+    public bool RequiresUrgentAttention { get; init; }
 
     public bool IsGroundedAnswer =>
         AnswerMode == RagAnswerMode.Direct || AnswerMode == RagAnswerMode.Cautious;

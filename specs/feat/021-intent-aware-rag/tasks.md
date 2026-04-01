@@ -17,9 +17,9 @@
 
 **Purpose**: Lock the append-only Ask contract, coverage-state benchmark language, and doc alignment that all later implementation slices depend on.
 
-- [ ] T001 Verify append-only answer and citation response fields in `backend/src/backend.Application/Services/RagService/DTO/RagAnswerResult.cs`, `backend/src/backend.Application/Services/RagService/DTO/RagCitationDto.cs`, `backend/src/backend.Application/Services/RagService/DTO/RagAnswerMode.cs`, and `backend/src/backend.Application/Services/RagService/DTO/RagConfidenceBand.cs`
-- [ ] T002 [P] Align Ask service and API contract documentation in `backend/src/backend.Application/Services/RagService/IRagAppService.cs`, `backend/src/backend.Web.Host/Controllers/QaController.cs`, and `specs/feat/021-intent-aware-rag/contracts/qa-ask.md`
-- [ ] T003 [P] Lock the coverage-state benchmark matrix and follow-on corpus notes in `specs/feat/021-intent-aware-rag/quickstart.md`, `specs/feat/021-intent-aware-rag/research.md`, and `specs/feat/021-intent-aware-rag/plan.md`
+- [x] T001 Verify append-only answer and citation response fields in `backend/src/backend.Application/Services/RagService/DTO/RagAnswerResult.cs`, `backend/src/backend.Application/Services/RagService/DTO/RagCitationDto.cs`, `backend/src/backend.Application/Services/RagService/DTO/RagAnswerMode.cs`, and `backend/src/backend.Application/Services/RagService/DTO/RagConfidenceBand.cs`
+- [x] T002 [P] Align Ask service and API contract documentation in `backend/src/backend.Application/Services/RagService/IRagAppService.cs`, `backend/src/backend.Web.Host/Controllers/QaController.cs`, and `specs/feat/021-intent-aware-rag/contracts/qa-ask.md`
+- [x] T003 [P] Lock the coverage-state benchmark matrix and follow-on corpus notes in `specs/feat/021-intent-aware-rag/quickstart.md`, `specs/feat/021-intent-aware-rag/research.md`, and `specs/feat/021-intent-aware-rag/plan.md`
 
 ---
 
@@ -29,11 +29,11 @@
 
 **Critical**: No user story work should begin until this phase is complete.
 
-- [ ] T004 [P] Add foundational source-classification coverage in `backend/test/backend.Tests/RagServiceTests/RagDocumentProfileBuilderTests.cs` and `backend/test/backend.Tests/RagServiceTests/RagIndexStoreTests.cs`
-- [ ] T005 Refine document-profile and in-memory source metadata derivation in `backend/src/backend.Application/Services/RagService/RagDocumentProfileBuilder.cs` and `backend/src/backend.Application/Services/RagService/RagIndexStore.cs`
-- [ ] T006 [P] Normalize current manifest source families and guidance cues in `backend/src/backend.EntityFrameworkCore/EntityFrameworkCore/Seed/Host/LegislationManifest.cs`
-- [ ] T007 [P] Refine broad-topic focus extraction for short or generic legal prompts in `backend/src/backend.Application/Services/RagService/RagQueryFocusBuilder.cs`
-- [ ] T008 [P] Refine additive source-hint extraction for titles, abbreviations, and noisy labels in `backend/src/backend.Application/Services/RagService/RagSourceHintExtractor.cs`
+- [x] T004 [P] Add foundational source-classification coverage in `backend/test/backend.Tests/RagServiceTests/RagDocumentProfileBuilderTests.cs` and `backend/test/backend.Tests/RagServiceTests/RagIndexStoreTests.cs`
+- [x] T005 Refine document-profile and in-memory source metadata derivation in `backend/src/backend.Application/Services/RagService/RagDocumentProfileBuilder.cs` and `backend/src/backend.Application/Services/RagService/RagIndexStore.cs`
+- [x] T006 [P] Normalize current manifest source families and guidance cues in `backend/src/backend.EntityFrameworkCore/EntityFrameworkCore/Seed/Host/LegislationManifest.cs`
+- [x] T007 [P] Refine broad-topic focus extraction for short or generic legal prompts in `backend/src/backend.Application/Services/RagService/RagQueryFocusBuilder.cs`
+- [x] T008 [P] Refine additive source-hint extraction for titles, abbreviations, and noisy labels in `backend/src/backend.Application/Services/RagService/RagSourceHintExtractor.cs`
 
 **Checkpoint**: The in-memory retrieval baseline can classify current sources, group source families consistently, and support coverage-aware ranking without new schema or infrastructure.
 
@@ -47,14 +47,14 @@
 
 ### Tests for User Story 1
 
-- [ ] T009 [P] [US1] Add plain-language primary-source ranking cases in `backend/test/backend.Tests/RagServiceTests/RagRetrievalPlannerTests.cs`
-- [ ] T010 [P] [US1] Add plain-language grounded ask-flow assertions in `backend/test/backend.Tests/RagServiceTests/RagAppServiceTests.cs`
+- [x] T009 [P] [US1] Add plain-language primary-source ranking cases in `backend/test/backend.Tests/RagServiceTests/RagRetrievalPlannerTests.cs`
+- [x] T010 [P] [US1] Add plain-language grounded ask-flow assertions in `backend/test/backend.Tests/RagServiceTests/RagAppServiceTests.cs`
 
 ### Implementation for User Story 1
 
-- [ ] T011 [P] [US1] Reweight document and chunk scoring for plain-language source discovery in `backend/src/backend.Application/Services/RagService/RagRetrievalPlanner.cs`
-- [ ] T012 [P] [US1] Tighten plain-language answer prompting for grounded non-lawyer explanations in `backend/src/backend.Application/Services/RagService/RagPromptBuilder.cs`
-- [ ] T013 [US1] Refine grounded answer orchestration and citation selection in `backend/src/backend.Application/Services/RagService/RagAppService.cs`
+- [x] T011 [P] [US1] Reweight document and chunk scoring for plain-language source discovery in `backend/src/backend.Application/Services/RagService/RagRetrievalPlanner.cs`
+- [x] T012 [P] [US1] Tighten plain-language answer prompting for grounded non-lawyer explanations in `backend/src/backend.Application/Services/RagService/RagPromptBuilder.cs`
+- [x] T013 [US1] Refine grounded answer orchestration and citation selection in `backend/src/backend.Application/Services/RagService/RagAppService.cs`
 
 **Checkpoint**: User Story 1 should now return grounded cited answers for supported plain-language questions without requiring explicit Act names.
 
@@ -68,14 +68,14 @@
 
 ### Tests for User Story 2
 
-- [ ] T014 [P] [US2] Add paraphrase and wrong-source-hint ranking cases in `backend/test/backend.Tests/RagServiceTests/RagRetrievalPlannerTests.cs`
-- [ ] T015 [P] [US2] Add paraphrase consistency and wrong-hint ask-flow assertions in `backend/test/backend.Tests/RagServiceTests/RagAppServiceTests.cs` and `backend/test/backend.Tests/RagServiceTests/RagQueryFocusBuilderTests.cs`
+- [x] T014 [P] [US2] Add paraphrase and wrong-source-hint ranking cases in `backend/test/backend.Tests/RagServiceTests/RagRetrievalPlannerTests.cs`
+- [x] T015 [P] [US2] Add paraphrase consistency and wrong-hint ask-flow assertions in `backend/test/backend.Tests/RagServiceTests/RagAppServiceTests.cs` and `backend/test/backend.Tests/RagServiceTests/RagQueryFocusBuilderTests.cs`
 
 ### Implementation for User Story 2
 
-- [ ] T016 [P] [US2] Expand colloquial and misleading source-hint handling in `backend/src/backend.Application/Services/RagService/RagSourceHintExtractor.cs`
-- [ ] T017 [P] [US2] Calibrate source-family consistency and semantic breadth scoring in `backend/src/backend.Application/Services/RagService/RagRetrievalPlanner.cs`
-- [ ] T018 [US2] Refine focus-query generation and translated-query source selection for paraphrase stability in `backend/src/backend.Application/Services/RagService/RagQueryFocusBuilder.cs` and `backend/src/backend.Application/Services/RagService/RagAppService.cs`
+- [x] T016 [P] [US2] Expand colloquial and misleading source-hint handling in `backend/src/backend.Application/Services/RagService/RagSourceHintExtractor.cs`
+- [x] T017 [P] [US2] Calibrate source-family consistency and semantic breadth scoring in `backend/src/backend.Application/Services/RagService/RagRetrievalPlanner.cs`
+- [x] T018 [US2] Refine focus-query generation and translated-query source selection for paraphrase stability in `backend/src/backend.Application/Services/RagService/RagQueryFocusBuilder.cs` and `backend/src/backend.Application/Services/RagService/RagAppService.cs`
 
 **Checkpoint**: User Story 2 should now keep the same primary source family across semantically equivalent and wrong-hint question variants.
 
@@ -89,18 +89,18 @@
 
 ### Tests for User Story 3
 
-- [ ] T019 [P] [US3] Add law-vs-guidance and multi-source selection cases in `backend/test/backend.Tests/RagServiceTests/RagDocumentProfileBuilderTests.cs` and `backend/test/backend.Tests/RagServiceTests/RagRetrievalPlannerTests.cs`
-- [ ] T020 [P] [US3] Add labeled citation and source-role response assertions in `backend/test/backend.Tests/RagServiceTests/RagAppServiceTests.cs` and `backend/test/backend.Tests/RagServiceTests/RagPromptBuilderTests.cs`
+- [x] T019 [P] [US3] Add law-vs-guidance and multi-source selection cases in `backend/test/backend.Tests/RagServiceTests/RagDocumentProfileBuilderTests.cs` and `backend/test/backend.Tests/RagServiceTests/RagRetrievalPlannerTests.cs`
+- [x] T020 [P] [US3] Add labeled citation and source-role response assertions in `backend/test/backend.Tests/RagServiceTests/RagAppServiceTests.cs` and `backend/test/backend.Tests/RagServiceTests/RagPromptBuilderTests.cs`
 
 ### Implementation for User Story 3
 
-- [ ] T021 [P] [US3] Extend citation contract fields for source title, locator, authority type, and source role in `backend/src/backend.Application/Services/RagService/DTO/RagCitationDto.cs`, `backend/src/backend.Application/Services/RagService/DTO/RagAnswerResult.cs`, and `specs/feat/021-intent-aware-rag/contracts/qa-ask.md`
-- [ ] T022 [P] [US3] Derive authority type and primary-vs-supporting source labels in `backend/src/backend.Application/Services/RagService/RagDocumentProfileBuilder.cs` and `backend/src/backend.Application/Services/RagService/RagRetrievalPlanner.cs`
-- [ ] T023 [P] [US3] Refine prompt wording for law-vs-guidance explanations in `backend/src/backend.Application/Services/RagService/RagPromptBuilder.cs`
-- [ ] T024 [US3] Return labeled citation sets and source-role aware answers in `backend/src/backend.Application/Services/RagService/RagAppService.cs`
-- [ ] T025 [P] [US3] Propagate labeled citation fields through `frontend/src/services/qa.service.ts`, `frontend/src/hooks/useChat.ts`, `frontend/src/providers/chat-provider/context.tsx`, `frontend/src/providers/chat-provider/index.tsx`, and `frontend/src/providers/chat-provider/reducer.tsx`
-- [ ] T026 [P] [US3] Render source-role badges and guidance notices in `frontend/src/components/chat/ChatMessage.tsx`
-- [ ] T027 [P] [US3] Update localized law-vs-guidance copy in `frontend/src/messages/en.json`, `frontend/src/messages/zu.json`, `frontend/src/messages/st.json`, and `frontend/src/messages/af.json`
+- [x] T021 [P] [US3] Extend citation contract fields for source title, locator, authority type, and source role in `backend/src/backend.Application/Services/RagService/DTO/RagCitationDto.cs`, `backend/src/backend.Application/Services/RagService/DTO/RagAnswerResult.cs`, and `specs/feat/021-intent-aware-rag/contracts/qa-ask.md`
+- [x] T022 [P] [US3] Derive authority type and primary-vs-supporting source labels in `backend/src/backend.Application/Services/RagService/RagDocumentProfileBuilder.cs` and `backend/src/backend.Application/Services/RagService/RagRetrievalPlanner.cs`
+- [x] T023 [P] [US3] Refine prompt wording for law-vs-guidance explanations in `backend/src/backend.Application/Services/RagService/RagPromptBuilder.cs`
+- [x] T024 [US3] Return labeled citation sets and source-role aware answers in `backend/src/backend.Application/Services/RagService/RagAppService.cs`
+- [x] T025 [P] [US3] Propagate labeled citation fields through `frontend/src/services/qa.service.ts`, `frontend/src/hooks/useChat.ts`, `frontend/src/providers/chat-provider/context.tsx`, `frontend/src/providers/chat-provider/index.tsx`, and `frontend/src/providers/chat-provider/reducer.tsx`
+- [x] T026 [P] [US3] Render source-role badges and guidance notices in `frontend/src/components/chat/ChatMessage.tsx`
+- [x] T027 [P] [US3] Update localized law-vs-guidance copy in `frontend/src/messages/en.json`, `frontend/src/messages/zu.json`, `frontend/src/messages/st.json`, and `frontend/src/messages/af.json`
 
 **Checkpoint**: User Story 3 should now assemble and label the right combination of law and guidance sources when both are needed.
 
@@ -114,18 +114,18 @@
 
 ### Tests for User Story 4
 
-- [ ] T028 [P] [US4] Add confidence-band, ambiguity, and risk-trigger coverage in `backend/test/backend.Tests/RagServiceTests/RagConfidenceEvaluatorTests.cs`
-- [ ] T029 [P] [US4] Add clarification, insufficiency, and escalation prompt coverage in `backend/test/backend.Tests/RagServiceTests/RagPromptBuilderTests.cs`
-- [ ] T030 [P] [US4] Add non-persistence and urgent-response orchestration coverage in `backend/test/backend.Tests/RagServiceTests/RagAppServiceTests.cs`
+- [x] T028 [P] [US4] Add confidence-band, ambiguity, and risk-trigger coverage in `backend/test/backend.Tests/RagServiceTests/RagConfidenceEvaluatorTests.cs`
+- [x] T029 [P] [US4] Add clarification, insufficiency, and escalation prompt coverage in `backend/test/backend.Tests/RagServiceTests/RagPromptBuilderTests.cs`
+- [x] T030 [P] [US4] Add non-persistence and urgent-response orchestration coverage in `backend/test/backend.Tests/RagServiceTests/RagAppServiceTests.cs`
 
 ### Implementation for User Story 4
 
-- [ ] T031 [P] [US4] Recalibrate deterministic thresholds and risk-trigger evaluation in `backend/src/backend.Application/Services/RagService/RagConfidenceEvaluator.cs`
-- [ ] T032 [P] [US4] Refine clarification, insufficiency, and escalation prompts in `backend/src/backend.Application/Services/RagService/RagPromptBuilder.cs`
-- [ ] T033 [US4] Route urgent or under-grounded asks through clarification or escalation-safe paths in `backend/src/backend.Application/Services/RagService/RagAppService.cs`
-- [ ] T034 [P] [US4] Normalize clarification, insufficiency, and escalation state handling in `frontend/src/services/qa.service.ts`, `frontend/src/hooks/useChat.ts`, `frontend/src/providers/chat-provider/context.tsx`, `frontend/src/providers/chat-provider/index.tsx`, and `frontend/src/providers/chat-provider/reducer.tsx`
-- [ ] T035 [P] [US4] Render urgent limitation and escalation states accessibly in `frontend/src/components/chat/ChatMessage.tsx`
-- [ ] T036 [P] [US4] Update localized caution, clarification, and escalation copy in `frontend/src/messages/en.json`, `frontend/src/messages/zu.json`, `frontend/src/messages/st.json`, and `frontend/src/messages/af.json`
+- [x] T031 [P] [US4] Recalibrate deterministic thresholds and risk-trigger evaluation in `backend/src/backend.Application/Services/RagService/RagConfidenceEvaluator.cs`
+- [x] T032 [P] [US4] Refine clarification, insufficiency, and escalation prompts in `backend/src/backend.Application/Services/RagService/RagPromptBuilder.cs`
+- [x] T033 [US4] Route urgent or under-grounded asks through clarification or escalation-safe paths in `backend/src/backend.Application/Services/RagService/RagAppService.cs`
+- [x] T034 [P] [US4] Normalize clarification, insufficiency, and escalation state handling in `frontend/src/services/qa.service.ts`, `frontend/src/hooks/useChat.ts`, `frontend/src/providers/chat-provider/context.tsx`, `frontend/src/providers/chat-provider/index.tsx`, and `frontend/src/providers/chat-provider/reducer.tsx`
+- [x] T035 [P] [US4] Render urgent limitation and escalation states accessibly in `frontend/src/components/chat/ChatMessage.tsx`
+- [x] T036 [P] [US4] Update localized caution, clarification, and escalation copy in `frontend/src/messages/en.json`, `frontend/src/messages/zu.json`, `frontend/src/messages/st.json`, and `frontend/src/messages/af.json`
 
 **Checkpoint**: User Story 4 should now safely downgrade weak or urgent questions and communicate that state clearly in the Ask UI.
 
@@ -135,9 +135,9 @@
 
 **Purpose**: Validate the full feature, tighten regressions, and confirm the documented coverage-state boundaries and follow-on bundle notes.
 
-- [ ] T037 [P] Run the backend regression suite in `backend/test/backend.Tests/RagServiceTests/RagAppServiceTests.cs`, `backend/test/backend.Tests/RagServiceTests/RagPromptBuilderTests.cs`, `backend/test/backend.Tests/RagServiceTests/RagRetrievalPlannerTests.cs`, `backend/test/backend.Tests/RagServiceTests/RagConfidenceEvaluatorTests.cs`, `backend/test/backend.Tests/RagServiceTests/RagDocumentProfileBuilderTests.cs`, `backend/test/backend.Tests/RagServiceTests/RagQueryFocusBuilderTests.cs`, and `backend/test/backend.Tests/RagServiceTests/RagIndexStoreTests.cs`
-- [ ] T038 [P] Run frontend lint and type-safety validation for `frontend/src/services/qa.service.ts`, `frontend/src/hooks/useChat.ts`, `frontend/src/providers/chat-provider/context.tsx`, `frontend/src/providers/chat-provider/index.tsx`, `frontend/src/providers/chat-provider/reducer.tsx`, and `frontend/src/components/chat/ChatMessage.tsx`
-- [ ] T039 Validate the current-corpus benchmark matrix and coverage-state smoke prompts in `specs/feat/021-intent-aware-rag/quickstart.md`, `specs/feat/021-intent-aware-rag/research.md`, and `specs/feat/021-intent-aware-rag/plan.md`
+- [x] T037 [P] Run the backend regression suite in `backend/test/backend.Tests/RagServiceTests/RagAppServiceTests.cs`, `backend/test/backend.Tests/RagServiceTests/RagPromptBuilderTests.cs`, `backend/test/backend.Tests/RagServiceTests/RagRetrievalPlannerTests.cs`, `backend/test/backend.Tests/RagServiceTests/RagConfidenceEvaluatorTests.cs`, `backend/test/backend.Tests/RagServiceTests/RagDocumentProfileBuilderTests.cs`, `backend/test/backend.Tests/RagServiceTests/RagQueryFocusBuilderTests.cs`, and `backend/test/backend.Tests/RagServiceTests/RagIndexStoreTests.cs`
+- [x] T038 [P] Run frontend lint and type-safety validation for `frontend/src/services/qa.service.ts`, `frontend/src/hooks/useChat.ts`, `frontend/src/providers/chat-provider/context.tsx`, `frontend/src/providers/chat-provider/index.tsx`, `frontend/src/providers/chat-provider/reducer.tsx`, and `frontend/src/components/chat/ChatMessage.tsx`
+- [x] T039 Validate the current-corpus benchmark matrix and coverage-state smoke prompts in `specs/feat/021-intent-aware-rag/quickstart.md`, `specs/feat/021-intent-aware-rag/research.md`, and `specs/feat/021-intent-aware-rag/plan.md`
 
 ---
 
@@ -243,3 +243,4 @@ Task: "Update localized caution, clarification, and escalation copy in frontend/
 - All tasks follow the required checklist format with task ID, optional parallel marker, optional story label, and exact file path.
 - No database migration tasks are included because the plan and research explicitly rule out schema changes for the retrieval-hardening slice.
 - The task list deliberately separates current corpus retrieval hardening from deferred corpus expansion work so missing-source scenarios are not mistaken for ranking regressions.
+

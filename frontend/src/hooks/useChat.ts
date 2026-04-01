@@ -18,6 +18,7 @@ export interface ChatMessage {
   answerMode?: RagAnswerMode;
   confidenceBand?: RagConfidenceBand;
   clarificationQuestion?: string | null;
+  requiresUrgentAttention?: boolean;
 }
 
 export interface UseChatReturn {
@@ -60,6 +61,7 @@ export function useChat(): UseChatReturn {
         answerMode: result.answerMode,
         confidenceBand: result.confidenceBand,
         clarificationQuestion: result.clarificationQuestion,
+        requiresUrgentAttention: result.requiresUrgentAttention,
       };
 
       setMessages((prev) => [...prev, botMessage]);
