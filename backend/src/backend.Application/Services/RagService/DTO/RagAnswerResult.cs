@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 
@@ -40,4 +41,11 @@ public class RagAnswerResult
     /// <c>null</c> when <see cref="IsInsufficientInformation"/> is <c>true</c>.
     /// </summary>
     public Guid? AnswerId { get; set; }
+
+    /// <summary>
+    /// ISO 639-1 code of the detected input language (e.g. "zu", "st", "af", "en").
+    /// Defaults to "en" when language detection is unavailable.
+    /// </summary>
+    [JsonProperty("detectedLanguageCode")]
+    public string DetectedLanguageCode { get; set; } = "en";
 }

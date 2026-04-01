@@ -25,7 +25,7 @@
 
 **Purpose**: Verify prerequisites are in place. This feature adds files to an existing project — no new build tooling or project initialization is needed.
 
-- [ ] T001 Confirm branch `feat/020-multilingual-rag` is checked out and `backend.sln` builds without errors (`dotnet build backend/backend.sln`)
+- [x] T001 Confirm branch `feat/020-multilingual-rag` is checked out and `backend.sln` builds without errors (`dotnet build backend/backend.sln`)
 
 ---
 
@@ -35,15 +35,15 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T002 Create `backend/src/backend.Application/Services/LanguageService/ILanguageAppService.cs` — declare interface with `Task<Language> DetectLanguageAsync(string text)` and `Task<string> TranslateToEnglishAsync(string text, Language sourceLanguage)` in namespace `backend.Services.LanguageService`; add XML doc comments on both methods as per data-model.md contracts
+- [x] T002 Create `backend/src/backend.Application/Services/LanguageService/ILanguageAppService.cs` — declare interface with `Task<Language> DetectLanguageAsync(string text)` and `Task<string> TranslateToEnglishAsync(string text, Language sourceLanguage)` in namespace `backend.Services.LanguageService`; add XML doc comments on both methods as per data-model.md contracts
 
-- [ ] T003 Create `backend/src/backend.Application/Services/LanguageService/LanguageAppService.cs` — implement `DetectLanguageAsync`: extends `ApplicationService`, implements `ILanguageAppService`; inject `IHttpClientFactory` and `IConfiguration`; guard against null/whitespace (return `Language.English`); build detection prompt (`system`: identifier role, `user`: constrained to exactly one of `en zu st af`, fallback to `en`); POST to `/v1/chat/completions` via named `"OpenAI"` HttpClient; parse trimmed lowercase response against `{ "en" → English, "zu" → Zulu, "st" → Sesotho, "af" → Afrikaans }`; return `Language.English` for any unrecognised code; use private `sealed record` types for OpenAI JSON serialisation (same pattern as `RagAppService` lines 308–327)
+- [x] T003 Create `backend/src/backend.Application/Services/LanguageService/LanguageAppService.cs` — implement `DetectLanguageAsync`: extends `ApplicationService`, implements `ILanguageAppService`; inject `IHttpClientFactory` and `IConfiguration`; guard against null/whitespace (return `Language.English`); build detection prompt (`system`: identifier role, `user`: constrained to exactly one of `en zu st af`, fallback to `en`); POST to `/v1/chat/completions` via named `"OpenAI"` HttpClient; parse trimmed lowercase response against `{ "en" → English, "zu" → Zulu, "st" → Sesotho, "af" → Afrikaans }`; return `Language.English` for any unrecognised code; use private `sealed record` types for OpenAI JSON serialisation (same pattern as `RagAppService` lines 308–327)
 
-- [ ] T004 Add `TranslateToEnglishAsync` to `backend/src/backend.Application/Services/LanguageService/LanguageAppService.cs` — guard against null/whitespace; early-return `text` unchanged when `sourceLanguage == Language.English` (no API call); build translation prompt (`system`: translator role — translate faithfully, no commentary; `user`: "Translate the following {languageName} text to English. Return only the translation.\nText: {text}"); resolve language display names via a private `const` or `switch` (`Zulu → "isiZulu"`, `Sesotho → "Sesotho"`, `Afrikaans → "Afrikaans"`); POST to `/v1/chat/completions`; return trimmed response content
+- [x] T004 Add `TranslateToEnglishAsync` to `backend/src/backend.Application/Services/LanguageService/LanguageAppService.cs` — guard against null/whitespace; early-return `text` unchanged when `sourceLanguage == Language.English` (no API call); build translation prompt (`system`: translator role — translate faithfully, no commentary; `user`: "Translate the following {languageName} text to English. Return only the translation.\nText: {text}"); resolve language display names via a private `const` or `switch` (`Zulu → "isiZulu"`, `Sesotho → "Sesotho"`, `Afrikaans → "Afrikaans"`); POST to `/v1/chat/completions`; return trimmed response content
 
-- [ ] T005 [P] Update `backend/src/backend.Application/Services/RagService/RagPromptBuilder.cs` — add `Language language = Language.English` parameter to both `BuildSystemPrompt()` and `BuildFallbackSystemPrompt()`; add a private `static string GetLanguageDirective(Language language)` switch that returns `"Respond in {name}. Keep all Act names, section numbers, and legal citations in English."` for Zulu/Sesotho/Afrikaans and `string.Empty` for English; append directive as `"\n\n6. {directive}"` when non-empty; default parameter value must preserve backward compatibility with callers that pass no argument; update XML doc comments
+- [x] T005 [P] Update `backend/src/backend.Application/Services/RagService/RagPromptBuilder.cs` — add `Language language = Language.English` parameter to both `BuildSystemPrompt()` and `BuildFallbackSystemPrompt()`; add a private `static string GetLanguageDirective(Language language)` switch that returns `"Respond in {name}. Keep all Act names, section numbers, and legal citations in English."` for Zulu/Sesotho/Afrikaans and `string.Empty` for English; append directive as `"\n\n6. {directive}"` when non-empty; default parameter value must preserve backward compatibility with callers that pass no argument; update XML doc comments
 
-- [ ] T006 [P] Update `backend/src/backend.Application/Services/RagService/DTO/RagAnswerResult.cs` — add `public string DetectedLanguageCode { get; set; } = "en";` with XML doc comment "ISO 639-1 code of the detected input language (e.g. \"zu\", \"en\")"; do not rename or remove any existing properties
+- [x] T006 [P] Update `backend/src/backend.Application/Services/RagService/DTO/RagAnswerResult.cs` — add `public string DetectedLanguageCode { get; set; } = "en";` with XML doc comment "ISO 639-1 code of the detected input language (e.g. \"zu\", \"en\")"; do not rename or remove any existing properties
 
 **Checkpoint**: `LanguageAppService` compiles, `RagPromptBuilder` compiles with language-aware prompts, `RagAnswerResult` has `DetectedLanguageCode` — ready to wire into `RagAppService`
 
@@ -57,13 +57,13 @@
 
 ### Implementation for User Story 1
 
-- [ ] T007 [US1] Inject `ILanguageAppService` into `RagAppService` constructor in `backend/src/backend.Application/Services/RagService/RagAppService.cs` — add `private readonly ILanguageAppService _languageService;` field; update constructor signature and body to accept and assign the new dependency; add XML doc on the new field
+- [x] T007 [US1] Inject `ILanguageAppService` into `RagAppService` constructor in `backend/src/backend.Application/Services/RagService/RagAppService.cs` — add `private readonly ILanguageAppService _languageService;` field; update constructor signature and body to accept and assign the new dependency; add XML doc on the new field
 
-- [ ] T008 [US1] Add language detection and translation to `AskAsync` in `backend/src/backend.Application/Services/RagService/RagAppService.cs` — immediately after the guard clauses, add: `var detectedLanguage = await _languageService.DetectLanguageAsync(request.QuestionText);` then `var translatedText = await _languageService.TranslateToEnglishAsync(request.QuestionText, detectedLanguage);`; replace every occurrence of `request.QuestionText` used as the search/embedding input with `translatedText`; pass `detectedLanguage` to `BuildSystemPrompt(detectedLanguage)` and `BuildFallbackSystemPrompt(detectedLanguage)`; set `DetectedLanguageCode` on both return statements (`RagAnswerResult`) to the ISO string (`"en"`, `"zu"`, `"st"`, or `"af"`) derived from `detectedLanguage`; add an inline comment before the detect/translate block: `// Multilingual: detect input language and translate to English for knowledge-base search.`
+- [x] T008 [US1] Add language detection and translation to `AskAsync` in `backend/src/backend.Application/Services/RagService/RagAppService.cs` — immediately after the guard clauses, add: `var detectedLanguage = await _languageService.DetectLanguageAsync(request.QuestionText);` then `var translatedText = await _languageService.TranslateToEnglishAsync(request.QuestionText, detectedLanguage);`; replace every occurrence of `request.QuestionText` used as the search/embedding input with `translatedText`; pass `detectedLanguage` to `BuildSystemPrompt(detectedLanguage)` and `BuildFallbackSystemPrompt(detectedLanguage)`; set `DetectedLanguageCode` on both return statements (`RagAnswerResult`) to the ISO string (`"en"`, `"zu"`, `"st"`, or `"af"`) derived from `detectedLanguage`; add an inline comment before the detect/translate block: `// Multilingual: detect input language and translate to English for knowledge-base search.`
 
-- [ ] T009 [US1] Update `PersistQaAsync` in `backend/src/backend.Application/Services/RagService/RagAppService.cs` — add `string translatedText` and `Language language` to the method signature (after existing `questionText` param); replace `Language.English` hard-codes with `language` on `Conversation`, `Question`, and `Answer` entities; set `Question.OriginalText = questionText` (unchanged), `Question.TranslatedText = translatedText` (new param); update the single call site in `AskAsync` to pass `request.QuestionText`, `translatedText`, and `detectedLanguage`
+- [x] T009 [US1] Update `PersistQaAsync` in `backend/src/backend.Application/Services/RagService/RagAppService.cs` — add `string translatedText` and `Language language` to the method signature (after existing `questionText` param); replace `Language.English` hard-codes with `language` on `Conversation`, `Question`, and `Answer` entities; set `Question.OriginalText = questionText` (unchanged), `Question.TranslatedText = translatedText` (new param); update the single call site in `AskAsync` to pass `request.QuestionText`, `translatedText`, and `detectedLanguage`
 
-- [ ] T010 [P] [US1] Register `ILanguageAppService` in `backend/src/backend.Web.Host/Startup/Startup.cs` — add `services.AddTransient<ILanguageAppService, LanguageAppService>();` adjacent to (and following the same pattern as) the existing `IEmbeddingAppService` registration; add the required `using backend.Services.LanguageService;` directive if not already present
+- [x] T010 [P] [US1] Register `ILanguageAppService` in `backend/src/backend.Web.Host/Startup/Startup.cs` — add `services.AddTransient<ILanguageAppService, LanguageAppService>();` adjacent to (and following the same pattern as) the existing `IEmbeddingAppService` registration; add the required `using backend.Services.LanguageService;` directive if not already present
 
 **Checkpoint**: Build the solution (`dotnet build backend/backend.sln`). Submit `POST /api/app/qa/ask` with the isiZulu question above. Verify `detectedLanguageCode == "zu"`, the answer is in isiZulu, and at least one citation `actName` is in English.
 
@@ -77,7 +77,7 @@
 
 ### Implementation for User Story 2
 
-- [ ] T011 [US2] Verify Sesotho routing end-to-end in `backend/src/backend.Application/Services/LanguageService/LanguageAppService.cs` and `backend/src/backend.Application/Services/RagService/RagPromptBuilder.cs` — confirm: (1) `DetectLanguageAsync` maps `"st"` response → `Language.Sesotho`; (2) `TranslateToEnglishAsync` uses `"Sesotho"` as the language name in the translation prompt when `sourceLanguage == Sesotho`; (3) `GetLanguageDirective` returns the Sesotho directive string for `Language.Sesotho`; (4) `PersistQaAsync` stores `Language.Sesotho` on the question record; fix any gap found
+- [x] T011 [US2] Verify Sesotho routing end-to-end in `backend/src/backend.Application/Services/LanguageService/LanguageAppService.cs` and `backend/src/backend.Application/Services/RagService/RagPromptBuilder.cs` — confirm: (1) `DetectLanguageAsync` maps `"st"` response → `Language.Sesotho`; (2) `TranslateToEnglishAsync` uses `"Sesotho"` as the language name in the translation prompt when `sourceLanguage == Sesotho`; (3) `GetLanguageDirective` returns the Sesotho directive string for `Language.Sesotho`; (4) `PersistQaAsync` stores `Language.Sesotho` on the question record; fix any gap found
 
 **Checkpoint**: Submit a Sesotho legal question. Verify `detectedLanguageCode == "st"` and the answer is in Sesotho.
 
@@ -91,7 +91,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T012 [US3] Verify Afrikaans routing end-to-end in `backend/src/backend.Application/Services/LanguageService/LanguageAppService.cs` and `backend/src/backend.Application/Services/RagService/RagPromptBuilder.cs` — confirm: (1) `DetectLanguageAsync` maps `"af"` → `Language.Afrikaans`; (2) `TranslateToEnglishAsync` uses `"Afrikaans"` in the translation prompt; (3) `GetLanguageDirective` returns the Afrikaans directive for `Language.Afrikaans`; (4) `PersistQaAsync` stores `Language.Afrikaans`; fix any gap found
+- [x] T012 [US3] Verify Afrikaans routing end-to-end in `backend/src/backend.Application/Services/LanguageService/LanguageAppService.cs` and `backend/src/backend.Application/Services/RagService/RagPromptBuilder.cs` — confirm: (1) `DetectLanguageAsync` maps `"af"` → `Language.Afrikaans`; (2) `TranslateToEnglishAsync` uses `"Afrikaans"` in the translation prompt; (3) `GetLanguageDirective` returns the Afrikaans directive for `Language.Afrikaans`; (4) `PersistQaAsync` stores `Language.Afrikaans`; fix any gap found
 
 **Checkpoint**: Submit an Afrikaans legal question. Verify `detectedLanguageCode == "af"` and the answer is in Afrikaans.
 
@@ -105,7 +105,7 @@
 
 ### Implementation for User Story 4
 
-- [ ] T013 [US4] Verify English passthrough in `backend/src/backend.Application/Services/LanguageService/LanguageAppService.cs` — confirm `TranslateToEnglishAsync` returns `text` immediately (no HTTP call) when `sourceLanguage == Language.English`; confirm `RagAppService.AskAsync` uses the untranslated text for embedding when language is English; confirm `DetectedLanguageCode` in the response is `"en"`; confirm `PersistQaAsync` stores `Language.English` with `OriginalText == TranslatedText` for English inputs; fix any gap found
+- [x] T013 [US4] Verify English passthrough in `backend/src/backend.Application/Services/LanguageService/LanguageAppService.cs` — confirm `TranslateToEnglishAsync` returns `text` immediately (no HTTP call) when `sourceLanguage == Language.English`; confirm `RagAppService.AskAsync` uses the untranslated text for embedding when language is English; confirm `DetectedLanguageCode` in the response is `"en"`; confirm `PersistQaAsync` stores `Language.English` with `OriginalText == TranslatedText` for English inputs; fix any gap found
 
 **Checkpoint**: Submit an English legal question. Verify no regression in answer quality and `detectedLanguageCode == "en"`.
 
@@ -115,9 +115,9 @@
 
 **Purpose**: Hardening and cleanup across all stories.
 
-- [ ] T014 [P] Review all new and modified files for `docs/RULES.md` compliance — classes ≤ 350 lines, methods ≤ 1 screen, nesting ≤ 2 levels, all public methods have XML doc comments, no magic strings (language names are `const` or `enum`-driven), no dead code; fix any violations in `backend/src/backend.Application/Services/LanguageService/LanguageAppService.cs` and `backend/src/backend.Application/Services/RagService/RagAppService.cs`
+- [x] T014 [P] Review all new and modified files for `docs/RULES.md` compliance — classes ≤ 350 lines, methods ≤ 1 screen, nesting ≤ 2 levels, all public methods have XML doc comments, no magic strings (language names are `const` or `enum`-driven), no dead code; fix any violations in `backend/src/backend.Application/Services/LanguageService/LanguageAppService.cs` and `backend/src/backend.Application/Services/RagService/RagAppService.cs`
 
-- [ ] T015 [P] Add error-resilience to `LanguageAppService` in `backend/src/backend.Application/Services/LanguageService/LanguageAppService.cs` — wrap each OpenAI HTTP call in a try/catch; on exception, log via ABP `Logger.Warn(...)` and return the safe fallback (`Language.English` for detection, original `text` for translation) so the RAG pipeline is never blocked by a language service failure; document the fallback behaviour in XML comments
+- [x] T015 [P] Add error-resilience to `LanguageAppService` in `backend/src/backend.Application/Services/LanguageService/LanguageAppService.cs` — wrap each OpenAI HTTP call in a try/catch; on exception, log via ABP `Logger.Warn(...)` and return the safe fallback (`Language.English` for detection, original `text` for translation) so the RAG pipeline is never blocked by a language service failure; document the fallback behaviour in XML comments
 
 ---
 
