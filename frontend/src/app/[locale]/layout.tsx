@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
@@ -22,7 +23,10 @@ export function generateStaticParams() {
 export default async function LocaleLayout({
   children,
   params,
-}: LayoutProps<"/[locale]">) {
+}: {
+  children: ReactNode;
+  params: Promise<{ locale: string }>;
+}) {
   const { locale } = await params;
 
   if (!routing.locales.includes(locale as (typeof routing.locales)[number])) {

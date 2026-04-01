@@ -22,8 +22,9 @@ namespace backend.Web.Host.Controllers
         }
 
         /// <summary>
-        /// Submits a natural-language legal question and returns a cited answer from South African legislation.
-        /// Returns <c>isInsufficientInformation: true</c> when no relevant legislation is found.
+        /// Submits a natural-language legal question and returns one of four structured outcomes:
+        /// a direct grounded answer, a cautious grounded answer, a clarification request,
+        /// or an insufficient-grounding response.
         /// </summary>
         [HttpPost("ask")]
         public Task<RagAnswerResult> Ask([FromBody] AskQuestionRequest request)

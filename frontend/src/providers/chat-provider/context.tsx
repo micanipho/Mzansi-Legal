@@ -1,6 +1,10 @@
 "use client";
 import { createContext } from "react";
-import type { RagCitationDto } from "@/services/qa.service";
+import type {
+  RagAnswerMode,
+  RagCitationDto,
+  RagConfidenceBand,
+} from "@/services/qa.service";
 
 export interface IChatMessage {
   id: string;
@@ -9,6 +13,9 @@ export interface IChatMessage {
   status: "sending" | "sent" | "error";
   citations?: RagCitationDto[];
   isInsufficientInformation?: boolean;
+  answerMode?: RagAnswerMode;
+  confidenceBand?: RagConfidenceBand;
+  clarificationQuestion?: string | null;
 }
 
 export interface IChatStateContext {

@@ -17,10 +17,10 @@
 
 **Purpose**: Establish the shared response contract and enums that every later slice depends on.
 
-- [ ] T001 Create `RagAnswerMode` enum in `backend/src/backend.Application/Services/RagService/DTO/RagAnswerMode.cs`
-- [ ] T002 [P] Create `RagConfidenceBand` enum in `backend/src/backend.Application/Services/RagService/DTO/RagConfidenceBand.cs`
-- [ ] T003 Extend `RagAnswerResult` with answer-mode metadata in `backend/src/backend.Application/Services/RagService/DTO/RagAnswerResult.cs`
-- [ ] T004 Update response-contract documentation in `backend/src/backend.Web.Host/Controllers/QaController.cs` and `specs/feat/021-intent-aware-rag/contracts/qa-ask.md`
+- [X] T001 Create `RagAnswerMode` enum in `backend/src/backend.Application/Services/RagService/DTO/RagAnswerMode.cs`
+- [X] T002 [P] Create `RagConfidenceBand` enum in `backend/src/backend.Application/Services/RagService/DTO/RagConfidenceBand.cs`
+- [X] T003 Extend `RagAnswerResult` with answer-mode metadata in `backend/src/backend.Application/Services/RagService/DTO/RagAnswerResult.cs`
+- [X] T004 Update response-contract documentation in `backend/src/backend.Web.Host/Controllers/QaController.cs` and `specs/feat/021-intent-aware-rag/contracts/qa-ask.md`
 
 ---
 
@@ -30,11 +30,11 @@
 
 **Critical**: No user story work should begin until this phase is complete.
 
-- [ ] T005 Expand startup indexing, document/category loading, and keyword normalization in `backend/src/backend.Application/Services/RagService/RagAppService.cs`
-- [ ] T006 [P] Create source-hint extraction scaffolding in `backend/src/backend.Application/Services/RagService/RagSourceHintExtractor.cs`
-- [ ] T007 [P] Create document-candidate ranking scaffolding in `backend/src/backend.Application/Services/RagService/RagRetrievalPlanner.cs`
-- [ ] T008 [P] Create deterministic confidence-evaluation scaffolding in `backend/src/backend.Application/Services/RagService/RagConfidenceEvaluator.cs`
-- [ ] T009 Add shared mode-aware prompt and temperature entry points in `backend/src/backend.Application/Services/RagService/RagPromptBuilder.cs`
+- [X] T005 Expand startup indexing, document/category loading, and keyword normalization in `backend/src/backend.Application/Services/RagService/RagAppService.cs`
+- [X] T006 [P] Create source-hint extraction scaffolding in `backend/src/backend.Application/Services/RagService/RagSourceHintExtractor.cs`
+- [X] T007 [P] Create document-candidate ranking scaffolding in `backend/src/backend.Application/Services/RagService/RagRetrievalPlanner.cs`
+- [X] T008 [P] Create deterministic confidence-evaluation scaffolding in `backend/src/backend.Application/Services/RagService/RagConfidenceEvaluator.cs`
+- [X] T009 Add shared mode-aware prompt and temperature entry points in `backend/src/backend.Application/Services/RagService/RagPromptBuilder.cs`
 
 **Checkpoint**: Shared DTOs, retrieval helpers, and prompt hooks exist so user stories can be implemented against a stable foundation.
 
@@ -48,15 +48,15 @@
 
 ### Tests for User Story 1
 
-- [ ] T010 [P] [US1] Create plain-language primary-source selection tests in `backend/test/backend.Tests/RagServiceTests/RagRetrievalPlannerTests.cs`
-- [ ] T011 [P] [US1] Add plain-language ask-flow assertions in `backend/test/backend.Tests/RagServiceTests/RagAppServiceTests.cs`
+- [X] T010 [P] [US1] Create plain-language primary-source selection tests in `backend/test/backend.Tests/RagServiceTests/RagRetrievalPlannerTests.cs`
+- [X] T011 [P] [US1] Add plain-language ask-flow assertions in `backend/test/backend.Tests/RagServiceTests/RagAppServiceTests.cs`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement title, short-name, act-number, and category matching in `backend/src/backend.Application/Services/RagService/RagSourceHintExtractor.cs`
-- [ ] T013 [US1] Implement primary document scoring from semantic strength and metadata alignment in `backend/src/backend.Application/Services/RagService/RagRetrievalPlanner.cs`
-- [ ] T014 [US1] Refactor direct grounded retrieval and citation assembly in `backend/src/backend.Application/Services/RagService/RagAppService.cs`
-- [ ] T015 [US1] Update direct-answer prompt instructions for grounded cited responses in `backend/src/backend.Application/Services/RagService/RagPromptBuilder.cs`
+- [X] T012 [US1] Implement title, short-name, act-number, and category matching in `backend/src/backend.Application/Services/RagService/RagSourceHintExtractor.cs`
+- [X] T013 [US1] Implement primary document scoring from semantic strength and metadata alignment in `backend/src/backend.Application/Services/RagService/RagRetrievalPlanner.cs`
+- [X] T014 [US1] Refactor direct grounded retrieval and citation assembly in `backend/src/backend.Application/Services/RagService/RagAppService.cs`
+- [X] T015 [US1] Update direct-answer prompt instructions for grounded cited responses in `backend/src/backend.Application/Services/RagService/RagPromptBuilder.cs`
 
 **Checkpoint**: User Story 1 should now return grounded cited answers for plain-language questions without requiring explicit Act names.
 
@@ -70,14 +70,14 @@
 
 ### Tests for User Story 2
 
-- [ ] T016 [P] [US2] Add paraphrase-consistency ranking cases in `backend/test/backend.Tests/RagServiceTests/RagRetrievalPlannerTests.cs`
-- [ ] T017 [P] [US2] Add equivalent-question source-consistency assertions in `backend/test/backend.Tests/RagServiceTests/RagAppServiceTests.cs`
+- [X] T016 [P] [US2] Add paraphrase-consistency ranking cases in `backend/test/backend.Tests/RagServiceTests/RagRetrievalPlannerTests.cs`
+- [X] T017 [P] [US2] Add equivalent-question source-consistency assertions in `backend/test/backend.Tests/RagServiceTests/RagAppServiceTests.cs`
 
 ### Implementation for User Story 2
 
-- [ ] T018 [US2] Calibrate wider semantic candidate pooling and per-document chunk caps in `backend/src/backend.Application/Services/RagService/RagRetrievalPlanner.cs`
-- [ ] T019 [US2] Normalize colloquial phrase handling and additive hint boosts in `backend/src/backend.Application/Services/RagService/RagSourceHintExtractor.cs`
-- [ ] T020 [US2] Stabilize translated-query source selection for semantically equivalent questions in `backend/src/backend.Application/Services/RagService/RagAppService.cs`
+- [X] T018 [US2] Calibrate wider semantic candidate pooling and per-document chunk caps in `backend/src/backend.Application/Services/RagService/RagRetrievalPlanner.cs`
+- [X] T019 [US2] Normalize colloquial phrase handling and additive hint boosts in `backend/src/backend.Application/Services/RagService/RagSourceHintExtractor.cs`
+- [X] T020 [US2] Stabilize translated-query source selection for semantically equivalent questions in `backend/src/backend.Application/Services/RagService/RagAppService.cs`
 
 **Checkpoint**: User Story 2 should now keep the same primary source family across semantically equivalent question variants.
 
@@ -91,15 +91,15 @@
 
 ### Tests for User Story 3
 
-- [ ] T021 [P] [US3] Add supporting-document selection cases in `backend/test/backend.Tests/RagServiceTests/RagRetrievalPlannerTests.cs`
-- [ ] T022 [P] [US3] Add multi-source grounding and citation assertions in `backend/test/backend.Tests/RagServiceTests/RagAppServiceTests.cs`
+- [X] T021 [P] [US3] Add supporting-document selection cases in `backend/test/backend.Tests/RagServiceTests/RagRetrievalPlannerTests.cs`
+- [X] T022 [P] [US3] Add multi-source grounding and citation assertions in `backend/test/backend.Tests/RagServiceTests/RagAppServiceTests.cs`
 
 ### Implementation for User Story 3
 
-- [ ] T023 [US3] Implement primary-plus-supporting document selection rules in `backend/src/backend.Application/Services/RagService/RagRetrievalPlanner.cs`
-- [ ] T024 [US3] Update grounded context construction for multi-source answers in `backend/src/backend.Application/Services/RagService/RagPromptBuilder.cs`
-- [ ] T025 [US3] Persist and return multi-source grounded citations in `backend/src/backend.Application/Services/RagService/RagAppService.cs`
-- [ ] T026 [US3] Extend ask-response typing for multi-citation grounded answers in `frontend/src/services/qa.service.ts`
+- [X] T023 [US3] Implement primary-plus-supporting document selection rules in `backend/src/backend.Application/Services/RagService/RagRetrievalPlanner.cs`
+- [X] T024 [US3] Update grounded context construction for multi-source answers in `backend/src/backend.Application/Services/RagService/RagPromptBuilder.cs`
+- [X] T025 [US3] Persist and return multi-source grounded citations in `backend/src/backend.Application/Services/RagService/RagAppService.cs`
+- [X] T026 [US3] Extend ask-response typing for multi-citation grounded answers in `frontend/src/services/qa.service.ts`
 
 **Checkpoint**: User Story 3 should now assemble and cite the right combination of sources when one Act alone is not enough.
 
@@ -113,19 +113,19 @@
 
 ### Tests for User Story 4
 
-- [ ] T027 [P] [US4] Add confidence-band and answer-mode decision tests in `backend/test/backend.Tests/RagServiceTests/RagConfidenceEvaluatorTests.cs`
-- [ ] T028 [P] [US4] Add mode-aware prompt and temperature tests in `backend/test/backend.Tests/RagServiceTests/RagPromptBuilderTests.cs`
-- [ ] T029 [P] [US4] Add clarification, insufficiency, and no-general-fallback coverage in `backend/test/backend.Tests/RagServiceTests/RagAppServiceTests.cs`
+- [X] T027 [P] [US4] Add confidence-band and answer-mode decision tests in `backend/test/backend.Tests/RagServiceTests/RagConfidenceEvaluatorTests.cs`
+- [X] T028 [P] [US4] Add mode-aware prompt and temperature tests in `backend/test/backend.Tests/RagServiceTests/RagPromptBuilderTests.cs`
+- [X] T029 [P] [US4] Add clarification, insufficiency, and no-general-fallback coverage in `backend/test/backend.Tests/RagServiceTests/RagAppServiceTests.cs`
 
 ### Implementation for User Story 4
 
-- [ ] T030 [US4] Implement deterministic confidence scoring and answer-mode mapping in `backend/src/backend.Application/Services/RagService/RagConfidenceEvaluator.cs`
-- [ ] T031 [US4] Implement cautious, clarification, and insufficient prompt paths in `backend/src/backend.Application/Services/RagService/RagPromptBuilder.cs`
-- [ ] T032 [US4] Route low-confidence asks to clarification or insufficiency and stop persisting non-grounded answers in `backend/src/backend.Application/Services/RagService/RagAppService.cs`
-- [ ] T033 [P] [US4] Extend mode-aware response handling in `frontend/src/services/qa.service.ts` and `frontend/src/hooks/useChat.ts`
-- [ ] T034 [P] [US4] Propagate answer mode, confidence, and clarification state in `frontend/src/providers/chat-provider/context.tsx` and `frontend/src/providers/chat-provider/index.tsx`
-- [ ] T035 [P] [US4] Render localized caution and clarification presentation in `frontend/src/components/chat/ChatMessage.tsx`
-- [ ] T036 [P] [US4] Add localized labels and helper copy in `frontend/src/messages/en.json`, `frontend/src/messages/zu.json`, `frontend/src/messages/st.json`, and `frontend/src/messages/af.json`
+- [X] T030 [US4] Implement deterministic confidence scoring and answer-mode mapping in `backend/src/backend.Application/Services/RagService/RagConfidenceEvaluator.cs`
+- [X] T031 [US4] Implement cautious, clarification, and insufficient prompt paths in `backend/src/backend.Application/Services/RagService/RagPromptBuilder.cs`
+- [X] T032 [US4] Route low-confidence asks to clarification or insufficiency and stop persisting non-grounded answers in `backend/src/backend.Application/Services/RagService/RagAppService.cs`
+- [X] T033 [P] [US4] Extend mode-aware response handling in `frontend/src/services/qa.service.ts` and `frontend/src/hooks/useChat.ts`
+- [X] T034 [P] [US4] Propagate answer mode, confidence, and clarification state in `frontend/src/providers/chat-provider/context.tsx` and `frontend/src/providers/chat-provider/index.tsx`
+- [X] T035 [P] [US4] Render localized caution and clarification presentation in `frontend/src/components/chat/ChatMessage.tsx`
+- [X] T036 [P] [US4] Add localized labels and helper copy in `frontend/src/messages/en.json`, `frontend/src/messages/zu.json`, `frontend/src/messages/st.json`, and `frontend/src/messages/af.json`
 
 **Checkpoint**: User Story 4 should now safely downgrade uncertain legal answers and clearly communicate that state in the Ask UI.
 
@@ -135,8 +135,8 @@
 
 **Purpose**: Validate the full feature, tighten regressions, and confirm the documented smoke scenarios.
 
-- [ ] T037 [P] Run the backend regression suite for updated retrieval and mode coverage in `backend/test/backend.Tests/RagServiceTests/RagAppServiceTests.cs`, `backend/test/backend.Tests/RagServiceTests/RagPromptBuilderTests.cs`, `backend/test/backend.Tests/RagServiceTests/RagRetrievalPlannerTests.cs`, and `backend/test/backend.Tests/RagServiceTests/RagConfidenceEvaluatorTests.cs`
-- [ ] T038 [P] Run frontend lint and type-safety validation for the updated Ask flow in `frontend/src/services/qa.service.ts`, `frontend/src/hooks/useChat.ts`, `frontend/src/providers/chat-provider/context.tsx`, `frontend/src/providers/chat-provider/index.tsx`, and `frontend/src/components/chat/ChatMessage.tsx`
+- [X] T037 [P] Run the backend regression suite for updated retrieval and mode coverage in `backend/test/backend.Tests/RagServiceTests/RagAppServiceTests.cs`, `backend/test/backend.Tests/RagServiceTests/RagPromptBuilderTests.cs`, `backend/test/backend.Tests/RagServiceTests/RagRetrievalPlannerTests.cs`, and `backend/test/backend.Tests/RagServiceTests/RagConfidenceEvaluatorTests.cs`
+- [X] T038 [P] Run frontend lint and type-safety validation for the updated Ask flow in `frontend/src/services/qa.service.ts`, `frontend/src/hooks/useChat.ts`, `frontend/src/providers/chat-provider/context.tsx`, `frontend/src/providers/chat-provider/index.tsx`, and `frontend/src/components/chat/ChatMessage.tsx`
 - [ ] T039 Validate the quickstart smoke scenarios in `specs/feat/021-intent-aware-rag/quickstart.md`
 
 ---

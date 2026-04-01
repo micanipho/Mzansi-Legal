@@ -37,6 +37,9 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         status: "sent",
         citations: result.citations || [],
         isInsufficientInformation: result.isInsufficientInformation,
+        answerMode: result.answerMode,
+        confidenceBand: result.confidenceBand,
+        clarificationQuestion: result.clarificationQuestion,
       };
 
       dispatch({ type: ChatStateEnums.CHAT_SEND_SUCCESS, botMsg });

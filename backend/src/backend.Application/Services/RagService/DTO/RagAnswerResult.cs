@@ -48,4 +48,24 @@ public class RagAnswerResult
     /// </summary>
     [JsonProperty("detectedLanguageCode")]
     public string DetectedLanguageCode { get; set; } = "en";
+
+    /// <summary>
+    /// Structured response posture returned by the retrieval pipeline.
+    /// </summary>
+    [JsonProperty("answerMode")]
+    [JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
+    public RagAnswerMode AnswerMode { get; set; } = RagAnswerMode.Insufficient;
+
+    /// <summary>
+    /// Retrieval-derived confidence band for the returned response mode.
+    /// </summary>
+    [JsonProperty("confidenceBand")]
+    [JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
+    public RagConfidenceBand ConfidenceBand { get; set; } = RagConfidenceBand.Low;
+
+    /// <summary>
+    /// Follow-up question to ask the user when the answer mode is clarification.
+    /// </summary>
+    [JsonProperty("clarificationQuestion")]
+    public string ClarificationQuestion { get; set; }
 }

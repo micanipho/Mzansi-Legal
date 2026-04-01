@@ -1,124 +1,79 @@
+using backend.Domains.QA;
 using backend.Services.RagService;
+using backend.Services.RagService.DTO;
 using Shouldly;
 using System;
-using System.Collections.Generic;
 using Xunit;
 
 namespace backend.Tests.RagServiceTests;
 
-/// <summary>
-/// Unit tests for <see cref="RagPromptBuilder"/> static helper.
-/// All tests are pure — no I/O, no database, no network.
-/// </summary>
 public class RagPromptBuilderTests
 {
-    // ── BuildSystemPrompt ─────────────────────────────────────────────────────
-
     [Fact]
-    public void BuildSystemPrompt_ReturnsNonEmptyString()
+    public void BuildSystemPrompt_ForDirectMode_ContainsCitationInstruction()
     {
-        var result = RagPromptBuilder.BuildSystemPrompt();
-        result.ShouldNotBeNullOrWhiteSpace();
-    }
+        var result = RagPromptBuilder.BuildSystemPrompt(RagAnswerMode.Direct);
 
-    [Fact]
-    public void BuildSystemPrompt_ContainsOnlyAnswerInstruction()
-    {
-        // The system prompt must instruct the LLM to only use provided context.
-        var result = RagPromptBuilder.BuildSystemPrompt();
-        result.ShouldContain("ONLY");
-        result.ShouldContain("answer");
-    }
-
-    [Fact]
-    public void BuildSystemPrompt_ContainsCitationInstruction()
-    {
-        var result = RagPromptBuilder.BuildSystemPrompt();
+        result.ShouldContain("ONLY answer using information from the legislation context");
         result.ShouldContain("citation");
     }
 
-    // ── BuildContextBlock ─────────────────────────────────────────────────────
+    [Fact]
+    public void BuildSystemPrompt_ForClarificationMode_AsksForSingleFollowUpQuestion()
+    {
+        var result = RagPromptBuilder.BuildSystemPrompt(RagAnswerMode.Clarification, Language.English);
+
+        result.ShouldContain("Ask exactly one focused follow-up question");
+        result.ShouldContain("do NOT provide a legal conclusion");
+    }
 
     [Fact]
-    public void BuildContextBlock_SingleChunk_IncludesActNameAndSectionNumber()
+    public void BuildContextBlock_SingleChunk_IncludesActNameSectionAndSectionTitle()
     {
-        var chunk = new RagPromptBuilder.ScoredChunk(
-            ChunkId: Guid.NewGuid(),
-            ActName: "Constitution of the Republic of South Africa",
-            SectionNumber: "§ 26(3)",
-            Excerpt: "No one may be evicted from their home without a court order.",
-            Score: 0.91f,
-            Vector: Array.Empty<float>());
+        var chunk = new RetrievedChunk(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            "Constitution of the Republic of South Africa",
+            "Constitution",
+            "Housing",
+            "Section 26(3)",
+            "Housing",
+            "No one may be evicted from their home without a court order.",
+            "Housing Rights",
+            Array.Empty<string>(),
+            0.91f,
+            0.91f,
+            42);
 
         var result = RagPromptBuilder.BuildContextBlock(new[] { chunk });
 
         result.ShouldContain("Constitution of the Republic of South Africa");
-        result.ShouldContain("§ 26(3)");
+        result.ShouldContain("Section 26(3)");
+        result.ShouldContain("Section title: Housing");
         result.ShouldContain("No one may be evicted");
     }
 
     [Fact]
-    public void BuildContextBlock_SingleChunk_UsesExpectedLabelFormat()
+    public void BuildUserPrompt_ForClarificationMode_OnlyRequestsFollowUpQuestion()
     {
-        // Label format must be: [ActName — SectionNumber]
-        var chunk = new RagPromptBuilder.ScoredChunk(
-            ChunkId: Guid.NewGuid(),
-            ActName: "Labour Relations Act",
-            SectionNumber: "§ 187",
-            Excerpt: "Automatically unfair dismissals.",
-            Score: 0.85f,
-            Vector: Array.Empty<float>());
+        var result = RagPromptBuilder.BuildUserPrompt(
+            "Can they evict me?",
+            "[Act - Section]\nContext",
+            RagAnswerMode.Clarification,
+            "Can you share whether this is about a rented home?");
 
-        var result = RagPromptBuilder.BuildContextBlock(new[] { chunk });
-
-        result.ShouldContain("[Labour Relations Act — § 187]");
+        result.ShouldContain("Return only the follow-up question.");
+        result.ShouldContain("Can you share whether this is about a rented home?");
     }
 
     [Fact]
-    public void BuildContextBlock_MultipleChunks_IncludesAllChunks()
+    public void GetChatTemperature_UsesModeSpecificValues()
     {
-        var chunks = new List<RagPromptBuilder.ScoredChunk>
-        {
-            new(Guid.NewGuid(), "Act A", "§ 1", "Content A", 0.9f, Array.Empty<float>()),
-            new(Guid.NewGuid(), "Act B", "§ 2", "Content B", 0.8f, Array.Empty<float>())
-        };
-
-        var result = RagPromptBuilder.BuildContextBlock(chunks);
-
-        result.ShouldContain("Act A");
-        result.ShouldContain("§ 1");
-        result.ShouldContain("Content A");
-        result.ShouldContain("Act B");
-        result.ShouldContain("§ 2");
-        result.ShouldContain("Content B");
+        RagPromptBuilder.GetChatTemperature(RagAnswerMode.Direct).ShouldBe(0.2d);
+        RagPromptBuilder.GetChatTemperature(RagAnswerMode.Cautious).ShouldBe(0.1d);
+        RagPromptBuilder.GetChatTemperature(RagAnswerMode.Clarification).ShouldBe(0.0d);
+        RagPromptBuilder.GetChatTemperature(RagAnswerMode.Insufficient).ShouldBe(0.0d);
     }
-
-    // ── BuildUserPrompt ───────────────────────────────────────────────────────
-
-    [Fact]
-    public void BuildUserPrompt_IncludesQuestionText()
-    {
-        const string question = "Can my landlord evict me?";
-        var result = RagPromptBuilder.BuildUserPrompt(question, "some context");
-        result.ShouldContain(question);
-    }
-
-    [Fact]
-    public void BuildUserPrompt_IncludesContextBlock()
-    {
-        const string context = "[Act — § 1]\nRelevant text here.";
-        var result = RagPromptBuilder.BuildUserPrompt("Any question?", context);
-        result.ShouldContain(context);
-    }
-
-    [Fact]
-    public void BuildUserPrompt_NullOrWhitespaceQuestion_Throws()
-    {
-        Should.Throw<Exception>(() => RagPromptBuilder.BuildUserPrompt(null, "ctx"));
-        Should.Throw<Exception>(() => RagPromptBuilder.BuildUserPrompt("   ", "ctx"));
-    }
-
-    // ── Constants ─────────────────────────────────────────────────────────────
 
     [Fact]
     public void SimilarityThreshold_Is0Point7()

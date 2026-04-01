@@ -142,6 +142,8 @@ HTTP 200 OK
 | `chunkIds` | array | IDs of selected context chunks |
 | `answerId` | uuid \| null | Non-null only for persisted grounded answers |
 
+`answerMode` and `confidenceBand` are serialized as lower-case strings for frontend compatibility.
+
 ## Citation Rules
 
 - `direct` and `cautious` responses must cite every material legal claim.

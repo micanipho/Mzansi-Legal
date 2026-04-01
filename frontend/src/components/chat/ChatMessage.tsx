@@ -1,26 +1,43 @@
 "use client";
 
 import { C, fontSans, R, shadowOrganic } from "@/styles/theme";
-import type { ChatMessage as ChatMessageType } from "@/hooks/useChat";
+import { useTranslations } from "next-intl";
+import type { IChatMessage } from "@/providers/chat-provider/context";
 import CitationList from "./CitationList";
 import ReactMarkdown from "react-markdown";
 
 interface ChatMessageProps {
-  message: ChatMessageType;
+  message: IChatMessage;
 }
 
-const DISCLAIMER_PREFIX = "⚠️ *No matching legislation";
-
-function splitDisclaimer(text: string): { disclaimer: string | null; body: string } {
-  if (!text.startsWith(DISCLAIMER_PREFIX)) return { disclaimer: null, body: text };
-  const separatorIndex = text.indexOf("*\n\n");
-  if (separatorIndex === -1) return { disclaimer: null, body: text };
-  const disclaimer = text.slice(3, separatorIndex + 1); // strip ⚠️ and surrounding *
-  const body = text.slice(separatorIndex + 3);
-  return { disclaimer, body };
+function getModeStyles(answerMode?: IChatMessage["answerMode"]) {
+  switch (answerMode) {
+    case "cautious":
+      return {
+        background: "rgba(251,191,36,0.12)",
+        border: "1px solid rgba(251,191,36,0.4)",
+        color: "#92400e",
+      };
+    case "clarification":
+      return {
+        background: "rgba(59,130,246,0.08)",
+        border: "1px solid rgba(59,130,246,0.24)",
+        color: "#1d4ed8",
+      };
+    case "insufficient":
+      return {
+        background: "rgba(148,163,184,0.12)",
+        border: "1px solid rgba(148,163,184,0.28)",
+        color: "#334155",
+      };
+    default:
+      return null;
+  }
 }
 
 export default function ChatMessage({ message }: ChatMessageProps) {
+  const t = useTranslations("chat");
+
   if (message.type === "user") {
     return (
       <div style={{ display: "flex", justifyContent: "flex-end" }}>
@@ -42,7 +59,31 @@ export default function ChatMessage({ message }: ChatMessageProps) {
   }
 
   const isError = message.status === "error";
-  const { disclaimer, body } = splitDisclaimer(message.text ?? "");
+  const modeStyles = getModeStyles(message.answerMode);
+  const modeTitle =
+    message.answerMode === "cautious"
+      ? t("cautiousLabel")
+      : message.answerMode === "clarification"
+        ? t("clarificationLabel")
+        : message.answerMode === "insufficient"
+          ? t("insufficientLabel")
+          : null;
+  const modeBody =
+    message.answerMode === "cautious"
+      ? t("cautiousHint")
+      : message.answerMode === "clarification"
+        ? t("clarificationHint")
+        : message.answerMode === "insufficient"
+          ? t("insufficientHint")
+          : null;
+  const confidenceText =
+    message.confidenceBand === "high"
+      ? t("confidenceHigh")
+      : message.confidenceBand === "medium"
+        ? t("confidenceMedium")
+        : message.confidenceBand === "low"
+          ? t("confidenceLow")
+          : null;
 
   return (
     <div style={{ display: "flex", justifyContent: "flex-start" }}>
@@ -62,20 +103,38 @@ export default function ChatMessage({ message }: ChatMessageProps) {
           gap: 12,
         }}
       >
-        {disclaimer && (
+        {modeStyles && modeTitle && modeBody && (
           <div
+            role={message.answerMode === "clarification" ? "alert" : "status"}
             style={{
-              background: "rgba(251,191,36,0.12)",
-              border: "1px solid rgba(251,191,36,0.4)",
+              ...modeStyles,
               borderRadius: 8,
               padding: "10px 14px",
               fontSize: 13,
-              color: "#92400e",
               lineHeight: 1.5,
               fontFamily: fontSans,
             }}
           >
-            ⚠️ {disclaimer}
+            <strong style={{ display: "block", marginBottom: 4 }}>{modeTitle}</strong>
+            <span>{modeBody}</span>
+          </div>
+        )}
+
+        {!isError && confidenceText && (
+          <div
+            style={{
+              alignSelf: "flex-start",
+              background: "rgba(15,23,42,0.05)",
+              border: "1px solid rgba(15,23,42,0.08)",
+              borderRadius: 999,
+              color: C.mutedFg,
+              fontFamily: fontSans,
+              fontSize: 12,
+              fontWeight: 600,
+              padding: "6px 10px",
+            }}
+          >
+            {t("confidenceLabel")}: {confidenceText}
           </div>
         )}
 
@@ -106,9 +165,28 @@ export default function ChatMessage({ message }: ChatMessageProps) {
               ),
             }}
           >
-            {body}
+            {message.text ?? ""}
           </ReactMarkdown>
         </div>
+
+        {message.answerMode === "clarification" && message.clarificationQuestion && (
+          <div
+            style={{
+              background: "rgba(59,130,246,0.06)",
+              borderLeft: "3px solid rgba(59,130,246,0.5)",
+              padding: "12px 14px",
+              borderRadius: 8,
+              color: C.fg,
+              fontFamily: fontSans,
+              lineHeight: 1.6,
+            }}
+          >
+            <strong style={{ display: "block", marginBottom: 6 }}>
+              {t("clarificationQuestionLabel")}
+            </strong>
+            <span>{message.clarificationQuestion}</span>
+          </div>
+        )}
 
         {message.citations && message.citations.length > 0 && (
           <CitationList citations={message.citations} />

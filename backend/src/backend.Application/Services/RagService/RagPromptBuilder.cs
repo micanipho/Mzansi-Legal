@@ -1,5 +1,6 @@
 using Ardalis.GuardClauses;
 using backend.Domains.QA;
+using backend.Services.RagService.DTO;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -8,37 +9,28 @@ namespace backend.Services.RagService;
 
 /// <summary>
 /// Static helper for constructing the three-part RAG prompt sent to the LLM.
-/// Owns all prompt-construction constants and the internal <see cref="ScoredChunk"/> record
-/// shared between this builder and <see cref="RagAppService"/>.
+/// Owns all prompt-construction constants plus the mode-aware instructions used for
+/// grounded answers, clarification questions, and deterministic insufficient responses.
 /// </summary>
 public static class RagPromptBuilder
 {
-    /// <summary>Minimum cosine similarity score for a chunk to be included in the context block.</summary>
+    /// <summary>Strong-support similarity threshold used during confidence evaluation.</summary>
     public const float SimilarityThreshold = 0.7f;
+
+    /// <summary>Minimum cosine similarity for the wider semantic candidate pool.</summary>
+    public const float SemanticCandidateFloor = 0.45f;
+
+    /// <summary>Maximum number of chunk candidates retained before document reranking.</summary>
+    public const int MaxSemanticCandidates = 24;
 
     /// <summary>Maximum number of chunks passed to the LLM as context per question.</summary>
     public const int MaxContextChunks = 5;
 
-    /// <summary>LLM temperature used for chat completions. Low value prioritises factual accuracy.</summary>
-    public const double ChatTemperature = 0.2;
+    /// <summary>Maximum number of chunks selected from any single document.</summary>
+    public const int MaxChunksPerDocument = 3;
 
-    /// <summary>
-    /// A legislation chunk paired with its cosine similarity score for a specific question.
-    /// Immutable record — created during retrieval and passed through to prompt building and persistence.
-    /// </summary>
-    /// <param name="ChunkId">Primary key of the <see cref="backend.Domains.LegalDocuments.DocumentChunk"/>.</param>
-    /// <param name="ActName">Full name of the parent legislation Act.</param>
-    /// <param name="SectionNumber">Section identifier (e.g., "§ 26(3)").</param>
-    /// <param name="Excerpt">Plain-text content of the chunk, used in the context block.</param>
-    /// <param name="Score">Cosine similarity score in [0.7, 1.0] after threshold filtering.</param>
-    /// <param name="Vector">The embedding vector; used during scoring, not included in output.</param>
-    public record ScoredChunk(
-        Guid ChunkId,
-        string ActName,
-        string SectionNumber,
-        string Excerpt,
-        float Score,
-        float[] Vector);
+    /// <summary>Minimum score for a document to qualify as a meaningful supporting source.</summary>
+    public const float SupportingDocumentFloor = 0.58f;
 
     /// <summary>
     /// Returns the system message establishing the assistant's identity and citation rules.
@@ -46,7 +38,9 @@ public static class RagPromptBuilder
     /// to respond in the user's language while keeping Act names and section numbers in English.
     /// </summary>
     /// <param name="language">The detected language of the user's question. Defaults to English.</param>
-    public static string BuildSystemPrompt(Language language = Language.English)
+    public static string BuildSystemPrompt(
+        RagAnswerMode answerMode,
+        Language language = Language.English)
     {
         var prompt =
             "You are a South African legal and financial assistant. " +
@@ -56,35 +50,23 @@ public static class RagPromptBuilder
             "2. You MUST ALWAYS include a citation for every claim you make, " +
             "in the format: [Act Name, Section X].\n" +
             "3. If the context does not contain sufficient information to answer the question, " +
-            "you MUST respond with exactly: " +
-            "\"I don't have enough information in the available legislation to answer this question.\"\n" +
+            "you MUST say that the available legislation is not enough.\n" +
             "4. Do NOT speculate, infer, or draw on general knowledge outside the provided context.\n" +
             "5. Write in plain, accessible English. Avoid legal jargon where a simpler word exists.";
 
-        var directive = GetLanguageDirective(language);
-        if (!string.IsNullOrEmpty(directive))
-            prompt += $"\n\n6. {directive}";
+        if (answerMode == RagAnswerMode.Cautious)
+        {
+            prompt += "\n6. Make the limits of the available legislation explicit before giving your grounded answer.";
+        }
 
-        return prompt;
-    }
-
-    /// <summary>
-    /// Returns a system prompt for the general-knowledge fallback path (no legislation context found).
-    /// When <paramref name="language"/> is not English, appends a directive instructing the LLM
-    /// to respond in the user's language while keeping Act names and section numbers in English.
-    /// </summary>
-    /// <param name="language">The detected language of the user's question. Defaults to English.</param>
-    public static string BuildFallbackSystemPrompt(Language language = Language.English)
-    {
-        var prompt =
-            "You are a South African legal and financial assistant. " +
-            "Your role is to help South African residents understand their legal rights and obligations.\n\n" +
-            "Answer the user's question using your general knowledge of South African law. " +
-            "Write in plain, accessible English. Avoid legal jargon where a simpler word exists.";
+        if (answerMode == RagAnswerMode.Clarification)
+        {
+            prompt += "\n6. Ask exactly one focused follow-up question and do NOT provide a legal conclusion.";
+        }
 
         var directive = GetLanguageDirective(language);
         if (!string.IsNullOrEmpty(directive))
-            prompt += $"\n\n{directive}";
+            prompt += $"\n\n7. {directive}";
 
         return prompt;
     }
@@ -120,14 +102,18 @@ public static class RagPromptBuilder
     /// </summary>
     /// <param name="chunks">Scored chunks ordered by relevance descending. Must not be null.</param>
     /// <returns>A formatted multi-line string ready to be embedded in the user prompt.</returns>
-    public static string BuildContextBlock(IEnumerable<ScoredChunk> chunks)
+    public static string BuildContextBlock(IEnumerable<RetrievedChunk> chunks)
     {
         Guard.Against.Null(chunks, nameof(chunks));
 
         var sb = new StringBuilder();
         foreach (var chunk in chunks)
         {
-            sb.AppendLine($"[{chunk.ActName} — {chunk.SectionNumber}]");
+            sb.AppendLine($"[{chunk.ActName} - {chunk.SectionNumber}]");
+            if (!string.IsNullOrWhiteSpace(chunk.SectionTitle))
+            {
+                sb.AppendLine($"Section title: {chunk.SectionTitle}");
+            }
             sb.AppendLine(chunk.Excerpt);
             sb.AppendLine();
         }
@@ -141,14 +127,60 @@ public static class RagPromptBuilder
     /// <param name="questionText">The user's question text. Must not be null or whitespace.</param>
     /// <param name="contextBlock">The formatted context string produced by <see cref="BuildContextBlock"/>.</param>
     /// <returns>The full user message string to pass to the LLM.</returns>
-    public static string BuildUserPrompt(string questionText, string contextBlock)
+    public static string BuildUserPrompt(
+        string questionText,
+        string contextBlock,
+        RagAnswerMode answerMode,
+        string clarificationQuestion = null)
     {
         Guard.Against.NullOrWhiteSpace(questionText, nameof(questionText));
         Guard.Against.Null(contextBlock, nameof(contextBlock));
 
+        if (answerMode == RagAnswerMode.Clarification)
+        {
+            var guidance = string.IsNullOrWhiteSpace(clarificationQuestion)
+                ? "Ask one focused follow-up question that would let you identify the correct legal source."
+                : $"Ask this follow-up question, or a tighter version of it: {clarificationQuestion}";
+
+            return
+                $"Legislation context:\n\n{contextBlock}\n\n" +
+                $"Original question: {questionText}\n\n" +
+                $"{guidance}\n\n" +
+                "Return only the follow-up question.";
+        }
+
+        var answerLead = answerMode == RagAnswerMode.Cautious
+            ? "Answer carefully, explain any limits in the available legislation, and include citations for every material claim."
+            : "Answer directly using only the legislation context and include citations for every material claim.";
+
         return
             $"Legislation context:\n\n{contextBlock}\n\n" +
             $"Question: {questionText}\n\n" +
-            "Answer (with citations):";
+            $"{answerLead}\n\n" +
+            "Answer:";
     }
+
+    public static double GetChatTemperature(RagAnswerMode answerMode) => answerMode switch
+    {
+        RagAnswerMode.Direct => 0.2d,
+        RagAnswerMode.Cautious => 0.1d,
+        RagAnswerMode.Clarification => 0.0d,
+        _ => 0.0d
+    };
+
+    public static string BuildClarificationLead(Language language) => language switch
+    {
+        Language.Zulu => "Ngingakusiza, kodwa ngidinga imininingwane eyodwa ngaphambi kokuba nginike impendulo ethembekile.",
+        Language.Sesotho => "Nka thusa, empa ke hloka ntlha e le nngwe pele nka fana ka karabo e ka tsheptjwang.",
+        Language.Afrikaans => "Ek kan help, maar ek het eers een detail nodig voordat ek 'n betroubare antwoord gee.",
+        _ => "I can help with this, but I need one detail first before I give a reliable answer."
+    };
+
+    public static string BuildInsufficientResponse(Language language) => language switch
+    {
+        Language.Zulu => "Angikwazi ukuphendula lo mbuzo ngokuthembeka ngisebenzisa umthetho otholakalayo kuphela. Isiseko somthetho esitholakele asanele okwamanje.",
+        Language.Sesotho => "Ha ke kgone ho araba potso ena ka tshepo ke itshetlehile feela ka molao o fumanehang. Motheo wa molao o fumanehileng ha o eso lekane hajoale.",
+        Language.Afrikaans => "Ek kan nie hierdie vraag verantwoordelik beantwoord op grond van die beskikbare wetgewing alleen nie. Die huidige regsgrondslag is nog te swak.",
+        _ => "I can't answer this responsibly from the available legislation alone. The current legal grounding is too weak."
+    };
 }
