@@ -8,11 +8,9 @@ using System.Threading.Tasks;
 namespace backend.Web.Host.Controllers
 {
     /// <summary>
-    /// Authenticated endpoint for submitting legal questions to the RAG Q&amp;A pipeline.
-    /// Answers are grounded in retrieved South African legislation and include verifiable citations.
+    /// Endpoints for the RAG Q&amp;A pipeline and conversation history.
     /// </summary>
     [Route("api/app/qa")]
-    // [AbpAuthorize]
     public class QaController : backendControllerBase
     {
         private readonly IRagAppService _ragAppService;
@@ -31,6 +29,17 @@ namespace backend.Web.Host.Controllers
         public Task<RagAnswerResult> Ask([FromBody] AskQuestionRequest request)
         {
             return _ragAppService.AskAsync(request);
+        }
+
+        /// <summary>
+        /// Returns the authenticated user's conversation history, newest first.
+        /// Each item includes the first question and total question count.
+        /// </summary>
+        [HttpGet("conversations")]
+        [AbpAuthorize]
+        public Task<ConversationsListDto> GetConversations()
+        {
+            return _ragAppService.GetConversationsAsync();
         }
     }
 }

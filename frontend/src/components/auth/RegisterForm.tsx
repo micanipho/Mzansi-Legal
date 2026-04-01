@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Form, Input, Select, Alert } from "antd";
+import { Button, Form, Input, Select } from "antd";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/hooks/useAuth";
 import type { RegisterData } from "@/services/authService";
@@ -19,6 +19,8 @@ const INPUT_STYLE = {
   height: 44,
 };
 
+const ITEM_STYLE = { marginBottom: 12 };
+
 export default function RegisterForm() {
   const t = useTranslations("auth");
   const { register } = useAuth();
@@ -29,6 +31,7 @@ export default function RegisterForm() {
     fullName: string;
     emailAddress: string;
     password: string;
+    confirmPassword: string;
     preferredLanguage: string;
   }) => {
     setError(null);
@@ -70,20 +73,30 @@ export default function RegisterForm() {
       style={{ fontFamily: fontSans }}
     >
       {error && (
-        <Alert
-          type="error"
-          message={error}
-          style={{ marginBottom: 16, borderRadius: 12 }}
+        <div
           role="alert"
           aria-live="polite"
           id="register-error"
-        />
+          style={{
+            marginBottom: 16,
+            padding: "10px 16px",
+            borderRadius: 12,
+            background: "rgba(168, 84, 72, 0.08)",
+            border: `1px solid rgba(168, 84, 72, 0.25)`,
+            color: C.destructive,
+            fontSize: 13,
+            fontWeight: 500,
+          }}
+        >
+          {error}
+        </div>
       )}
 
       <Form.Item
         name="fullName"
         label={<span style={{ fontFamily: fontSans }}>{t("nameLabel")}</span>}
         rules={[{ required: true, message: `${t("nameLabel")} is required` }]}
+        style={ITEM_STYLE}
       >
         <Input
           id="register-name"
@@ -102,6 +115,7 @@ export default function RegisterForm() {
           { required: true, message: `${t("emailLabel")} is required` },
           { type: "email", message: "Please enter a valid email address" },
         ]}
+        style={ITEM_STYLE}
       >
         <Input
           id="register-email"
@@ -114,29 +128,61 @@ export default function RegisterForm() {
         />
       </Form.Item>
 
-      <Form.Item
-        name="password"
-        label={<span style={{ fontFamily: fontSans }}>{t("passwordLabel")}</span>}
-        rules={[
-          { required: true, message: `${t("passwordLabel")} is required` },
-          { min: 6, message: "Password must be at least 6 characters" },
-        ]}
-      >
-        <Input.Password
-          id="register-password"
-          aria-label={t("passwordLabel")}
-          aria-describedby={error ? "register-error" : undefined}
-          style={INPUT_STYLE}
-          placeholder={t("passwordLabel")}
-          autoComplete="new-password"
-        />
-      </Form.Item>
+      {/* Password + Confirm side-by-side */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        <Form.Item
+          name="password"
+          label={<span style={{ fontFamily: fontSans }}>{t("passwordLabel")}</span>}
+          rules={[
+            { required: true, message: "Required" },
+            { min: 6, message: "Min 6 chars" },
+          ]}
+          style={ITEM_STYLE}
+        >
+          <Input.Password
+            id="register-password"
+            aria-label={t("passwordLabel")}
+            aria-describedby={error ? "register-error" : undefined}
+            style={INPUT_STYLE}
+            placeholder={t("passwordLabel")}
+            autoComplete="new-password"
+          />
+        </Form.Item>
+
+        <Form.Item
+          name="confirmPassword"
+          label={<span style={{ fontFamily: fontSans }}>{t("confirmPasswordLabel")}</span>}
+          dependencies={["password"]}
+          rules={[
+            { required: true, message: "Required" },
+            ({ getFieldValue }) => ({
+              validator(_, value) {
+                if (!value || getFieldValue("password") === value) {
+                  return Promise.resolve();
+                }
+                return Promise.reject(new Error(t("passwordMismatch")));
+              },
+            }),
+          ]}
+          style={ITEM_STYLE}
+        >
+          <Input.Password
+            id="register-confirm-password"
+            aria-label={t("confirmPasswordLabel")}
+            aria-describedby={error ? "register-error" : undefined}
+            style={INPUT_STYLE}
+            placeholder={t("confirmPasswordLabel")}
+            autoComplete="new-password"
+          />
+        </Form.Item>
+      </div>
 
       <Form.Item
         name="preferredLanguage"
         label={<span style={{ fontFamily: fontSans }}>{t("languageLabel")}</span>}
         initialValue="en"
         rules={[{ required: true, message: `${t("languageLabel")} is required` }]}
+        style={ITEM_STYLE}
       >
         <Select
           id="register-language"

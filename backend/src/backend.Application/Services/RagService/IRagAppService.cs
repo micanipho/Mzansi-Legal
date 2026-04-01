@@ -22,6 +22,13 @@ public interface IRagAppService
     Task<RagAnswerResult> AskAsync(AskQuestionRequest request);
 
     /// <summary>
+    /// Returns the conversation history for the currently authenticated user,
+    /// ordered by most recent first. Each item includes the first question text
+    /// and the total number of questions in that conversation.
+    /// </summary>
+    Task<ConversationsListDto> GetConversationsAsync();
+
+    /// <summary>
     /// Loads all <see cref="backend.Domains.LegalDocuments.DocumentChunk"/> embeddings into memory.
     /// Must be called once at application startup before the first <see cref="AskAsync"/> call.
     /// Safe to call multiple times — each call replaces the in-memory store.

@@ -109,6 +109,37 @@ public class RagAppService : ApplicationService, IRagAppService
     }
 
     /// <summary>
+    /// Returns conversations for the current user ordered newest-first,
+    /// each decorated with the first question text and total question count.
+    /// </summary>
+    public async Task<ConversationsListDto> GetConversationsAsync()
+    {
+        var userId = AbpSession.UserId
+            ?? throw new Abp.Authorization.AbpAuthorizationException("You must be signed in to view conversation history.");
+
+        var conversations = await _conversationRepository
+            .GetAll()
+            .Include(c => c.Questions)
+            .Where(c => c.UserId == userId)
+            .OrderByDescending(c => c.StartedAt)
+            .ToListAsync();
+
+        var items = conversations.Select(c => new ConversationSummaryDto
+        {
+            ConversationId = c.Id,
+            FirstQuestion = c.Questions
+                .OrderBy(q => q.CreationTime)
+                .Select(q => q.OriginalText)
+                .FirstOrDefault() ?? string.Empty,
+            QuestionCount = c.Questions.Count,
+            StartedAt = c.StartedAt,
+            Language = c.Language.ToString().ToLowerInvariant()
+        }).ToList();
+
+        return new ConversationsListDto { Items = items, TotalCount = items.Count };
+    }
+
+    /// <summary>
     /// Embeds the user's question, scores all loaded chunks via cosine similarity,
     /// and — when relevant chunks exist — calls GPT-4o and persists the Q&amp;A chain.
     /// Returns <see cref="RagAnswerResult.IsInsufficientInformation"/> = <c>true</c>

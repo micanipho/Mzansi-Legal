@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Form, Input, Alert } from "antd";
+import { Button, Form, Input } from "antd";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/hooks/useAuth";
 import type { SignInCredentials } from "@/services/authService";
@@ -54,14 +54,23 @@ export default function SignInForm() {
       style={{ fontFamily: fontSans }}
     >
       {error && (
-        <Alert
-          type="error"
-          message={error}
-          style={{ marginBottom: 16, borderRadius: 12 }}
+        <div
           role="alert"
           aria-live="polite"
           id="signin-error"
-        />
+          style={{
+            marginBottom: 16,
+            padding: "10px 16px",
+            borderRadius: 12,
+            background: "rgba(168, 84, 72, 0.08)",
+            border: `1px solid rgba(168, 84, 72, 0.25)`,
+            color: C.destructive,
+            fontSize: 13,
+            fontWeight: 500,
+          }}
+        >
+          {error}
+        </div>
       )}
 
       <Form.Item

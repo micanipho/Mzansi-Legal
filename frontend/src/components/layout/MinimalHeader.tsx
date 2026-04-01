@@ -187,7 +187,7 @@ export default function MinimalHeader() {
 
           {/* Sign In Button */}
           <Link
-            href={createLocalizedPath(locale, "auth")}
+            href={createLocalizedPath(locale, appRoutes.auth)}
             style={{
               display: "inline-block",
               padding: "10px 24px",

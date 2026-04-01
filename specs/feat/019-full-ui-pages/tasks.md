@@ -57,22 +57,22 @@
 
 ### Implementation
 
-- [ ] T013 [US6] Verify auth page layout `frontend/src/app/[locale]/auth/layout.tsx` — ensures no AppNavbar renders on auth pages
-- [ ] T014 [US6] Verify auth page `frontend/src/app/[locale]/auth/page.tsx`:
+- [x] T013 [US6] Verify auth page layout `frontend/src/app/[locale]/auth/layout.tsx` — ensures no AppNavbar renders on auth pages
+- [x] T014 [US6] Verify auth page `frontend/src/app/[locale]/auth/page.tsx`:
   - Tab switching between Sign In and Register via URL hash (`#register` / `#sign-in`)
   - Fraunces serif logo/brand treatment visible
   - "← Back to home" link at top using `createLocalizedPath`
-- [ ] T015 [US6] Verify `SignInForm` in `frontend/src/components/auth/SignInForm.tsx`:
+- [x] T015 [US6] Verify `SignInForm` in `frontend/src/components/auth/SignInForm.tsx`:
   - Email + password fields with Ant Design `Form` and `Form.Item`
   - Inline validation: both fields required, email format checked
   - On success: call `useAuth().signIn()` → redirect based on `user.isAdmin`
   - On error: display inline error without clearing email field
-- [ ] T016 [US6] Verify `RegisterForm` in `frontend/src/components/auth/RegisterForm.tsx`:
+- [x] T016 [US6] Verify `RegisterForm` in `frontend/src/components/auth/RegisterForm.tsx`:
   - Name, email, password fields with matching validation
   - Password minimum length enforced client-side
   - On success: redirect to home page
-- [ ] T017 [US6] Audit `frontend/src/services/authService.ts` — ensure `signIn()` and `register()` call the correct backend endpoints and set `ml_token` / `ml_user` cookies on success
-- [ ] T018 [P] [US6] Add/verify i18n keys for auth namespace in all four language files:
+- [x] T017 [US6] Audit `frontend/src/services/authService.ts` — ensure `signIn()` and `register()` call the correct backend endpoints and set `ml_token` / `ml_user` cookies on success
+- [x] T018 [P] [US6] Add/verify i18n keys for auth namespace in all four language files:
   - `frontend/src/messages/en.json` → `auth.*` keys
   - `frontend/src/messages/zu.json` → `auth.*` keys
   - `frontend/src/messages/st.json` → `auth.*` keys
@@ -90,21 +90,21 @@
 
 ### Implementation
 
-- [ ] T019 [US1] Verify landing page `frontend/src/app/[locale]/page.tsx`:
+- [x] T019 [US1] Verify landing page `frontend/src/app/[locale]/page.tsx`:
   - Hero section: tagline "Know your rights. In your language." in Fraunces serif + sub-tagline + search bar + suggestion chips
   - Stats row: 4 cards (Questions answered, Acts indexed, Languages, Contracts analysed) with correct values and organic border radii
   - Feature cards: "Analyse a contract" and "Ask a question" — correct icons and descriptions
   - Category grid: 9 cards with correct icons, names, descriptions, and type badges (Legal / Financial / Contracts)
   - Trending questions: 5 items with numbered ranks and category tags
-- [ ] T020 [US1] Verify `AskExperience` component in `frontend/src/components/chat/AskExperience.tsx`:
+- [x] T020 [US1] Verify `AskExperience` component in `frontend/src/components/chat/AskExperience.tsx`:
   - Input field with mic icon and "Ask now" / submit button
   - 3 suggestion chip links below the input
   - Clicking a chip pre-fills the input and focuses it
   - Submit navigates to the Ask page with the question as a query param
-- [ ] T021 [US1] Verify `OrganicBackground` in `frontend/src/components/layout/OrganicBackground.tsx`:
+- [x] T021 [US1] Verify `OrganicBackground` in `frontend/src/components/layout/OrganicBackground.tsx`:
   - Fixed-position decorative SVG/CSS blobs behind the hero section
   - `pointer-events: none` and low `z-index` so it does not block interaction
-- [ ] T022 [P] [US1] Add/verify i18n keys for home namespace in all four language files:
+- [x] T022 [P] [US1] Add/verify i18n keys for home namespace in all four language files:
   - Hero tagline, sub-tagline, stats labels, feature card texts, category names + descriptions, trending question text, all suggestion chips
   - `frontend/src/messages/en.json`, `zu.json`, `st.json`, `af.json` → `home.*` keys
 
@@ -120,39 +120,39 @@
 
 ### Implementation
 
-- [ ] T023 [US2] Verify `frontend/src/app/[locale]/ask/page.tsx` renders `QaChatPage` with correct locale prop
-- [ ] T024 [US2] Verify `QaChatPage` in `frontend/src/components/chat/QaChatPage.tsx`:
+- [x] T023 [US2] Verify `frontend/src/app/[locale]/ask/page.tsx` renders `QaChatPage` with correct locale prop
+- [x] T024 [US2] Verify `QaChatPage` in `frontend/src/components/chat/QaChatPage.tsx`:
   - Maintains `messages: ChatMessage[]` state for the conversation thread
   - Calls `qaService.ask()` on submit and appends streamed response to messages
   - Shows legal disclaimer banner below the chat thread
-- [ ] T025 [US2] Verify `ChatThread` in `frontend/src/components/chat/ChatThread.tsx`:
+- [x] T025 [US2] Verify `ChatThread` in `frontend/src/components/chat/ChatThread.tsx`:
   - Renders user messages (right-aligned, primary background) and assistant messages (left-aligned, card background)
   - Auto-scrolls to the latest message
-- [ ] T026 [US2] Verify `ChatMessage` in `frontend/src/components/chat/ChatMessage.tsx`:
+- [x] T026 [US2] Verify `ChatMessage` in `frontend/src/components/chat/ChatMessage.tsx`:
   - User message bubble: correct styling with organic border radius
   - Assistant message: body text + `CitationList` accordion (hidden when `citations.length === 0`) + "Listen in [language]" button + `VoiceOutput` + related question chips
-- [ ] T027 [US2] Verify `CitationList` in `frontend/src/components/chat/CitationList.tsx`:
+- [x] T027 [US2] Verify `CitationList` in `frontend/src/components/chat/CitationList.tsx`:
   - Toggle: "Sources (N sections cited)" with expand/collapse
   - Each citation: act name (bold) + section number + optional excerpt
   - Uses `aria-expanded` for accessibility
-- [ ] T028 [US2] Verify `VoiceOutput` in `frontend/src/components/chat/VoiceOutput.tsx`:
+- [x] T028 [US2] Verify `VoiceOutput` in `frontend/src/components/chat/VoiceOutput.tsx`:
   - Uses `window.speechSynthesis` with locale-appropriate `lang` tag (en-ZA, zu-ZA, st-ZA, af-ZA)
   - Button hidden when `speechSynthesis` is not supported
-- [ ] T029 [US2] Verify `VoiceInput` in `frontend/src/components/chat/VoiceInput.tsx`:
+- [x] T029 [US2] Verify `VoiceInput` in `frontend/src/components/chat/VoiceInput.tsx`:
   - Activates `SpeechRecognition` API on mic button click
   - Transcribed text populates the `ChatInput` field
   - Handles permission-denied gracefully (shows message, does not crash)
-- [ ] T030 [US2] Verify `ChatInput` in `frontend/src/components/chat/ChatInput.tsx`:
+- [x] T030 [US2] Verify `ChatInput` in `frontend/src/components/chat/ChatInput.tsx`:
   - Multi-line textarea growing to max 4 lines
   - Submit on Enter (not Shift+Enter)
   - Send button disabled when input is empty
   - Both mic and send buttons are keyboard-accessible (tab + Enter/Space)
-- [ ] T031 [US2] Verify `useChat` hook in `frontend/src/hooks/useChat.ts` manages `conversationId` and the message array across follow-up questions
-- [ ] T032 [US2] Verify `qaService.ts` in `frontend/src/services/qaService.ts`:
+- [x] T031 [US2] Verify `useChat` hook in `frontend/src/hooks/useChat.ts` manages `conversationId` and the message array across follow-up questions
+- [x] T032 [US2] Verify `qaService.ts` in `frontend/src/services/qaService.ts`:
   - POST to `/api/qa/ask` with `{ question, conversationId?, locale }`
   - Handles streamed responses or JSON response shape `QaResponse` from data-model.md
   - Returns `{ answer, citations, relatedQuestions, conversationId, questionId }`
-- [ ] T033 [P] [US2] Add/verify i18n keys for ask namespace in all four language files:
+- [x] T033 [P] [US2] Add/verify i18n keys for ask namespace in all four language files:
   - Input placeholder, disclaimer text (with Legal Aid SA number), "Listen in [language]" labels, related questions label, sources label, error messages
   - `frontend/src/messages/en.json`, `zu.json`, `st.json`, `af.json` → `ask.*` keys
 
@@ -168,15 +168,15 @@
 
 ### Implementation
 
-- [ ] T034 [US3] Implement Contracts list page `frontend/src/app/[locale]/contracts/page.tsx`:
+- [x] T034 [US3] Implement Contracts list page `frontend/src/app/[locale]/contracts/page.tsx`:
   - Auth guard: redirect to auth if `user` is null after loading
   - Upload button triggering a file input (PDF only, `accept=".pdf"`)
   - List of uploaded contracts: each item shows name, type badge, upload date, status badge ("Analysing" / "Complete"), score (when complete), and a link to the detail page
   - Empty state when no contracts uploaded: icon + prompt to upload first contract
-- [ ] T035 [US3] Verify `contractData.ts` in `frontend/src/components/contracts/contractData.ts`:
+- [x] T035 [US3] Verify `contractData.ts` in `frontend/src/components/contracts/contractData.ts`:
   - Static mock data for at least 2 contracts matching the `ContractAnalysis` shape from data-model.md
   - `getContractById(id)` helper returns `ContractAnalysis | undefined`
-- [ ] T036 [US3] Verify Contract Detail page `frontend/src/app/[locale]/contracts/[id]/page.tsx`:
+- [x] T036 [US3] Verify Contract Detail page `frontend/src/app/[locale]/contracts/[id]/page.tsx`:
   - "← Back to contracts" link at the top using `createLocalizedPath`
   - Circular score badge (120×120px) with colour based on score range (0–39 red, 40–69 amber, 70–100 green)
   - Document metadata row: upload date, analysis time, pages, clauses, language
@@ -185,7 +185,7 @@
   - Caution section with count badge: each item — amber warning icon, title, description
   - Standard Clauses section: green check icon + "All standard clauses are in order" message (when clean)
   - `notFound()` call when `getContractById(id)` returns undefined
-- [ ] T037 [P] [US3] Add/verify i18n keys for contracts namespace in all four language files:
+- [x] T037 [P] [US3] Add/verify i18n keys for contracts namespace in all four language files:
   - `upload`, `uploadHint`, `statusAnalysing`, `statusComplete`, `statusFailed`, `empty`, `backToContracts`, `redFlags`, `caution`, `standardClauses`, `plainSummary`, `askAboutContract`
   - `frontend/src/messages/en.json`, `zu.json`, `st.json`, `af.json` → `contracts.*` keys
 
@@ -201,23 +201,23 @@
 
 ### Implementation
 
-- [ ] T038 [US4] Verify My Rights page `frontend/src/app/[locale]/rights/page.tsx`:
+- [x] T038 [US4] Verify My Rights page `frontend/src/app/[locale]/rights/page.tsx`:
   - Page title "Know your rights" in Fraunces serif + subtitle
   - Progress bar section: "Your knowledge score — you've explored X of 20 rights topics" + percentage + styled progress bar
   - Category filter tabs: All, Employment, Housing, Consumer, Debt & Credit, Tax, Privacy — active tab highlighted with primary colour
   - Grid of `RightCard` entries filtered by selected category
-- [ ] T039 [US4] Verify `RightCard` render logic in the rights page:
+- [x] T039 [US4] Verify `RightCard` render logic in the rights page:
   - Collapsed state: title (bold Fraunces) + legislation citation (muted) + summary line + "+" toggle button
   - Expanded state: full explanation paragraph + pull-quote block (left border, italic, muted) + "Ask a follow-up", "Listen in [language]", "Share" buttons + "–" collapse button
   - `aria-expanded` on the toggle button
   - "Ask a follow-up" → `router.push(createLocalizedPath(locale, appRoutes.ask) + '?q=' + encodeURIComponent(title))`
   - "Listen in [language]" → `VoiceOutput` component reads the body text
   - "Share" → `navigator.share()` if available, else `navigator.clipboard.writeText(window.location.href)`
-- [ ] T040 [US4] Implement progress tracking in the rights page:
+- [x] T040 [US4] Implement progress tracking in the rights page:
   - Track expanded card IDs in `useState` (or `localStorage` under key `ml_rights_progress`)
   - `explored` count increments the first time a card is expanded
   - Progress bar percentage = `(explored / 20) * 100`
-- [ ] T041 [P] [US4] Add/verify i18n keys for rights namespace in all four language files:
+- [x] T041 [P] [US4] Add/verify i18n keys for rights namespace in all four language files:
   - `pageTitle`, `subtitle`, `knowledgeScore`, `explored`, `of`, `topics`, `allFilter`, filter labels, all card title/legislation/summary/body/quote keys, `askFollowUp`, `share`
   - `frontend/src/messages/en.json`, `zu.json`, `st.json`, `af.json` → `rights.*` keys
 
@@ -239,11 +239,11 @@
   - Loading state: skeleton or spinner while fetching
   - Empty state (no conversations): icon + "You haven't asked any questions yet" + "Ask your first question" CTA button
   - Conversation list: each item shows first question (truncated at 120 chars), date formatted in locale, question count badge, and a chevron link to the Ask page with `?conversationId=<id>`
-- [ ] T043 [US5] Add `getConversations()` method to `frontend/src/services/qaService.ts`:
+- [x] T043 [US5] Add `getConversations()` method to `frontend/src/services/qaService.ts`:
   - GET `/api/conversations` with auth header from cookie
   - Returns `ConversationsListResponse` shape from data-model.md
   - On auth error (401): triggers `signOut()` and redirects to auth
-- [ ] T044 [P] [US5] Add/verify i18n keys for history namespace in all four language files:
+- [x] T044 [P] [US5] Add/verify i18n keys for history namespace in all four language files:
   - `title`, `empty`, `signInPrompt`, `askFirst`, `conversation`, `questionCount`, `viewThread`
   - `frontend/src/messages/en.json`, `zu.json`, `st.json`, `af.json` → `history.*` keys
 
@@ -259,24 +259,24 @@
 
 ### Implementation
 
-- [ ] T045 [US7] Verify Admin Dashboard page `frontend/src/app/[locale]/admin/dashboard/page.tsx`:
+- [x] T045 [US7] Verify Admin Dashboard page `frontend/src/app/[locale]/admin/dashboard/page.tsx`:
   - Auth guard: redirect to auth if unauthenticated; redirect to home if `!user.isAdmin`
   - Loading spinner while `isLoading` is true
   - Summary cards row: Total Questions, Active Users, Contracts Analysed, Documents Indexed (using `SummaryCard` component)
   - `InsightChart` section with chart title and data
   - Recent activity section (last 10 items) — can use static mock for MVP if backend endpoint unavailable
-- [ ] T046 [US7] Verify `SummaryCard` in `frontend/src/components/dashboard/SummaryCard.tsx`:
+- [x] T046 [US7] Verify `SummaryCard` in `frontend/src/components/dashboard/SummaryCard.tsx`:
   - Accepts `{ icon, label, value, tone }` props per data-model.md contract
   - Card with `C.card` background, `16px` radius, `1px solid C.border` border
   - Large value in bold, small muted label beneath, icon top-left
-- [ ] T047 [US7] Verify `InsightChart` in `frontend/src/components/dashboard/InsightChart.tsx`:
+- [x] T047 [US7] Verify `InsightChart` in `frontend/src/components/dashboard/InsightChart.tsx`:
   - Renders a bar chart using `InsightDataPoint[]` props
   - Bar colours: `tone === "primary"` → `C.primary`; `"secondary"` → `C.secondary`; `"danger"` → `C.destructive`
   - Chart is accessible (bars have aria labels with value)
-- [ ] T048 [US7] Verify `SectionCard` in `frontend/src/components/dashboard/SectionCard.tsx`:
+- [x] T048 [US7] Verify `SectionCard` in `frontend/src/components/dashboard/SectionCard.tsx`:
   - Card wrapper with title slot and content slot
   - Used to group summary cards and chart sections on the dashboard
-- [ ] T049 [P] [US7] Add/verify i18n keys for admin namespace in all four language files:
+- [x] T049 [P] [US7] Add/verify i18n keys for admin namespace in all four language files:
   - `dashboardTitle`, `totalQuestions`, `activeUsers`, `contractsAnalysed`, `documentsIndexed`, `insightTitle`, `recentActivity`, `noActivity`
   - `frontend/src/messages/en.json`, `zu.json`, `st.json`, `af.json` → `admin.*` keys
 
@@ -288,13 +288,13 @@
 
 **Purpose**: Final quality checks across all pages before PR.
 
-- [ ] T050 [P] Run i18n key audit: start dev server and open each of the 8 routes in all 4 locales — verify no `[MISSING]` keys appear in the UI or browser console
+- [x] T050 [P] Run i18n key audit: start dev server and open each of the 8 routes in all 4 locales — verify no `[MISSING]` keys appear in the UI or browser console
 - [x] T051 [P] Run TypeScript build check: `cd frontend && npm run build` — zero type errors required
-- [ ] T052 [P] Accessibility spot-check: tab through each page's interactive elements (nav links, language selector, form inputs, card expand toggles, chat input, voice buttons) — verify focus ring is visible and `aria-*` attributes are present
+- [x] T052 [P] Accessibility spot-check: tab through each page's interactive elements (nav links, language selector, form inputs, card expand toggles, chat input, voice buttons) — verify focus ring is visible and `aria-*` attributes are present
 - [ ] T053 Verify all 8 routes are reachable at desktop width (1280px) with no horizontal scroll or layout overflow
 - [ ] T054 Verify all 8 routes are usable at tablet width (768px) — content visible, nav accessible, no clipping
-- [ ] T055 [P] Verify organic border radii are consistently applied across all stat cards, feature cards, category cards, and rights cards per research.md token table
-- [ ] T056 Copy final `tasks.md` to `specs/feat-019-full-ui-pages/tasks.md` so the canonical spec directory has the full task list
+- [x] T055 [P] Verify organic border radii are consistently applied across all stat cards, feature cards, category cards, and rights cards per research.md token table
+- [x] T056 Copy final `tasks.md` to `specs/feat-019-full-ui-pages/tasks.md` so the canonical spec directory has the full task list
 
 ---
 

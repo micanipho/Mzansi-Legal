@@ -290,9 +290,9 @@
 
 - [x] T050 [P] Run i18n key audit: start dev server and open each of the 8 routes in all 4 locales — verify no `[MISSING]` keys appear in the UI or browser console
 - [x] T051 [P] Run TypeScript build check: `cd frontend && npm run build` — zero type errors required
-- [x] T052 [P] Accessibility spot-check: tab through each page's interactive elements (nav links, language selector, form inputs, card expand toggles, chat input, voice buttons) — verify focus ring is visible and `aria-*` attributes are present
-- [x] T053 Verify all 8 routes are reachable at desktop width (1280px) with no horizontal scroll or layout overflow
-- [x] T054 Verify all 8 routes are usable at tablet width (768px) — content visible, nav accessible, no clipping
+- [ ] T052 [P] Accessibility spot-check: tab through each page's interactive elements (nav links, language selector, form inputs, card expand toggles, chat input, voice buttons) — verify focus ring is visible and `aria-*` attributes are present
+- [ ] T053 Verify all 8 routes are reachable at desktop width (1280px) with no horizontal scroll or layout overflow
+- [ ] T054 Verify all 8 routes are usable at tablet width (768px) — content visible, nav accessible, no clipping
 - [x] T055 [P] Verify organic border radii are consistently applied across all stat cards, feature cards, category cards, and rights cards per research.md token table
 - [x] T056 Copy final `tasks.md` to `specs/feat-019-full-ui-pages/tasks.md` so the canonical spec directory has the full task list
 

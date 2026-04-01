@@ -1,4 +1,5 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "https://localhost:44311";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:21021";
+const ABP_TENANT_HEADER = { "Abp-TenantId": "1" };
 
 export interface CitationDto {
   actName: string;
@@ -36,6 +37,7 @@ export async function askQuestion(
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      ...ABP_TENANT_HEADER,
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     body: JSON.stringify(input),
@@ -82,10 +84,11 @@ export interface ConversationsListResponse {
 }
 
 export async function getConversations(token?: string): Promise<ConversationsListResponse> {
-  const res = await fetch(`${API_BASE}/api/app/conversation`, {
+  const res = await fetch(`${API_BASE}/api/app/qa/conversations`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
+      ...ABP_TENANT_HEADER,
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
   });
@@ -108,6 +111,7 @@ export async function textToSpeech(
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      ...ABP_TENANT_HEADER,
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     body: JSON.stringify({ text, language }),

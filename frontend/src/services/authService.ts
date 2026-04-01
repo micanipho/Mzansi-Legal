@@ -1,4 +1,10 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "https://localhost:44311";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:21021";
+
+// ABP Zero multi-tenant header — ID 1 is the default tenant seeded on first run
+const ABP_HEADERS = {
+  "Content-Type": "application/json",
+  "Abp-TenantId": "1",
+};
 
 // ─── Request / Response Types ────────────────────────────────────────────────
 
@@ -76,7 +82,7 @@ export async function signIn(
 ): Promise<AuthenticateResultModel> {
   const res = await fetch(`${API_BASE}/api/TokenAuth/Authenticate`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: ABP_HEADERS,
     body: JSON.stringify(credentials),
   });
 
@@ -106,7 +112,7 @@ export async function register(
 
   const res = await fetch(`${API_BASE}/api/services/app/Account/Register`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: ABP_HEADERS,
     body: JSON.stringify(payload),
   });
 

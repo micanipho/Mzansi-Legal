@@ -1,44 +1,14 @@
 "use client";
 
-import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { MessageSquare, ChevronRight, Clock, PlusCircle } from "lucide-react";
 import Link from "next/link";
 import { appRoutes, createLocalizedPath } from "@/i18n/routing";
 import { C, R, fontSans, fontSerif, shadowOrganic } from "@/styles/theme";
 import AuthGuard from "@/components/guards/AuthGuard";
-
-interface HistoryItem {
-  conversationId: string;
-  firstQuestion: string;
-  questionCount: number;
-  startedAt: string;
-  locale: string;
-}
-
-const MOCK_HISTORY: HistoryItem[] = [
-  {
-    conversationId: "conv-001",
-    firstQuestion: "Can my landlord evict me without a court order?",
-    questionCount: 4,
-    startedAt: "2026-03-30T14:22:00Z",
-    locale: "en",
-  },
-  {
-    conversationId: "conv-002",
-    firstQuestion: "What are my CCMA rights if I am unfairly dismissed?",
-    questionCount: 2,
-    startedAt: "2026-03-28T09:10:00Z",
-    locale: "en",
-  },
-  {
-    conversationId: "conv-003",
-    firstQuestion: "Ingabe umqashi wami angabamba imali yami ye-deposit?",
-    questionCount: 3,
-    startedAt: "2026-03-26T17:44:00Z",
-    locale: "zu",
-  },
-];
+import { HistoryProvider, useHistoryState, useHistoryAction } from "@/providers/history-provider";
+import { Spin } from "antd";
+import { useEffect } from "react";
 
 const LOCALE_NAMES: Record<string, string> = {
   en: "English",
@@ -59,10 +29,27 @@ function formatDate(iso: string, locale: string): string {
   }
 }
 
-export default function HistoryPage() {
+function HistoryContent() {
   const t = useTranslations("history");
   const locale = useLocale();
-  const [items] = useState<HistoryItem[]>(MOCK_HISTORY);
+  const { items, isPending: isLoading, isError } = useHistoryState();
+  const { fetchAll } = useHistoryAction();
+
+  useEffect(() => { void fetchAll(); }, []);
+
+  if (isLoading) {
+    return (
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "60vh" }}>
+        <Spin size="large" />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div style={{ padding: 32, color: C.destructive, textAlign: "center" }}>Failed to load history.</div>
+    );
+  }
 
   return (
     <AuthGuard>
@@ -281,3 +268,12 @@ export default function HistoryPage() {
     </AuthGuard>
   );
 }
+
+export default function HistoryPage() {
+  return (
+    <HistoryProvider>
+      <HistoryContent />
+    </HistoryProvider>
+  );
+}
+

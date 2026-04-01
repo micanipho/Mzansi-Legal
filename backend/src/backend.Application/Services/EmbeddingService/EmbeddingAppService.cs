@@ -1,5 +1,4 @@
-using Abp.Application.Services;
-using Abp.Authorization;
+using Abp.Domain.Services;
 using Ardalis.GuardClauses;
 using backend.Services.EmbeddingService.DTO;
 using Microsoft.Extensions.Configuration;
@@ -16,9 +15,9 @@ namespace backend.Services.EmbeddingService;
 /// Calls the OpenAI embeddings REST API to convert a text string into a
 /// 1,536-dimensional float vector for semantic search.
 /// Text exceeding 30,000 characters is silently truncated before the API call.
+/// Domain service - no authorization or proxying required.
 /// </summary>
-[AbpAuthorize]
-public class EmbeddingAppService : ApplicationService, IEmbeddingAppService
+public class EmbeddingAppService : DomainService, IEmbeddingAppService
 {
     private const int MaxInputCharacters = 30_000;
 

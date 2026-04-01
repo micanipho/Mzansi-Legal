@@ -3,7 +3,7 @@
 import { Modal, Button } from "antd";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { createLocalizedPath } from "@/i18n/routing";
+import { appRoutes, createLocalizedPath } from "@/i18n/routing";
 
 interface SaveChatPromptProps {
   open: boolean;
@@ -23,7 +23,7 @@ export default function SaveChatPrompt({ open, onClose }: SaveChatPromptProps) {
 
   const handleSignIn = () => {
     const returnUrl = encodeURIComponent(`/${locale}/ask`);
-    router.push(`${createLocalizedPath(locale, "auth")}?returnUrl=${returnUrl}`);
+    router.push(`${createLocalizedPath(locale, appRoutes.auth)}?returnUrl=${returnUrl}`);
   };
 
   return (

@@ -71,7 +71,7 @@ export default function MyRightsPage() {
 
   const handleSignIn = () => {
     const returnUrl = encodeURIComponent(`/${locale}${appRoutes.rights}`);
-    router.push(`${createLocalizedPath(locale, "auth")}?returnUrl=${returnUrl}`);
+    router.push(`${createLocalizedPath(locale, appRoutes.auth)}?returnUrl=${returnUrl}`);
   };
 
   const getFilterLabel = (f: string) =>
@@ -161,6 +161,7 @@ export default function MyRightsPage() {
           <button
             key={f}
             onClick={() => setActiveFilter(f)}
+            aria-pressed={f === activeFilter}
             style={{
               whiteSpace: "nowrap",
               padding: "10px 24px",
@@ -262,6 +263,7 @@ export default function MyRightsPage() {
                     flexShrink: 0,
                   }}
                   aria-label={isExpanded ? "Collapse" : "Expand"}
+                  aria-expanded={isExpanded}
                 >
                   {isExpanded ? <Minus size={20} /> : <Plus size={20} />}
                 </button>

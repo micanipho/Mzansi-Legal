@@ -5,6 +5,7 @@
     "loading": "Loading...",
     "error": "Something went wrong. Please try again.",
     "disclaimer": "This information is for guidance only and does not constitute legal advice. Always consult a qualified legal professional.",
+    "signIn": "Sign in",
     "locales": {
       "en": "English",
       "zu": "isiZulu",
@@ -82,7 +83,10 @@
     "relatedQuestions": "Related questions",
     "listenIn": "Listen in {language}",
     "disclaimer": "MzansiLegal provides legal information, not legal advice.",
-    "newConversation": "New Conversation"
+    "newConversation": "New Conversation",
+    "guestBannerAction": "Sign in",
+    "guestBannerTitle": "Ask a legal or financial rights question",
+    "guestBannerDesc": "Ask a legal or financial rights question in any language."
   },
   "rights": {
     "title": "My Rights Explorer",
@@ -94,6 +98,8 @@
     "askAboutThis": "Ask about this",
     "askFollowUp": "Ask a follow-up",
     "share": "Share",
+    "guestProgressBanner": "Sign in to save your progress",
+    "guestProgressDesc": "Create a free account to track which rights you have explored across sessions.",
     "evictionCite": "Constitution, Section 26(3)",
     "payslipCite": "BCEA, Section 33",
     "defectiveGoodsCite": "CPA, Section 56",
@@ -189,6 +195,8 @@
     "switchToRegister": "Don't have an account? Register",
     "switchToSignIn": "Already have an account? Sign in",
     "switchToLogin": "Already have an account? Login",
+    "confirmPasswordLabel": "Confirm Password",
+    "passwordMismatch": "Passwords do not match.",
     "invalidCredentials": "Invalid email or password. Please try again.",
     "emailTaken": "This email address is already registered.",
     "signOutMenuItem": "Sign Out",

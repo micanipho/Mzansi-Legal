@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useLocale } from "next-intl";
 import { useAuth } from "./useAuth";
-import { createLocalizedPath } from "@/i18n/routing";
+import { appRoutes, createLocalizedPath } from "@/i18n/routing";
 
 export interface RouteGuardReturn {
   isAuthenticated: boolean;
@@ -20,7 +20,7 @@ export interface RouteGuardReturn {
 export function useRouteGuard(): RouteGuardReturn {
   const { user, isLoading } = useAuth();
   const isAuthenticated = !!user && !isLoading;
-  const isAdmin = user?.role === "Admin";
+  const isAdmin = !!user?.isAdmin;
 
   return {
     isAuthenticated,
@@ -43,7 +43,7 @@ export function useRequireAuth() {
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       const returnUrl = encodeURIComponent(pathname);
-      const authPath = createLocalizedPath(locale, "auth");
+      const authPath = createLocalizedPath(locale, appRoutes.auth);
       router.push(`${authPath}?returnUrl=${returnUrl}`);
     }
   }, [isAuthenticated, isLoading, router, pathname, locale]);
@@ -63,7 +63,7 @@ export function useRequireAdmin() {
   useEffect(() => {
     if (!isLoading) {
       if (!isAuthenticated) {
-        const authPath = createLocalizedPath(locale, "auth");
+        const authPath = createLocalizedPath(locale, appRoutes.auth);
         router.push(authPath);
       } else if (!isAdmin) {
         const homePath = createLocalizedPath(locale, "");

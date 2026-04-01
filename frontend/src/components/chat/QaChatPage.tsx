@@ -1,27 +1,21 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { Alert, Button } from "antd";
+import { useEffect } from "react";
 import { C, fontSans } from "@/styles/theme";
-import { useChat } from "@/hooks/useChat";
-import { useAuth } from "@/hooks/useAuth";
-import { appRoutes, createLocalizedPath } from "@/i18n/routing";
+import { useChatState, useChatAction } from "@/providers/chat-provider";
 import ChatInput from "./ChatInput";
 import ChatThread from "./ChatThread";
 
 export default function QaChatPage() {
   const locale = useLocale();
-  const router = useRouter();
   const t = useTranslations("chat");
   const searchParams = useSearchParams();
   const initialQuestion = searchParams.get("q") ?? "";
 
-  const { messages, isLoading, error, sendMessage } = useChat();
-  const { user } = useAuth();
-  const [showSavePrompt, setShowSavePrompt] = useState(false);
+  const { messages, isPending: isLoading, error } = useChatState();
+  const { sendMessage } = useChatAction();
 
   useEffect(() => {
     if (initialQuestion) {
@@ -33,11 +27,6 @@ export default function QaChatPage() {
   const handleSend = (text: string) => {
     // Allow guests to chat, no redirect
     void sendMessage(text, locale);
-  };
-
-  const handleSignIn = () => {
-    const returnUrl = encodeURIComponent(`/${locale}${appRoutes.ask}`);
-    router.push(`${createLocalizedPath(locale, "auth")}?returnUrl=${returnUrl}`);
   };
 
   return (
@@ -53,31 +42,6 @@ export default function QaChatPage() {
       role="log"
       aria-live="polite"
     >
-      {/* Guest Banner */}
-      {!user && (
-        <Alert
-          type="info"
-          message={t("guestBannerTitle")}
-          description={t("guestBannerDesc")}
-          action={
-            <Button
-              type="primary"
-              size="small"
-              onClick={handleSignIn}
-              style={{ whiteSpace: "nowrap" }}
-            >
-              {t("guestBannerAction")}
-            </Button>
-          }
-          style={{
-            borderRadius: 12,
-            position: "sticky",
-            top: 16,
-            zIndex: 10,
-          }}
-          showIcon
-        />
-      )}
       <ChatThread
         messages={messages}
         isLoading={isLoading}

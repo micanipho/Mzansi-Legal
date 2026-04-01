@@ -67,6 +67,7 @@ dist/
 !.env.example
 appsettings.Development.json
 appsettings.Local.json
+appsettings.Production.json
 
 # =========================
 # OS Files

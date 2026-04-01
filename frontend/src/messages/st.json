@@ -5,6 +5,7 @@
     "loading": "E a laola...",
     "error": "Ho entswe phoso. Ke kopa u leke hape.",
     "disclaimer": "Tlhahisoleseding ena ke ho ho tataisa feela ebile ha e emele keletso ya molao. Hloka ho bua le setsebi sa molao se batlang se rutiloeng.",
+    "signIn": "Kena",
     "locales": {
       "en": "English",
       "zu": "isiZulu",
@@ -82,7 +83,10 @@
     "relatedQuestions": "Dipotso tse amanang",
     "listenIn": "Mamela ka {language}",
     "disclaimer": "MzansiLegal e fana ka tlhahisoleseding ya molao, e seng keletso ya molao.",
-    "newConversation": "Poledisano e Ntjha"
+    "newConversation": "Poledisano e Ntjha",
+    "guestBannerAction": "Kena",
+    "guestBannerTitle": "Botsa potso ya molao kapa ya ditokelo tsa ditjhelete",
+    "guestBannerDesc": "Botsa potso ya molao kapa ya ditokelo tsa ditjhelete ka puo efe kapa efe."
   },
   "rights": {
     "title": "Mhloli wa Ditokelo Tsa Ka",
@@ -94,6 +98,8 @@
     "askAboutThis": "Botsa ka sena",
     "askFollowUp": "Botsa potso ya tatellano",
     "share": "Arolelana",
+    "guestProgressBanner": "Kena ho boloka tsoelo-pele ya hao",
+    "guestProgressDesc": "Theha akhaonto mahhala ho latela ditaba tsa ditokelo tse hlahlobilweng ho pholletsa le dipupano.",
     "evictionCite": "Molao-motheo, Karolo 26(3)",
     "payslipCite": "BCEA, Karolo 33",
     "defectiveGoodsCite": "CPA, Karolo 56",
@@ -189,6 +195,8 @@
     "switchToRegister": "Ha o na akhaonto? Ngodisa",
     "switchToSignIn": "O setse o na le akhaonto? Kena",
     "switchToLogin": "O setse o na le akhaonto? Kena",
+    "confirmPasswordLabel": "Netefatsa Phasewete",
+    "passwordMismatch": "Diphasewete ha di tshoane.",
     "invalidCredentials": "Imeile kapa phasewete e fosahetseng. Ke kopa o leke hape.",
     "emailTaken": "Aterese ena ya imeile e setse e ngodisitswe.",
     "signOutMenuItem": "Tswa",
