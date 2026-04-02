@@ -11,6 +11,7 @@ export interface IChatMessage {
   type: "user" | "bot";
   text: string;
   status: "sending" | "sent" | "error";
+  detectedLanguageCode?: string;
   citations?: RagCitationDto[];
   isInsufficientInformation?: boolean;
   answerMode?: RagAnswerMode;

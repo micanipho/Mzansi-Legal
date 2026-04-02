@@ -13,7 +13,7 @@ namespace backend.Services.LanguageService;
 
 /// <summary>
 /// Uses GPT-4o to detect the language of user input and translate non-English questions to English
-/// for the RAG search pipeline. All failures fall back to Language.English so the Q&A flow
+/// for the RAG search pipeline. All failures fall back to Language.English so the Q&amp;A flow
 /// is never blocked by a language service error.
 /// </summary>
 public class LanguageAppService : ApplicationService, ILanguageAppService

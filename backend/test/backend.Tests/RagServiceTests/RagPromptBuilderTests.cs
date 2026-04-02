@@ -28,6 +28,15 @@ public class RagPromptBuilderTests
     }
 
     [Fact]
+    public void BuildSystemPrompt_ForZuluMode_AddsLanguageDirectiveKeepingCitationsInEnglish()
+    {
+        var result = RagPromptBuilder.BuildSystemPrompt(RagAnswerMode.Direct, Language.Zulu);
+
+        result.ShouldContain("Respond in isiZulu.");
+        result.ShouldContain("Keep all Act names, section numbers, and legal citations in English.");
+    }
+
+    [Fact]
     public void BuildSystemPrompt_ForUrgentCautiousMode_ExplainsUrgentHelpAndGuidanceRules()
     {
         var result = RagPromptBuilder.BuildSystemPrompt(
@@ -93,6 +102,17 @@ public class RagPromptBuilderTests
 
         result.ShouldContain("legal grounding is too weak");
         result.ShouldContain("seek official or legal help right away");
+    }
+
+    [Fact]
+    public void BuildClarificationLead_ForSesothoUrgentQuestion_UsesLocalizedUrgentSentence()
+    {
+        var result = RagPromptBuilder.BuildClarificationLead(
+            Language.Sesotho,
+            requiresUrgentAttention: true);
+
+        result.ShouldContain("Nka thusa");
+        result.ShouldContain("kopa thuso ya semmuso");
     }
 
     [Fact]
