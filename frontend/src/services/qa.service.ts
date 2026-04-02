@@ -22,6 +22,7 @@ function getCookie(name: string): string | null {
 
 export interface AskQuestionRequest {
   questionText: string;
+  conversationId?: string;
 }
 
 export interface RagCitationDto {
@@ -48,6 +49,11 @@ export interface RagAnswerResult {
   answerText: string | null;
   isInsufficientInformation: boolean;
   detectedLanguageCode: string;
+  conversationId?: string | null;
+  primarySourceTitle?: string | null;
+  primarySourceLocator?: string | null;
+  primaryAuthorityType?: RagCitationAuthorityType | null;
+  hasSupportingSources?: boolean;
   answerMode: RagAnswerMode;
   confidenceBand: RagConfidenceBand;
   clarificationQuestion: string | null;
@@ -55,6 +61,23 @@ export interface RagAnswerResult {
   citations: RagCitationDto[];
   chunkIds: string[];
   answerId: string | null;
+}
+
+export interface ConversationHistoryMessage {
+  messageId: string;
+  type: "user" | "bot";
+  text: string;
+  createdAt: string;
+  detectedLanguageCode: string;
+  citations: RagCitationDto[];
+}
+
+export interface ConversationDetail {
+  conversationId: string;
+  startedAt: string;
+  language: string;
+  questionCount: number;
+  messages: ConversationHistoryMessage[];
 }
 
 const ANSWER_MODE_BY_NUMBER: Record<number, RagAnswerMode> = {
@@ -146,8 +169,10 @@ function normalizeCitation(citation: RagCitationDto): RagCitationDto {
     ...citation,
     sourceTitle: citation.sourceTitle ?? citation.actName,
     sourceLocator: citation.sourceLocator ?? citation.sectionNumber,
-    authorityType: normalizeAuthorityType(citation.authorityType),
-    sourceRole: normalizeSourceRole(citation.sourceRole),
+    authorityType: citation.authorityType
+      ? normalizeAuthorityType(citation.authorityType)
+      : null,
+    sourceRole: citation.sourceRole ? normalizeSourceRole(citation.sourceRole) : null,
   };
 }
 
@@ -156,6 +181,13 @@ function normalizeRagAnswerResult(result: RagAnswerResult): RagAnswerResult {
     ...result,
     answerMode: normalizeAnswerMode(result.answerMode),
     confidenceBand: normalizeConfidenceBand(result.confidenceBand),
+    conversationId: result.conversationId ?? null,
+    primarySourceTitle: result.primarySourceTitle ?? null,
+    primarySourceLocator: result.primarySourceLocator ?? null,
+    primaryAuthorityType: result.primaryAuthorityType
+      ? normalizeAuthorityType(result.primaryAuthorityType)
+      : null,
+    hasSupportingSources: Boolean(result.hasSupportingSources),
     requiresUrgentAttention: Boolean(result.requiresUrgentAttention),
     clarificationQuestion: result.clarificationQuestion ?? null,
     citations: Array.isArray(result.citations)
@@ -255,4 +287,64 @@ export async function askRagQuestion(
   }
   
   return normalizeRagAnswerResult(json as RagAnswerResult);
+}
+
+export async function getConversation(conversationId: string): Promise<ConversationDetail> {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...ABP_TENANT_HEADER,
+  };
+
+  const token = getCookie("ml_token");
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  let lastNetworkError: TypeError | null = null;
+
+  for (const apiBase of getAskApiBaseCandidates()) {
+    try {
+      const res = await fetch(`${apiBase}/api/app/qa/conversations/${conversationId}`, {
+        method: "GET",
+        headers,
+      });
+
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({})) as {
+          error?: { message?: string };
+        };
+        throw new Error(json?.error?.message ?? `Request failed with status ${res.status}`);
+      }
+
+      const json = await res.json();
+      const result = (json.result ?? json) as ConversationDetail;
+
+      return {
+        conversationId: result.conversationId,
+        startedAt: result.startedAt,
+        language: result.language ?? "en",
+        questionCount: result.questionCount ?? 0,
+        messages: Array.isArray(result.messages)
+          ? result.messages.map((message) => ({
+              messageId: message.messageId,
+              type: message.type === "bot" ? "bot" : "user",
+              text: message.text ?? "",
+              createdAt: message.createdAt,
+              detectedLanguageCode: message.detectedLanguageCode ?? "en",
+              citations: Array.isArray(message.citations)
+                ? message.citations.map(normalizeCitation)
+                : [],
+            }))
+          : [],
+      };
+    } catch (error) {
+      if (!(error instanceof TypeError)) {
+        throw error;
+      }
+
+      lastNetworkError = error;
+    }
+  }
+
+  throw lastNetworkError ?? new TypeError("Failed to fetch");
 }

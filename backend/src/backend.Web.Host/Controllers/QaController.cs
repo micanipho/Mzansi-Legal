@@ -3,6 +3,7 @@ using backend.Controllers;
 using backend.Services.RagService;
 using backend.Services.RagService.DTO;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Threading.Tasks;
 
 namespace backend.Web.Host.Controllers
@@ -45,6 +46,17 @@ namespace backend.Web.Host.Controllers
         public Task<ConversationsListDto> GetConversations()
         {
             return _ragAppService.GetConversationsAsync();
+        }
+
+        /// <summary>
+        /// Returns one authenticated user's full stored conversation thread, including user messages
+        /// and persisted assistant replies, so clients can render or resume the conversation.
+        /// </summary>
+        [HttpGet("conversations/{conversationId:guid}")]
+        [AbpAuthorize]
+        public Task<ConversationDetailDto> GetConversation(Guid conversationId)
+        {
+            return _ragAppService.GetConversationAsync(conversationId);
         }
     }
 }

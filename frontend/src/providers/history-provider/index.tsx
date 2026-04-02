@@ -1,6 +1,6 @@
 "use client";
 import { useContext, useEffect, useEffectEvent, useReducer } from "react";
-import { getConversations } from "@/services/qaService";
+import { getConversation, getConversations } from "@/services/qaService";
 import { useAuth } from "@/hooks/useAuth";
 import { getUserFacingErrorMessage } from "@/lib/userFacingErrors";
 import { HistoryReducer } from "./reducer";
@@ -23,15 +23,38 @@ export const HistoryProvider = ({
     dispatch({ type: HistoryStateEnums.HISTORY_FETCH_ALL_PENDING });
     try {
       const result = await getConversations(user?.token);
+      const detailedItems = await Promise.all(
+        result.items.map(async (item) => {
+          try {
+            const conversation = await getConversation(
+              item.conversationId,
+              user?.token,
+            );
+
+            return {
+              conversationId: item.conversationId,
+              firstQuestion: item.firstQuestion,
+              questionCount: item.questionCount,
+              startedAt: item.startedAt,
+              locale: item.locale,
+              messages: conversation.messages,
+            };
+          } catch {
+            return {
+              conversationId: item.conversationId,
+              firstQuestion: item.firstQuestion,
+              questionCount: item.questionCount,
+              startedAt: item.startedAt,
+              locale: item.locale,
+              messages: [],
+            };
+          }
+        }),
+      );
+
       dispatch({
         type: HistoryStateEnums.HISTORY_FETCH_ALL_SUCCESS,
-        items: result.items.map((item) => ({
-          conversationId: item.conversationId,
-          firstQuestion: item.firstQuestion,
-          questionCount: item.questionCount,
-          startedAt: item.startedAt,
-          locale: item.locale,
-        })),
+        items: detailedItems,
         totalCount: result.totalCount,
       });
     } catch (error) {

@@ -50,6 +50,10 @@ public class RagAppServiceTests
         result.AnswerId.ShouldBe(harness.Service.NextAnswerId);
         result.AnswerId.ShouldNotBeNull();
         result.Citations.ShouldNotBeEmpty();
+        result.PrimarySourceTitle.ShouldBe("Constitution of the Republic of South Africa");
+        result.PrimarySourceLocator.ShouldBe("Section 26(3)");
+        result.PrimaryAuthorityType.ShouldBe(RagSourceMetadata.BindingLaw);
+        result.HasSupportingSources.ShouldBeFalse();
 
         harness.Service.PersistedQuestionCount.ShouldBe(1);
         harness.Service.PersistedAnswerCount.ShouldBe(1);
@@ -79,14 +83,18 @@ public class RagAppServiceTests
         });
 
         result.AnswerMode.ShouldBe(RagAnswerMode.Insufficient);
-        result.AnswerId.ShouldBeNull();
+        result.AnswerId.ShouldBe(harness.Service.NextAnswerId);
         result.Citations.ShouldBeEmpty();
         result.ChunkIds.ShouldBeEmpty();
         result.DetectedLanguageCode.ShouldBe("af");
+        result.PrimarySourceTitle.ShouldBeNull();
+        result.PrimarySourceLocator.ShouldBeNull();
+        result.PrimaryAuthorityType.ShouldBeNull();
+        result.HasSupportingSources.ShouldBeFalse();
 
         harness.Service.PersistedQuestionCount.ShouldBe(1);
-        harness.Service.PersistedAnswerCount.ShouldBe(0);
-        harness.Service.LastConversationId.ShouldBe(suppliedConversationId);
+        harness.Service.PersistedAnswerCount.ShouldBe(1);
+        harness.Service.LastConversationId.ShouldBeNull();
         harness.Service.LastOriginalText.ShouldBe("Kan my verhuurder my uitsit?");
         harness.Service.LastTranslatedText.ShouldBe("Can my landlord evict me without a court order?");
         harness.Service.LastQuestionLanguage.ShouldBe(Language.Afrikaans);
@@ -266,8 +274,8 @@ public class RagAppServiceTests
     {
         RagAppService.ShouldPersistAnswer(RagAnswerMode.Direct).ShouldBeTrue();
         RagAppService.ShouldPersistAnswer(RagAnswerMode.Cautious).ShouldBeTrue();
-        RagAppService.ShouldPersistAnswer(RagAnswerMode.Clarification).ShouldBeFalse();
-        RagAppService.ShouldPersistAnswer(RagAnswerMode.Insufficient).ShouldBeFalse();
+        RagAppService.ShouldPersistAnswer(RagAnswerMode.Clarification).ShouldBeTrue();
+        RagAppService.ShouldPersistAnswer(RagAnswerMode.Insufficient).ShouldBeTrue();
     }
 
     [Fact]
@@ -287,6 +295,10 @@ public class RagAppServiceTests
         result.AnswerId.ShouldBeNull();
         result.Citations.ShouldBeEmpty();
         result.ChunkIds.ShouldBeEmpty();
+        result.PrimarySourceTitle.ShouldBeNull();
+        result.PrimarySourceLocator.ShouldBeNull();
+        result.PrimaryAuthorityType.ShouldBeNull();
+        result.HasSupportingSources.ShouldBeFalse();
         result.ClarificationQuestion.ShouldBe(clarificationQuestion);
         result.AnswerText.ShouldContain("need one detail first");
     }
@@ -325,6 +337,10 @@ public class RagAppServiceTests
         result.Citations.ShouldBeEmpty();
         result.ChunkIds.ShouldBeEmpty();
         result.AnswerId.ShouldBeNull();
+        result.PrimarySourceTitle.ShouldBeNull();
+        result.PrimarySourceLocator.ShouldBeNull();
+        result.PrimaryAuthorityType.ShouldBeNull();
+        result.HasSupportingSources.ShouldBeFalse();
         result.ClarificationQuestion.ShouldBeNull();
     }
 
@@ -382,6 +398,67 @@ public class RagAppServiceTests
             citation.SourceRole == RagSourceMetadata.Supporting);
     }
 
+    [Fact]
+    public async Task AskAsync_WithExistingConversation_UsesStoredTurnsAsPromptContext()
+    {
+        var harness = CreateHarness(
+            CreateGroundedHousingChunks(),
+            new float[] { 1f, 0f },
+            Language.English,
+            "What if they change the locks?",
+            "A landlord still cannot evict you without a court order.");
+        var suppliedConversationId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        harness.SeedConversationThread(
+            suppliedConversationId,
+            42,
+            DateTime.UtcNow.AddMinutes(-10),
+            ("Can my landlord evict me without a court order?", "No. A court order is required."));
+        harness.Service.UseSession(42);
+        harness.Service.UseBaseQuestionPersistence = true;
+
+        await harness.Service.AskAsync(new AskQuestionRequest
+        {
+            QuestionText = "What if they change the locks?",
+            ConversationId = suppliedConversationId
+        });
+
+        harness.LastChatRequestBody.ShouldContain("Conversation history for continuity only");
+        harness.LastChatRequestBody.ShouldContain("User: Can my landlord evict me without a court order?");
+        harness.LastChatRequestBody.ShouldContain("Assistant: No. A court order is required.");
+        harness.EmbeddingRequests.ShouldContain(request =>
+            request.Contains("Current question: What if they change the locks?", StringComparison.Ordinal));
+        harness.EmbeddingRequests.ShouldContain(request =>
+            request.Contains("User: Can my landlord evict me without a court order?", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task GetConversationAsync_ReturnsOrderedUserAndAssistantMessages()
+    {
+        var harness = CreateHarness(
+            CreateGroundedHousingChunks(),
+            new float[] { 1f, 0f },
+            Language.English,
+            "unused",
+            "unused");
+        var conversationId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+        harness.SeedConversationThread(
+            conversationId,
+            42,
+            DateTime.UtcNow.AddMinutes(-10),
+            ("Can my landlord evict me without a court order?", "No. A court order is required."),
+            ("What if they change the locks?", "That still needs a court process."));
+        harness.Service.UseSession(42);
+
+        var result = await harness.Service.GetConversationAsync(conversationId);
+
+        result.ConversationId.ShouldBe(conversationId);
+        result.QuestionCount.ShouldBe(2);
+        result.Messages.Select(message => message.Type).ShouldBe(new[] { "user", "bot", "user", "bot" });
+        result.Messages[0].Text.ShouldBe("Can my landlord evict me without a court order?");
+        result.Messages[1].Text.ShouldBe("No. A court order is required.");
+        result.Messages[2].Text.ShouldBe("What if they change the locks?");
+    }
+
     private static RagAppServiceHarness CreateHarness(
         IReadOnlyList<IndexedChunk> loadedChunks,
         float[] questionVector,
@@ -393,19 +470,26 @@ public class RagAppServiceTests
         store.Replace(loadedChunks, new RagDocumentProfileBuilder().Build(loadedChunks).ToList());
 
         var embeddingService = Substitute.For<IEmbeddingAppService>();
-        embeddingService.GenerateEmbeddingAsync(Arg.Any<string>()).Returns(_ => new EmbeddingResult
+        var embeddingRequests = new List<string>();
+        embeddingService.GenerateEmbeddingAsync(Arg.Any<string>()).Returns(call =>
         {
-            Vector = questionVector,
-            Model = "text-embedding-3-small",
-            InputCharacterCount = translatedText.Length
+            var text = call.Arg<string>();
+            embeddingRequests.Add(text);
+            return new EmbeddingResult
+            {
+                Vector = questionVector,
+                Model = "text-embedding-3-small",
+                InputCharacterCount = text.Length
+            };
         });
 
         var languageService = Substitute.For<ILanguageAppService>();
         languageService.DetectLanguageAsync(Arg.Any<string>()).Returns(detectedLanguage);
         languageService.TranslateToEnglishAsync(Arg.Any<string>(), detectedLanguage).Returns(translatedText);
 
+        var chatHandler = new StubChatHandler(chatResponse);
         var httpFactory = Substitute.For<IHttpClientFactory>();
-        httpFactory.CreateClient("OpenAI").Returns(_ => new HttpClient(new StubChatHandler(chatResponse))
+        httpFactory.CreateClient("OpenAI").Returns(_ => new HttpClient(chatHandler)
         {
             BaseAddress = new Uri("https://api.openai.com/")
         });
@@ -415,7 +499,9 @@ public class RagAppServiceTests
             languageService,
             store,
             httpFactory,
-            BuildConfig());
+            BuildConfig(),
+            chatHandler,
+            embeddingRequests);
     }
 
     private static IConfiguration BuildConfig()
@@ -516,6 +602,7 @@ public class RagAppServiceTests
     private sealed class StubChatHandler : HttpMessageHandler
     {
         private readonly string _content;
+        public string LastRequestBody { get; private set; } = string.Empty;
 
         public StubChatHandler(string content)
         {
@@ -526,6 +613,10 @@ public class RagAppServiceTests
             HttpRequestMessage request,
             CancellationToken cancellationToken)
         {
+            LastRequestBody = request.Content is null
+                ? string.Empty
+                : request.Content.ReadAsStringAsync(cancellationToken).GetAwaiter().GetResult();
+
             var payload = JsonSerializer.Serialize(new
             {
                 choices = new[]
@@ -557,14 +648,22 @@ public class RagAppServiceTests
         public List<Answer> Answers { get; } = new();
         public List<AnswerCitation> Citations { get; } = new();
         public TestableRagAppService Service { get; }
+        public string LastChatRequestBody => _chatHandler.LastRequestBody;
+        public IReadOnlyList<string> EmbeddingRequests => _embeddingRequests;
+        private readonly StubChatHandler _chatHandler;
+        private readonly List<string> _embeddingRequests;
 
         public RagAppServiceHarness(
             IEmbeddingAppService embeddingService,
             ILanguageAppService languageService,
             RagIndexStore ragIndexStore,
             IHttpClientFactory httpClientFactory,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            StubChatHandler chatHandler,
+            List<string> embeddingRequests)
         {
+            _chatHandler = chatHandler;
+            _embeddingRequests = embeddingRequests;
             var conversationRepository = Substitute.For<IRepository<Conversation, Guid>>();
             var questionRepository = Substitute.For<IRepository<Question, Guid>>();
             var answerRepository = Substitute.For<IRepository<Answer, Guid>>();
@@ -631,7 +730,8 @@ public class RagAppServiceTests
                 citationRepository,
                 ragIndexStore,
                 httpClientFactory,
-                configuration);
+                configuration,
+                Conversations);
         }
 
         public Conversation SeedConversation(
@@ -662,10 +762,58 @@ public class RagAppServiceTests
             Conversations.Add(conversation);
             return conversation;
         }
+
+        public Conversation SeedConversationThread(
+            Guid conversationId,
+            long userId,
+            DateTime startedAt,
+            params (string Question, string Answer)[] turns)
+        {
+            var conversation = new Conversation
+            {
+                Id = conversationId,
+                UserId = userId,
+                Language = Language.English,
+                InputMethod = InputMethod.Text,
+                StartedAt = startedAt,
+                Questions = turns.Select((turn, index) =>
+                {
+                    var questionTime = startedAt.AddMinutes(index * 2);
+                    var questionId = Guid.NewGuid();
+                    return new Question
+                    {
+                        Id = questionId,
+                        ConversationId = conversationId,
+                        OriginalText = turn.Question,
+                        TranslatedText = turn.Question,
+                        Language = Language.English,
+                        InputMethod = InputMethod.Text,
+                        CreationTime = questionTime,
+                        Answers = new List<Answer>
+                        {
+                            new()
+                            {
+                                Id = Guid.NewGuid(),
+                                QuestionId = questionId,
+                                Text = turn.Answer,
+                                Language = Language.English,
+                                CreationTime = questionTime.AddSeconds(30),
+                                Citations = new List<AnswerCitation>()
+                            }
+                        }
+                    };
+                }).ToList()
+            };
+
+            Conversations.Add(conversation);
+            return conversation;
+        }
     }
 
     private sealed class TestableRagAppService : RagAppService
     {
+        private readonly List<Conversation> _conversations;
+
         public TestableRagAppService(
             IEmbeddingAppService embeddingService,
             ILanguageAppService languageService,
@@ -676,7 +824,8 @@ public class RagAppServiceTests
             IRepository<AnswerCitation, Guid> citationRepository,
             RagIndexStore ragIndexStore,
             IHttpClientFactory httpClientFactory,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            List<Conversation> conversations)
             : base(
                 embeddingService,
                 languageService,
@@ -689,6 +838,7 @@ public class RagAppServiceTests
                 httpClientFactory,
                 configuration)
         {
+            _conversations = conversations;
         }
 
         public Guid NextQuestionId { get; } = Guid.Parse("11111111-1111-1111-1111-111111111111");
@@ -751,6 +901,14 @@ public class RagAppServiceTests
         protected override Task<List<Conversation>> ListConversationsAsync(IOrderedQueryable<Conversation> query)
         {
             return Task.FromResult(query.ToList());
+        }
+
+        protected override Task<Conversation> LoadConversationThreadAsync(long userId, Guid conversationId)
+        {
+            return Task.FromResult(
+                _conversations.FirstOrDefault(conversation =>
+                    conversation.Id == conversationId &&
+                    conversation.UserId == userId))!;
         }
     }
 }

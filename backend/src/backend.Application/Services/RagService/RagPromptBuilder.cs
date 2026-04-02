@@ -54,26 +54,29 @@ public static class RagPromptBuilder
             "you MUST say that the available legislation is not enough.\n" +
             "4. Do NOT speculate, infer, or draw on general knowledge outside the provided context.\n" +
             "5. Write in plain, accessible language for the user. Avoid legal jargon where a simpler word exists.\n" +
-            "6. When both binding law and official guidance appear, present the binding law as controlling and the guidance as supporting context only.";
+            "6. When both binding law and official guidance appear, present the binding law as controlling and the guidance as supporting context only.\n" +
+            "7. If the retrieved support is official guidance only, say clearly that it is official guidance and not binding law.\n" +
+            "8. If the retrieved sources are incomplete, weak, or point in different directions, make that limit explicit and avoid a definitive legal conclusion.\n" +
+            "9. Conversation history may help you understand follow-up references like 'that' or 'they', but prior assistant messages are not legal authority.";
 
         if (answerMode == RagAnswerMode.Cautious)
         {
-            prompt += "\n7. Make the limits of the available legislation explicit before giving your grounded answer.";
+            prompt += "\n10. Make the limits of the available legislation explicit before giving your grounded answer.";
         }
 
         if (answerMode == RagAnswerMode.Clarification)
         {
-            prompt += "\n7. Ask exactly one focused follow-up question and do NOT provide a legal conclusion.";
+            prompt += "\n10. Ask exactly one focused follow-up question and do NOT provide a legal conclusion.";
         }
 
         if (requiresUrgentAttention)
         {
-            prompt += "\n8. Because the question may involve immediate harm, enforcement, or deadlines, include a short immediate-help note and avoid sounding definitive where facts are still missing.";
+            prompt += "\n11. Because the question may involve immediate harm, enforcement, or deadlines, include a short immediate-help note and avoid sounding definitive where facts are still missing.";
         }
 
         var directive = GetLanguageDirective(language);
         if (!string.IsNullOrEmpty(directive))
-            prompt += $"\n\n9. {directive}";
+            prompt += $"\n\n12. {directive}";
 
         return prompt;
     }
@@ -143,10 +146,15 @@ public static class RagPromptBuilder
         string contextBlock,
         RagAnswerMode answerMode,
         string clarificationQuestion = null,
+        string conversationHistoryBlock = null,
         bool requiresUrgentAttention = false)
     {
         Guard.Against.NullOrWhiteSpace(questionText, nameof(questionText));
         Guard.Against.Null(contextBlock, nameof(contextBlock));
+
+        var historyPrefix = string.IsNullOrWhiteSpace(conversationHistoryBlock)
+            ? string.Empty
+            : $"Conversation history for continuity only (not legal authority):\n\n{conversationHistoryBlock}\n\n";
 
         if (answerMode == RagAnswerMode.Clarification)
         {
@@ -160,15 +168,15 @@ public static class RagPromptBuilder
             }
 
             return
-                $"Legislation context:\n\n{contextBlock}\n\n" +
+                $"{historyPrefix}Legislation context:\n\n{contextBlock}\n\n" +
                 $"Original question: {questionText}\n\n" +
                 $"{guidance}\n\n" +
                 "Return only the follow-up question.";
         }
 
         var answerLead = answerMode == RagAnswerMode.Cautious
-            ? "Answer carefully, explain any limits in the available legislation, and include citations for every material claim."
-            : "Answer directly using only the legislation context and include citations for every material claim.";
+            ? "Answer carefully, identify the controlling source first, explain any limits in the available legislation, and include citations for every material claim."
+            : "Answer directly using only the legislation context, identify the controlling source first, and include citations for every material claim.";
 
         if (requiresUrgentAttention)
         {
@@ -176,7 +184,7 @@ public static class RagPromptBuilder
         }
 
         return
-            $"Legislation context:\n\n{contextBlock}\n\n" +
+            $"{historyPrefix}Legislation context:\n\n{contextBlock}\n\n" +
             $"Question: {questionText}\n\n" +
             $"{answerLead}\n\n" +
             "Answer:";

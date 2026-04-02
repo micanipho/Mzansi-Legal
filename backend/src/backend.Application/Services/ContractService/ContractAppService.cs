@@ -126,7 +126,8 @@ public class ContractAppService : ApplicationService, IContractAppService
         return await _contractFollowUpService.AskAsync(
             analysis,
             request.QuestionText,
-            request.ResponseLanguageCode);
+            request.ResponseLanguageCode,
+            request.ConversationHistory);
     }
 
     protected virtual async Task<ContractAnalysis> GetOwnedAnalysisAsync(Guid id)
