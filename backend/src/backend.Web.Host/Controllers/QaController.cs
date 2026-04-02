@@ -22,10 +22,12 @@ namespace backend.Web.Host.Controllers
         }
 
         /// <summary>
-        /// Submits a natural-language legal question and returns one of four structured outcomes:
-        /// a direct grounded answer, a cautious grounded answer, a clarification request,
-        /// or an insufficient-grounding response. Responses may also label supporting guidance
-        /// separately from binding law and flag urgent-attention scenarios for the client.
+        /// Submits a natural-language legal question in English, isiZulu, Sesotho, or Afrikaans
+        /// and returns one of four structured outcomes: a direct grounded answer, a cautious
+        /// grounded answer, a clarification request, or an insufficient-grounding response.
+        /// Non-English input is translated to English for retrieval, while the answer is directed
+        /// back into the user's language. Responses may also label supporting guidance separately
+        /// from binding law and flag urgent-attention scenarios for the client.
         /// </summary>
         [HttpPost("ask")]
         public Task<RagAnswerResult> Ask([FromBody] AskQuestionRequest request)

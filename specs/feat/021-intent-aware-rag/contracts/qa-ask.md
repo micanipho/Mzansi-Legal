@@ -27,7 +27,16 @@ The wire response remains append-only for existing consumers.
 
 | Field | Type | Required | Notes |
 |-------|------|----------|-------|
-| `questionText` | `string` | Yes | Natural-language legal question from the user |
+| `questionText` | `string` | Yes | Natural-language legal question from the user in English, isiZulu, Sesotho, or Afrikaans. Non-English input is translated to English internally for retrieval. |
+
+## Language Behavior
+
+| Input language | `detectedLanguageCode` | Retrieval language | Answer language | Citation language |
+|----------------|------------------------|-------------------|-----------------|------------------|
+| English | `en` | English | English | English |
+| isiZulu | `zu` | English | isiZulu | English |
+| Sesotho | `st` | English | Sesotho | English |
+| Afrikaans | `af` | English | Afrikaans | English |
 
 ## Response
 

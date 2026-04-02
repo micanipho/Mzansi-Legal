@@ -14,6 +14,9 @@ public interface IRagAppService : IApplicationService
 {
     /// <summary>
     /// Accepts a user's natural-language legal question and returns a structured response.
+    /// The pipeline detects whether the user wrote in English, isiZulu, Sesotho, or Afrikaans,
+    /// translates non-English input to English for retrieval, and then instructs the answer model
+    /// to respond in the user's language while keeping legal source references in English.
     /// The answer may be direct, cautious, clarification-seeking, or insufficient depending
     /// on how strongly the indexed legislation supports the question, whether official guidance
     /// supplements the law, and whether urgent risk indicators require a safer posture.

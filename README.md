@@ -119,7 +119,28 @@ A single platform where citizens can:
 5. SARS personal income tax guides
 6. FSCA consumer education materials
 
-All sourced from justice.gov.za, sars.gov.za, and fsca.co.za.
+Current public sources include gov.za, justice.gov.za, sars.gov.za, and
+fsca.co.za.
+
+---
+
+## Trust Guardrails
+
+- **Primary law comes first**: the Constitution, statutes, regulations, and
+  authoritative judgments outrank official guidance, forms, and regulator
+  material in retrieval and answers.
+- **Guidance is labeled**: official guides and forms may explain procedure, but
+  they never replace binding law in legal conclusions.
+- **High-risk matters escalate**: arrest, violence, imminent eviction, urgent
+  deadlines, and similarly high-stakes matters trigger clarifying questions and
+  visible guidance to seek human or emergency help.
+- **POPIA is a product requirement**: retention, security, breach response, and
+  cross-border vendor posture are treated as implementation requirements, not
+  post-launch cleanup.
+- **Corpus ingestion is official-source-first**: prefer gov.za, Government
+  Gazette materials, justice.gov.za forms/guidance, apex-court repositories,
+  and link-only handling for licensing-sensitive compiled editions unless
+  permission is recorded.
 
 ---
 

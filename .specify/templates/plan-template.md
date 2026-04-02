@@ -26,6 +26,7 @@
 **Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
 **Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
 **Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
+**Legal/Compliance Inputs**: [e.g., `docs/deep-research-report.md`, `docs/research_legislation.md`, POPIA notes, or N/A]
 
 ## Constitution Check
 
@@ -38,9 +39,13 @@ Verify all gates from the constitution (`/.specify/memory/constitution.md`):
 - [ ] **Coding Standards Gate**: Planned approach complies with `docs/RULES.md` (length, nesting, guard clauses, naming)
 - [ ] **Skill Gate**: Relevant skills from the Skill Usage Policy identified for this feature's tasks
 - [ ] **Multilingual Gate**: All user-facing outputs planned for EN, isiZulu, Sesotho, Afrikaans
+- [ ] **Authority Gate**: AI-facing outputs preserve primary-source-first behavior, authority weighting, and law-vs-guidance labeling
 - [ ] **Citation Gate**: AI-facing endpoints define RAG contract, citation format, and fallback behavior
-- [ ] **Accessibility Gate**: Keyboard navigation and screen reader semantics planned for new frontend components
-- [ ] **ETL/Ingestion Gate**: If adding/modifying document ingestion, IngestionJob tracks all pipeline stages (status, timing, errors)
+- [ ] **Safety Gate**: Clarifying questions, high-risk escalation triggers, and human-help messaging are planned for ambiguous or urgent legal flows
+- [ ] **Accessibility Gate**: Keyboard navigation, screen reader semantics, plain-language output, and mobile-first delivery are planned for new frontend components
+- [ ] **Data Governance Gate**: Personal-data, upload, logging, or vendor changes document POPIA retention, security, breach, and cross-border impacts
+- [ ] **Corpus Governance Gate**: Document or ingestion changes specify official-source preference, licensing posture, provenance metadata, and freshness ownership
+- [ ] **ETL/Ingestion Gate**: If adding/modifying document ingestion, IngestionJob tracks all pipeline stages (status, timing, provenance, errors)
 
 ## Project Structure
 
