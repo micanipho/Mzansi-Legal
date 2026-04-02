@@ -23,7 +23,8 @@ namespace backend.Services.RagService;
 /// <summary>
 /// Core RAG orchestration service for South African legal Q&amp;A.
 /// Loads chunk embeddings and source metadata into memory, plans document-aware retrieval,
-/// calls the chat model only when grounding is adequate, and persists grounded answers.
+/// calls the chat model only when grounding is adequate, persists question history for
+/// authenticated users, and stores answers only for grounded outcomes.
 /// </summary>
 public class RagAppService : ApplicationService, IRagAppService
 {
@@ -163,6 +164,7 @@ public class RagAppService : ApplicationService, IRagAppService
 
         await EnsureIndexLoadedAsync();
 
+        var userId = AbpSession.UserId;
         var detectedLanguage = await _languageService.DetectLanguageAsync(request.QuestionText);
         var translatedText = await _languageService.TranslateToEnglishAsync(request.QuestionText, detectedLanguage);
         var detectedLanguageCode = RagPromptBuilder.ToIsoCode(detectedLanguage);
@@ -193,6 +195,12 @@ public class RagAppService : ApplicationService, IRagAppService
 
         if (retrievalDecision.AnswerMode == RagAnswerMode.Insufficient)
         {
+            await PersistQuestionIfAuthenticatedAsync(
+                userId,
+                request.QuestionText,
+                translatedText,
+                detectedLanguage);
+
             return BuildNonGroundedResult(
                 detectedLanguage,
                 detectedLanguageCode,
@@ -209,6 +217,12 @@ public class RagAppService : ApplicationService, IRagAppService
                 detectedLanguage,
                 retrievalDecision);
 
+            await PersistQuestionIfAuthenticatedAsync(
+                userId,
+                request.QuestionText,
+                translatedText,
+                detectedLanguage);
+
             return BuildNonGroundedResult(
                 detectedLanguage,
                 detectedLanguageCode,
@@ -224,15 +238,22 @@ public class RagAppService : ApplicationService, IRagAppService
             retrievalDecision);
 
         Guid? answerId = null;
-        if (AbpSession.UserId.HasValue && ShouldPersistAnswer(retrievalDecision.AnswerMode))
+        if (userId.HasValue)
         {
-            answerId = await PersistQaAsync(
-                AbpSession.UserId.Value,
+            var questionId = await PersistQuestionAsync(
+                userId.Value,
                 request.QuestionText,
                 translatedText,
-                detectedLanguage,
-                answerText,
-                retrievalDecision.SelectedChunks);
+                detectedLanguage);
+
+            if (ShouldPersistAnswer(retrievalDecision.AnswerMode))
+            {
+                answerId = await PersistAnswerAsync(
+                    questionId,
+                    answerText,
+                    detectedLanguage,
+                    retrievalDecision.SelectedChunks);
+            }
         }
 
         return new RagAnswerResult
@@ -251,6 +272,20 @@ public class RagAppService : ApplicationService, IRagAppService
 
     public static bool ShouldPersistAnswer(RagAnswerMode answerMode) =>
         answerMode == RagAnswerMode.Direct || answerMode == RagAnswerMode.Cautious;
+
+    private async Task PersistQuestionIfAuthenticatedAsync(
+        long? userId,
+        string originalText,
+        string translatedText,
+        Language language)
+    {
+        if (!userId.HasValue)
+        {
+            return;
+        }
+
+        await PersistQuestionAsync(userId.Value, originalText, translatedText, language);
+    }
 
     private async Task EnsureIndexLoadedAsync()
     {
@@ -375,13 +410,11 @@ public class RagAppService : ApplicationService, IRagAppService
                ?? throw new InvalidOperationException("OpenAI chat response contained no content.");
     }
 
-    private async Task<Guid> PersistQaAsync(
+    protected virtual async Task<Guid> PersistQuestionAsync(
         long userId,
         string originalText,
         string translatedText,
-        Language language,
-        string answerText,
-        IEnumerable<RetrievedChunk> usedChunks)
+        Language language)
     {
         var conversation = new Conversation
         {
@@ -401,8 +434,15 @@ public class RagAppService : ApplicationService, IRagAppService
             Language = language,
             InputMethod = InputMethod.Text
         };
-        var questionId = await _questionRepository.InsertAndGetIdAsync(question);
+        return await _questionRepository.InsertAndGetIdAsync(question);
+    }
 
+    protected virtual async Task<Guid> PersistAnswerAsync(
+        Guid questionId,
+        string answerText,
+        Language language,
+        IEnumerable<RetrievedChunk> usedChunks)
+    {
         var answer = new Answer
         {
             QuestionId = questionId,

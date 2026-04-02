@@ -7,19 +7,19 @@ namespace backend.Services.RagService.DTO;
 /// <summary>
 /// Output DTO returned by <see cref="IRagAppService.AskAsync"/>.
 /// Contains the generated answer, structured citations, and traceability identifiers.
-/// When no grounded answer is returned, citations and chunk IDs are empty and the answer ID is null.
+/// When no grounded answer is returned, the answer ID is null even though the question itself
+/// may still be recorded for authenticated users.
 /// </summary>
 public class RagAnswerResult
 {
     /// <summary>
-    /// The AI-generated answer grounded in retrieved legislation.
-    /// <c>null</c> when <see cref="IsInsufficientInformation"/> is <c>true</c>.
+    /// The returned answer text, clarification lead-in, or deterministic limitation message.
     /// </summary>
     public string AnswerText { get; set; }
 
     /// <summary>
-    /// <c>true</c> when no legislation chunk scored ≥ 0.7 cosine similarity against the question.
-    /// When <c>true</c>, no LLM call was made and no records were persisted.
+    /// <c>true</c> when the response is not a grounded final legal answer.
+    /// This remains <c>true</c> for clarification and insufficient modes for backward compatibility.
     /// </summary>
     public bool IsInsufficientInformation { get; set; }
 
@@ -38,7 +38,7 @@ public class RagAnswerResult
 
     /// <summary>
     /// ID of the persisted <see cref="backend.Domains.QA.Answer"/> entity created for this Q&amp;A exchange.
-    /// <c>null</c> when <see cref="IsInsufficientInformation"/> is <c>true</c>.
+    /// <c>null</c> when no grounded answer record was created.
     /// </summary>
     public Guid? AnswerId { get; set; }
 

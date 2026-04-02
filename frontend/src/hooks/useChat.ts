@@ -13,6 +13,7 @@ export interface ChatMessage {
   type: "user" | "bot";
   text: string;
   status: "sending" | "sent" | "error";
+  detectedLanguageCode?: string;
   citations?: RagCitationDto[];
   isInsufficientInformation?: boolean;
   answerMode?: RagAnswerMode;
@@ -56,6 +57,7 @@ export function useChat(): UseChatReturn {
         type: "bot",
         text: result.answerText ?? "",
         status: "sent",
+        detectedLanguageCode: result.detectedLanguageCode,
         citations: result.citations,
         isInsufficientInformation: result.isInsufficientInformation,
         answerMode: result.answerMode,

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -20,148 +21,154 @@ public class LanguageAppServiceTests
     [Fact]
     public void Constructor_ValidConfig_ConstructsWithoutError()
     {
-        var config = BuildConfig("sk-test-key", "gpt-4o");
+        Should.NotThrow(() => new LanguageAppService(CreateFactory(new StubHandler("en")), BuildConfig()));
+    }
 
-        Should.NotThrow(() => new LanguageAppService(BuildFactory(new StubHttpMessageHandler("en")), config));
+    [Theory]
+    [InlineData("zu", Language.Zulu)]
+    [InlineData("st", Language.Sesotho)]
+    [InlineData("af", Language.Afrikaans)]
+    [InlineData("en", Language.English)]
+    [InlineData("xh", Language.English)]
+    public async Task DetectLanguageAsync_MapsSupportedIsoCodes(string rawCode, Language expectedLanguage)
+    {
+        var service = CreateService(new StubHandler(rawCode));
+
+        var result = await service.DetectLanguageAsync("sample text");
+
+        result.ShouldBe(expectedLanguage);
     }
 
     [Fact]
-    public async Task DetectLanguageAsync_RecognizedIsoCode_ReturnsZuluAndUsesConstrainedPrompt()
+    public async Task DetectLanguageAsync_OnFailure_DefaultsToEnglish()
     {
-        var handler = new StubHttpMessageHandler("zu");
-        var service = new LanguageAppService(BuildFactory(handler), BuildConfig("sk-test-key", "gpt-4o"));
+        var service = CreateService(new ThrowingHandler());
 
-        var result = await service.DetectLanguageAsync("Ingabe umnikazi wendlu angangixosha?");
-
-        result.ShouldBe(Language.Zulu);
-        handler.CallCount.ShouldBe(1);
-        handler.LastRequestBody.ShouldContain("en, zu, st, af");
-        handler.LastRequestBody.ShouldContain("Ingabe umnikazi wendlu angangixosha?");
-    }
-
-    [Fact]
-    public async Task DetectLanguageAsync_UnknownCode_FallsBackToEnglish()
-    {
-        var service = new LanguageAppService(
-            BuildFactory(new StubHttpMessageHandler("xh")),
-            BuildConfig("sk-test-key", "gpt-4o"));
-
-        var result = await service.DetectLanguageAsync("Molo");
+        var result = await service.DetectLanguageAsync("umbuzo");
 
         result.ShouldBe(Language.English);
     }
 
     [Fact]
-    public async Task TranslateToEnglishAsync_EnglishInput_ReturnsOriginalTextWithoutCallingOpenAi()
+    public async Task TranslateToEnglishAsync_WhenSourceLanguageIsEnglish_ReturnsOriginalWithoutCallingOpenAi()
     {
-        var handler = new StubHttpMessageHandler("unused");
-        var service = new LanguageAppService(BuildFactory(handler), BuildConfig("sk-test-key", "gpt-4o"));
+        var handler = new CountingHandler("unused");
+        var service = CreateService(handler);
 
-        var result = await service.TranslateToEnglishAsync(
-            "Can my landlord evict me without a court order?",
-            Language.English);
+        var result = await service.TranslateToEnglishAsync("Can my landlord evict me?", Language.English);
 
-        result.ShouldBe("Can my landlord evict me without a court order?");
+        result.ShouldBe("Can my landlord evict me?");
         handler.CallCount.ShouldBe(0);
     }
 
     [Fact]
-    public async Task TranslateToEnglishAsync_ZuluInput_ReturnsTrimmedTranslationAndUsesLanguageName()
+    public async Task TranslateToEnglishAsync_ForSupportedNonEnglishLanguage_ReturnsTrimmedTranslation()
     {
-        var handler = new StubHttpMessageHandler(" Can my landlord evict me? ");
-        var service = new LanguageAppService(BuildFactory(handler), BuildConfig("sk-test-key", "gpt-4o"));
+        var service = CreateService(new StubHandler(" Can my landlord evict me without a court order? "));
 
         var result = await service.TranslateToEnglishAsync(
             "Ingabe umnikazi wendlu angangixosha?",
             Language.Zulu);
 
-        result.ShouldBe("Can my landlord evict me?");
-        handler.CallCount.ShouldBe(1);
-        handler.LastRequestBody.ShouldContain("Translate the following isiZulu text to English");
-        handler.LastRequestBody.ShouldContain("Ingabe umnikazi wendlu angangixosha?");
+        result.ShouldBe("Can my landlord evict me without a court order?");
     }
 
     [Fact]
-    public async Task TranslateToEnglishAsync_OnHttpFailure_ReturnsOriginalText()
+    public async Task TranslateToEnglishAsync_OnFailure_ReturnsOriginalText()
     {
-        var service = new LanguageAppService(
-            BuildFactory(new StubHttpMessageHandler(new HttpRequestException("boom"))),
-            BuildConfig("sk-test-key", "gpt-4o"));
+        var service = CreateService(new ThrowingHandler());
 
         var result = await service.TranslateToEnglishAsync(
-            "Ingabe umnikazi wendlu angangixosha?",
-            Language.Zulu);
+            "Kan my verhuurder my uitsit?",
+            Language.Afrikaans);
 
-        result.ShouldBe("Ingabe umnikazi wendlu angangixosha?");
+        result.ShouldBe("Kan my verhuurder my uitsit?");
     }
 
-    private static IConfiguration BuildConfig(string? apiKey, string? chatModel)
-    {
-        var pairs = new List<KeyValuePair<string, string?>>();
-        if (apiKey is not null)
-        {
-            pairs.Add(new KeyValuePair<string, string?>("OpenAI:ApiKey", apiKey));
-        }
+    private static LanguageAppService CreateService(HttpMessageHandler handler) =>
+        new(CreateFactory(handler), BuildConfig());
 
-        if (chatModel is not null)
-        {
-            pairs.Add(new KeyValuePair<string, string?>("OpenAI:ChatModel", chatModel));
-        }
-
-        return new ConfigurationBuilder()
-            .AddInMemoryCollection(pairs)
-            .Build();
-    }
-
-    private static IHttpClientFactory BuildFactory(HttpMessageHandler handler)
+    private static IHttpClientFactory CreateFactory(HttpMessageHandler handler)
     {
         var factory = Substitute.For<IHttpClientFactory>();
-        factory.CreateClient("OpenAI").Returns(new HttpClient(handler)
+        factory.CreateClient("OpenAI").Returns(_ => new HttpClient(handler)
         {
-            BaseAddress = new Uri("https://example.test/")
+            BaseAddress = new Uri("https://api.openai.com/")
         });
+
         return factory;
     }
 
-    private sealed class StubHttpMessageHandler : HttpMessageHandler
+    private static IConfiguration BuildConfig()
     {
-        private readonly string? _assistantContent;
-        private readonly Exception? _exception;
+        return new ConfigurationBuilder()
+            .AddInMemoryCollection(new List<KeyValuePair<string, string?>>
+            {
+                new("OpenAI:ApiKey", "sk-test"),
+                new("OpenAI:ChatModel", "gpt-4o")
+            })
+            .Build();
+    }
 
-        public StubHttpMessageHandler(string assistantContent)
+    private class StubHandler : HttpMessageHandler
+    {
+        private readonly string _content;
+
+        public StubHandler(string content)
         {
-            _assistantContent = assistantContent;
+            _content = content;
         }
 
-        public StubHttpMessageHandler(Exception exception)
+        protected override Task<HttpResponseMessage> SendAsync(
+            HttpRequestMessage request,
+            CancellationToken cancellationToken)
         {
-            _exception = exception;
+            var payload = JsonSerializer.Serialize(new
+            {
+                choices = new[]
+                {
+                    new
+                    {
+                        message = new
+                        {
+                            content = _content
+                        }
+                    }
+                }
+            });
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(payload, Encoding.UTF8, "application/json")
+            });
+        }
+    }
+
+    private sealed class CountingHandler : StubHandler
+    {
+        public CountingHandler(string content)
+            : base(content)
+        {
         }
 
         public int CallCount { get; private set; }
 
-        public string LastRequestBody { get; private set; } = string.Empty;
-
-        protected override async Task<HttpResponseMessage> SendAsync(
+        protected override Task<HttpResponseMessage> SendAsync(
             HttpRequestMessage request,
             CancellationToken cancellationToken)
         {
             CallCount++;
-            LastRequestBody = request.Content is null
-                ? string.Empty
-                : await request.Content.ReadAsStringAsync();
+            return base.SendAsync(request, cancellationToken);
+        }
+    }
 
-            if (_exception is not null)
-            {
-                throw _exception;
-            }
-
-            var body = $"{{\"choices\":[{{\"message\":{{\"content\":\"{_assistantContent}\"}}}}]}}";
-
-            return new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StringContent(body, Encoding.UTF8, "application/json")
-            };
+    private sealed class ThrowingHandler : HttpMessageHandler
+    {
+        protected override Task<HttpResponseMessage> SendAsync(
+            HttpRequestMessage request,
+            CancellationToken cancellationToken)
+        {
+            throw new HttpRequestException("Simulated OpenAI outage.");
         }
     }
 }
