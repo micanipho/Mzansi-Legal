@@ -1,14 +1,18 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { useRef } from "react";
-import { FileSearch, ArrowRight, UploadCloud, ShieldCheck, TriangleAlert } from "lucide-react";
-import { appRoutes, createLocalizedPath } from "@/i18n/routing";
-import { C, R, fontSans, fontSerif, shadowOrganic } from "@/styles/theme";
+import { DragEvent, useEffect, useRef, useState } from "react";
+import { ArrowRight, ShieldCheck, TriangleAlert, UploadCloud } from "lucide-react";
+import {
+  formatContractDate,
+  getContractTypeLabel,
+} from "@/components/contracts/contractData";
 import AuthGuard from "@/components/guards/AuthGuard";
-import { ContractsProvider, useContractsState, useContractsAction } from "@/providers/contracts-provider";
-import { useEffect } from "react";
+import { appRoutes, createLocalizedPath } from "@/i18n/routing";
+import { useContractsAction, useContractsState, ContractsProvider } from "@/providers/contracts-provider";
+import { C, fontSans, fontSerif, R, shadowOrganic } from "@/styles/theme";
 
 function getScoreTone(score: number) {
   if (score >= 75) {
@@ -24,242 +28,273 @@ function getScoreTone(score: number) {
 
 function ContractsContent() {
   const locale = useLocale();
+  const router = useRouter();
   const t = useTranslations("contracts");
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { items: contracts } = useContractsState();
-  const { fetchAll } = useContractsAction();
+  const [isDragActive, setIsDragActive] = useState(false);
+  const { items: contracts, isPending, isError, errorMessage } = useContractsState();
+  const { fetchAll, analyse } = useContractsAction();
 
-  useEffect(() => { void fetchAll(); }, []);
+  useEffect(() => {
+    void fetchAll(locale);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locale]);
+
+  const handleSelectedFile = async (file: File) => {
+    const result = await analyse(file, locale);
+    router.push(createLocalizedPath(locale, `${appRoutes.contracts}/${result.id}`));
+  };
+
+  const handleDrop = async (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setIsDragActive(false);
+
+    const file = event.dataTransfer.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    try {
+      await handleSelectedFile(file);
+    } catch {
+      // Provider state already captures the upload error for the UI.
+    }
+  };
 
   return (
     <AuthGuard>
       <main className="page-shell" style={{ display: "flex", flexDirection: "column", gap: 32, fontFamily: fontSans }}>
-      <section className="responsive-two-grid">
-        <article
-          className="surface-card grain-panel"
-          style={{
-            borderRadius: R.o2,
-            padding: 32,
-            boxShadow: shadowOrganic,
-            display: "flex",
-            flexDirection: "column",
-            gap: 18,
-          }}
-        >
-          <span
+        <section className="responsive-two-grid">
+          <article
+            className="surface-card grain-panel"
             style={{
-              width: "fit-content",
-              padding: "6px 14px",
-              borderRadius: 9999,
-              background: "rgba(93, 112, 82, 0.1)",
-              color: C.primary,
-              fontWeight: 800,
-              fontSize: 12,
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
+              borderRadius: R.o2,
+              padding: 32,
+              boxShadow: shadowOrganic,
+              display: "flex",
+              flexDirection: "column",
+              gap: 18,
             }}
           >
-            {t("title")}
-          </span>
-          <h1 style={{ margin: 0, fontFamily: fontSerif, fontSize: "clamp(2.4rem, 4vw, 3.6rem)", color: C.fg }}>
-            {t("uploadTitle")}
-          </h1>
-          <p style={{ margin: 0, color: C.mutedFg, fontSize: 17, lineHeight: 1.7 }}>{t("uploadHint")}</p>
-          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-            <Link
-              href={createLocalizedPath(locale, `${appRoutes.contracts}/${contracts[0]?.id ?? ""}`)}
+            <span
               style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 8,
-                padding: "12px 20px",
+                width: "fit-content",
+                padding: "6px 14px",
                 borderRadius: 9999,
-                background: C.primary,
-                color: C.primaryFg,
-                textDecoration: "none",
-                fontWeight: 700,
+                background: "rgba(93, 112, 82, 0.1)",
+                color: C.primary,
+                fontWeight: 800,
+                fontSize: 12,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
               }}
             >
-              <FileSearch size={16} />
-              {t("viewFeatured")}
-            </Link>
-            <button
+              {t("title")}
+            </span>
+            <h1 style={{ margin: 0, fontFamily: fontSerif, fontSize: "clamp(2.4rem, 4vw, 3.6rem)", color: C.fg }}>
+              {t("uploadTitle")}
+            </h1>
+            <p style={{ margin: 0, color: C.mutedFg, fontSize: 17, lineHeight: 1.7 }}>{t("uploadHint")}</p>
+            <div
+              role="button"
+              tabIndex={0}
               onClick={() => fileInputRef.current?.click()}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  fileInputRef.current?.click();
+                }
+              }}
+              onDragOver={(event) => {
+                event.preventDefault();
+                setIsDragActive(true);
+              }}
+              onDragLeave={() => setIsDragActive(false)}
+              onDrop={(event) => void handleDrop(event)}
               style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 8,
-                padding: "12px 18px",
-                borderRadius: 9999,
-                border: `1px solid ${C.border}`,
-                color: C.mutedFg,
-                background: "rgba(255,255,255,0.62)",
-                fontWeight: 700,
-                cursor: "pointer",
+                borderRadius: 28,
+                border: `2px dashed ${isDragActive ? C.primary : "rgba(126, 107, 86, 0.28)"}`,
+                background: isDragActive ? "rgba(93, 112, 82, 0.08)" : "rgba(255,255,255,0.55)",
+                padding: 28,
+                display: "grid",
+                gap: 10,
+                cursor: isPending ? "progress" : "pointer",
+                transition: "all 160ms ease",
               }}
               aria-label={t("uploadButton")}
             >
-              <UploadCloud size={16} />
-              {t("uploadButton")}
-            </button>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 10, color: C.primary, fontWeight: 800 }}>
+                <UploadCloud size={18} />
+                {isPending ? t("loading") : t("dragDropTitle")}
+              </div>
+              <p style={{ margin: 0, color: C.mutedFg, lineHeight: 1.7 }}>{t("dragDropHint")}</p>
+              <p style={{ margin: 0, fontSize: 13, color: C.mutedFg }}>{t("pdfLimit")}</p>
+              <p style={{ margin: 0, fontSize: 13, color: C.mutedFg }}>{t("mobileScanHint")}</p>
+            </div>
             <input
               ref={fileInputRef}
               type="file"
-              accept=".pdf"
+              accept=".pdf,application/pdf"
               aria-label={t("uploadButton")}
               style={{ display: "none" }}
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  // Upload handling placeholder — file selected
-                  e.target.value = "";
+              onChange={async (event) => {
+                const file = event.target.files?.[0];
+                if (!file) {
+                  return;
+                }
+
+                try {
+                  await handleSelectedFile(file);
+                } catch {
+                  // Provider state already captures the upload error for the UI.
+                } finally {
+                  event.target.value = "";
                 }
               }}
             />
-          </div>
-          <p style={{ margin: 0, fontSize: 13, color: C.mutedFg }}>{t("pdfLimit")}</p>
-        </article>
+            {isError && errorMessage ? (
+              <p style={{ margin: 0, color: C.destructive, fontWeight: 600 }}>{errorMessage}</p>
+            ) : null}
+          </article>
 
-        <article
-          className="surface-card grain-panel"
-          style={{
-            borderRadius: R.o1,
-            padding: 28,
-            boxShadow: shadowOrganic,
-            display: "grid",
-            gap: 18,
-            alignContent: "start",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <ShieldCheck size={20} color={C.primary} />
-            <strong style={{ color: C.fg }}>{t("whyItMattersTitle")}</strong>
-          </div>
-          <p style={{ margin: 0, color: C.mutedFg, lineHeight: 1.7 }}>{t("whyItMattersBody")}</p>
-          <div style={{ display: "grid", gap: 12 }}>
-            {[
-              { icon: <ShieldCheck size={18} color={C.primary} />, text: t("benefits.fairness") },
-              { icon: <TriangleAlert size={18} color={C.secondary} />, text: t("benefits.risk") },
-              { icon: <ArrowRight size={18} color={C.destructive} />, text: t("benefits.nextStep") },
-            ].map((item) => (
-              <div key={item.text} style={{ display: "flex", alignItems: "center", gap: 10, color: C.fg }}>
-                {item.icon}
-                <span>{item.text}</span>
-              </div>
-            ))}
-          </div>
-        </article>
-      </section>
+          <article
+            className="surface-card grain-panel"
+            style={{
+              borderRadius: R.o1,
+              padding: 28,
+              boxShadow: shadowOrganic,
+              display: "grid",
+              gap: 18,
+              alignContent: "start",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <ShieldCheck size={20} color={C.primary} />
+              <strong style={{ color: C.fg }}>{t("whyItMattersTitle")}</strong>
+            </div>
+            <p style={{ margin: 0, color: C.mutedFg, lineHeight: 1.7 }}>{t("whyItMattersBody")}</p>
+            <div style={{ display: "grid", gap: 12 }}>
+              {[
+                { icon: <ShieldCheck size={18} color={C.primary} />, text: t("benefits.fairness") },
+                { icon: <TriangleAlert size={18} color={C.secondary} />, text: t("benefits.risk") },
+                { icon: <ArrowRight size={18} color={C.destructive} />, text: t("benefits.nextStep") },
+              ].map((item) => (
+                <div key={item.text} style={{ display: "flex", alignItems: "center", gap: 10, color: C.fg }}>
+                  {item.icon}
+                  <span>{item.text}</span>
+                </div>
+              ))}
+            </div>
+          </article>
+        </section>
 
-      <section style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
-          <div>
-            <h2 style={{ margin: "0 0 6px", fontFamily: fontSerif, fontSize: 30, color: C.fg }}>{t("recentAnalyses")}</h2>
-            <p style={{ margin: 0, color: C.mutedFg }}>{t("recentAnalysesHint")}</p>
+        <section style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+            <div>
+              <h2 style={{ margin: "0 0 6px", fontFamily: fontSerif, fontSize: 30, color: C.fg }}>{t("recentAnalyses")}</h2>
+              <p style={{ margin: 0, color: C.mutedFg }}>{t("recentAnalysesHint")}</p>
+            </div>
           </div>
-        </div>
 
-        <div style={{ display: "grid", gap: 20 }}>
-          {contracts.map((contract) => {
-            const tone = getScoreTone(contract.score);
-            const detailHref = createLocalizedPath(locale, `${appRoutes.contracts}/${contract.id}`);
+          {contracts.length === 0 && !isPending ? (
+            <article
+              className="surface-card grain-panel"
+              style={{ borderRadius: 28, padding: 28, boxShadow: shadowOrganic, display: "grid", gap: 10 }}
+            >
+              <h3 style={{ margin: 0, fontFamily: fontSerif, fontSize: 28, color: C.fg }}>{t("emptyTitle")}</h3>
+              <p style={{ margin: 0, color: C.mutedFg, lineHeight: 1.7 }}>{t("emptyBody")}</p>
+            </article>
+          ) : null}
 
-            return (
-              <article
-                key={contract.id}
-                className="surface-card grain-panel responsive-card-rail"
-                style={{
-                  borderRadius: 28,
-                  padding: 24,
-                  boxShadow: shadowOrganic,
-                }}
-              >
-                <div
+          <div style={{ display: "grid", gap: 20 }}>
+            {contracts.map((contract) => {
+              const tone = getScoreTone(contract.healthScore);
+              const detailHref = createLocalizedPath(locale, `${appRoutes.contracts}/${contract.id}`);
+
+              return (
+                <article
+                  key={contract.id}
+                  className="surface-card grain-panel responsive-card-rail"
                   style={{
-                    background: tone.bg,
-                    border: `1px solid ${tone.border}`,
-                    borderRadius: 24,
-                    minHeight: 120,
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
+                    borderRadius: 28,
+                    padding: 24,
+                    boxShadow: shadowOrganic,
                   }}
                 >
-                  <strong style={{ fontFamily: fontSerif, fontSize: 42, color: tone.fg, lineHeight: 1 }}>{contract.score}</strong>
-                  <span style={{ color: C.mutedFg, fontWeight: 700, fontSize: 13 }}>{t("scoreSuffix")}</span>
-                </div>
+                  <div
+                    style={{
+                      background: tone.bg,
+                      border: `1px solid ${tone.border}`,
+                      borderRadius: 24,
+                      minHeight: 120,
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <strong style={{ fontFamily: fontSerif, fontSize: 42, color: tone.fg, lineHeight: 1 }}>
+                      {contract.healthScore}
+                    </strong>
+                    <span style={{ color: C.mutedFg, fontWeight: 700, fontSize: 13 }}>{t("scoreSuffix")}</span>
+                  </div>
 
-                <div style={{ minWidth: 0, display: "grid", gap: 10 }}>
-                  <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
-                    <span
-                      style={{
-                        padding: "5px 12px",
-                        borderRadius: 9999,
-                        background: C.muted,
-                        color: C.fg,
-                        fontWeight: 700,
-                        fontSize: 12,
-                      }}
-                    >
-                      {contract.category}
-                    </span>
-                    <span style={{ color: C.mutedFg, fontSize: 13 }}>
-                      {t("cardMeta", {
-                        date: contract.uploadedAt,
-                        pages: contract.pages,
-                        clauses: contract.clauses,
-                      })}
-                    </span>
-                  </div>
-                  <div>
-                    <h3 style={{ margin: "0 0 8px", fontFamily: fontSerif, fontSize: 28, color: C.fg }}>{contract.title}</h3>
-                    <p style={{ margin: 0, color: C.mutedFg, lineHeight: 1.7 }}>{contract.summary}</p>
-                  </div>
-                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                    {contract.tags.map((tag) => (
+                  <div style={{ minWidth: 0, display: "grid", gap: 10 }}>
+                    <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
                       <span
-                        key={tag}
                         style={{
-                          padding: "4px 10px",
+                          padding: "5px 12px",
                           borderRadius: 9999,
-                          background: "rgba(230, 220, 205, 0.6)",
+                          background: C.muted,
                           color: C.fg,
                           fontWeight: 700,
                           fontSize: 12,
                         }}
                       >
-                        {tag}
+                        {getContractTypeLabel(contract.contractType)}
                       </span>
-                    ))}
+                      <span style={{ color: C.mutedFg, fontSize: 13 }}>
+                        {t("cardMeta", {
+                          date: formatContractDate(contract.analysedAt, locale),
+                          red: contract.redFlagCount,
+                          amber: contract.amberFlagCount,
+                          green: contract.greenFlagCount,
+                        })}
+                      </span>
+                    </div>
+                    <div>
+                      <h3 style={{ margin: "0 0 8px", fontFamily: fontSerif, fontSize: 28, color: C.fg }}>
+                        {contract.displayTitle}
+                      </h3>
+                      <p style={{ margin: 0, color: C.mutedFg, lineHeight: 1.7 }}>{contract.summary}</p>
+                    </div>
                   </div>
-                </div>
 
-                <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                  <Link
-                    href={detailHref}
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: 8,
-                      padding: "12px 18px",
-                      borderRadius: 9999,
-                      textDecoration: "none",
-                      background: C.primary,
-                      color: C.primaryFg,
-                      fontWeight: 700,
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {t("openAnalysis")}
-                    <ArrowRight size={16} />
-                  </Link>
-                </div>
-              </article>
-            );
-          })}
-        </div>
-      </section>
+                  <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                    <Link
+                      href={detailHref}
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 8,
+                        padding: "12px 18px",
+                        borderRadius: 9999,
+                        textDecoration: "none",
+                        background: C.primary,
+                        color: C.primaryFg,
+                        fontWeight: 700,
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {t("openAnalysis")}
+                      <ArrowRight size={16} />
+                    </Link>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </section>
       </main>
     </AuthGuard>
   );
@@ -272,4 +307,3 @@ export default function ContractsPage() {
     </ContractsProvider>
   );
 }
-

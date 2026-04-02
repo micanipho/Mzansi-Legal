@@ -14,6 +14,7 @@ const INPUT_STYLE = {
 
 export default function SignInForm() {
   const t = useTranslations("auth");
+  const tCommon = useTranslations("common");
   const { signIn } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,7 +37,9 @@ export default function SignInForm() {
     } catch (err) {
       const e = err as Error & { status?: number };
       // Always show a generic message — never reveal which field is wrong
-      if (e.status === 401 || e.status === 400) {
+      if (e.message?.includes("Failed to fetch")) {
+        setError(tCommon("error"));
+      } else if (e.status === 401 || e.status === 400) {
         setError(t("invalidCredentials"));
       } else {
         setError(t("invalidCredentials"));

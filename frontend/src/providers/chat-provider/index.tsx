@@ -35,6 +35,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         type: "bot",
         text: result.answerText || "No answer received.",
         status: "sent",
+        detectedLanguageCode: result.detectedLanguageCode,
         citations: result.citations || [],
         isInsufficientInformation: result.isInsufficientInformation,
         answerMode: result.answerMode,
