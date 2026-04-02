@@ -1,5 +1,6 @@
 using Abp.Application.Services;
 using backend.Services.RagService.DTO;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -34,6 +35,11 @@ public interface IRagAppService : IApplicationService
     /// and the total number of questions in that conversation.
     /// </summary>
     Task<ConversationsListDto> GetConversationsAsync();
+
+    /// <summary>
+    /// Returns the full stored thread for one authenticated user's conversation.
+    /// </summary>
+    Task<ConversationDetailDto> GetConversationAsync(Guid conversationId);
 
     /// <summary>
     /// Loads all <see cref="backend.Domains.LegalDocuments.DocumentChunk"/> embeddings into memory.

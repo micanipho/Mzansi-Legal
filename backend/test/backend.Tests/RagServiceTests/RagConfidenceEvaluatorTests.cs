@@ -129,6 +129,55 @@ public class RagConfidenceEvaluatorTests
         result.RequiresUrgentAttention.ShouldBeTrue();
     }
 
+    [Fact]
+    public void Evaluate_GuidanceOnlySupport_DoesNotReturnDirect()
+    {
+        var decision = CreateDecision(
+            primaryScore: 0.83f,
+            runnerUpScore: 0.45f,
+            chunkScores: new[] { 0.86f, 0.79f },
+            isAmbiguous: false,
+            primaryAuthorityType: RagSourceMetadata.OfficialGuidance,
+            selectedChunkAuthorityType: RagSourceMetadata.OfficialGuidance);
+
+        var result = _evaluator.Evaluate("How do I complain to the tribunal?", decision);
+
+        result.AnswerMode.ShouldBe(RagAnswerMode.Cautious);
+        result.ConfidenceBand.ShouldBe(RagConfidenceBand.Medium);
+    }
+
+    [Fact]
+    public void Evaluate_GuidanceOnlySupport_WhenUserAsksForLaw_ReturnsClarification()
+    {
+        var decision = CreateDecision(
+            primaryScore: 0.83f,
+            runnerUpScore: 0.45f,
+            chunkScores: new[] { 0.86f, 0.79f },
+            isAmbiguous: false,
+            primaryAuthorityType: RagSourceMetadata.OfficialGuidance,
+            selectedChunkAuthorityType: RagSourceMetadata.OfficialGuidance);
+
+        var result = _evaluator.Evaluate("What law says I can complain to the tribunal?", decision);
+
+        result.AnswerMode.ShouldBe(RagAnswerMode.Clarification);
+        result.ConfidenceBand.ShouldBe(RagConfidenceBand.Low);
+    }
+
+    [Fact]
+    public void Evaluate_CloseCompetingSources_DowngradesToClarification()
+    {
+        var decision = CreateDecision(
+            primaryScore: 0.79f,
+            runnerUpScore: 0.765f,
+            chunkScores: new[] { 0.88f, 0.81f },
+            isAmbiguous: false);
+
+        var result = _evaluator.Evaluate("Which law controls this rental dispute?", decision);
+
+        result.AnswerMode.ShouldBe(RagAnswerMode.Clarification);
+        result.ConfidenceBand.ShouldBe(RagConfidenceBand.Low);
+    }
+
     private static RetrievalDecision CreateDecision(
         float primaryScore,
         float runnerUpScore,
@@ -136,7 +185,10 @@ public class RagConfidenceEvaluatorTests
         bool isAmbiguous,
         float documentSemanticScore = 0.70f,
         float metadataAlignmentScore = 0.40f,
-        float semanticBreadthScore = 0.50f)
+        float semanticBreadthScore = 0.50f,
+        string primaryAuthorityType = RagSourceMetadata.BindingLaw,
+        string runnerUpAuthorityType = RagSourceMetadata.BindingLaw,
+        string selectedChunkAuthorityType = RagSourceMetadata.BindingLaw)
     {
         var primaryDocId = Guid.NewGuid();
         var runnerUpDocId = Guid.NewGuid();
@@ -157,7 +209,11 @@ public class RagConfidenceEvaluatorTests
                     Array.Empty<string>(),
                     score,
                     score,
-                    32))
+                    32,
+                    "Constitution of the Republic of South Africa",
+                    "Section 26(3)",
+                    selectedChunkAuthorityType,
+                    RagSourceMetadata.Primary))
                 .ToList(),
             RankedDocuments = new[]
             {
@@ -173,7 +229,9 @@ public class RagConfidenceEvaluatorTests
                     metadataAlignmentScore,
                     semanticBreadthScore,
                     0f,
-                    primaryScore),
+                    primaryScore,
+                    primaryAuthorityType,
+                    "constitution"),
                 new DocumentCandidate(
                     runnerUpDocId,
                     "Rental Housing Act 50 of 1999",
@@ -186,7 +244,9 @@ public class RagConfidenceEvaluatorTests
                     0.25f,
                     0.25f,
                     0f,
-                    runnerUpScore)
+                    runnerUpScore,
+                    runnerUpAuthorityType,
+                    "rental housing act")
             },
             ClarificationQuestion = "Can you share whether this is about a rented home?",
             IsAmbiguousQuestion = isAmbiguous

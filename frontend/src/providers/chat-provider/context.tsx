@@ -26,10 +26,12 @@ export interface IChatStateContext {
   isError: boolean;
   messages: IChatMessage[];
   error: string | null;
+  conversationId: string | null;
 }
 
 export interface IChatActionContext {
   sendMessage: (text: string, locale?: string) => void;
+  loadConversation: (conversationId: string) => void;
   clearMessages: () => void;
 }
 
@@ -39,10 +41,12 @@ export const INITIAL_STATE: IChatStateContext = {
   isError: false,
   messages: [],
   error: null,
+  conversationId: null,
 };
 
 export const ChatStateContext = createContext<IChatStateContext>(INITIAL_STATE);
 export const ChatActionContext = createContext<IChatActionContext>({
   sendMessage: () => {},
+  loadConversation: () => {},
   clearMessages: () => {},
 });

@@ -38,6 +38,11 @@ export interface ContractFollowUpCitation {
   excerpt: string;
 }
 
+export interface ContractConversationMessage {
+  role: "user" | "assistant";
+  text: string;
+}
+
 export interface ContractFollowUpAnswer {
   answerText: string;
   answerMode: ContractAnswerMode;

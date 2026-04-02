@@ -1,4 +1,5 @@
 import type {
+  ContractConversationMessage,
   ContractFlag,
   ContractFollowUpAnswer,
   ContractListItem,
@@ -189,7 +190,8 @@ export async function getContractAnalysis(
 export async function askContractQuestion(
   id: string,
   questionText: string,
-  locale?: string
+  locale?: string,
+  conversationHistory: ContractConversationMessage[] = []
 ): Promise<ContractFollowUpAnswer> {
   const response = await fetchWithFallback(`/api/app/contract/${id}/ask`, {
     method: "POST",
@@ -200,6 +202,7 @@ export async function askContractQuestion(
     body: JSON.stringify({
       questionText,
       responseLanguageCode: locale,
+      conversationHistory,
     }),
   });
 

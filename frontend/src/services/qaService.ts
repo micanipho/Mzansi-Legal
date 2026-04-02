@@ -133,6 +133,21 @@ export interface ConversationSummary {
   locale: string;
 }
 
+export interface ConversationHistoryMessage {
+  messageId: string;
+  type: "user" | "bot";
+  text: string;
+  createdAt: string;
+}
+
+export interface ConversationDetail {
+  conversationId: string;
+  startedAt: string;
+  language: string;
+  questionCount: number;
+  messages: ConversationHistoryMessage[];
+}
+
 export interface ConversationsListResponse {
   items: ConversationSummary[];
   totalCount: number;
@@ -168,6 +183,44 @@ export async function getConversations(token?: string): Promise<ConversationsLis
         }))
       : [],
     totalCount: result?.totalCount ?? 0,
+  };
+}
+
+export async function getConversation(
+  conversationId: string,
+  token?: string,
+): Promise<ConversationDetail> {
+  const authToken = token ?? getCookie("ml_token");
+  const res = await fetchWithFallback(`/api/app/qa/conversations/${conversationId}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      ...ABP_TENANT_HEADER,
+      ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+    },
+  });
+
+  const json = await res.json().catch(() => ({}));
+
+  if (!res.ok) {
+    throw new Error(json?.error?.message || "Failed to fetch conversation");
+  }
+
+  const result = (json.result ?? json) as ConversationDetail;
+
+  return {
+    conversationId: result.conversationId,
+    startedAt: result.startedAt,
+    language: result.language ?? "en",
+    questionCount: result.questionCount ?? 0,
+    messages: Array.isArray(result.messages)
+      ? result.messages.map((message) => ({
+          messageId: message.messageId,
+          type: message.type === "bot" ? "bot" : "user",
+          text: message.text ?? "",
+          createdAt: message.createdAt,
+        }))
+      : [],
   };
 }
 

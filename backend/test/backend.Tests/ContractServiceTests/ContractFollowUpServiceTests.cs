@@ -60,6 +60,31 @@ public class ContractFollowUpServiceTests
     }
 
     [Fact]
+    public async Task AskAsync_WithConversationHistory_IncludesContinuityBlockInPrompt()
+    {
+        var service = new TestableContractFollowUpService(
+            BuildContext(ContractCoverageState.InCorpusNow),
+            "Can they still enforce that notice period?",
+            "This clause needs review before you rely on it. [Consumer Protection Act 68 of 2008, Section 14]");
+
+        await service.AskAsync(
+            BuildAnalysis(),
+            "Can they still enforce that notice period?",
+            "en",
+            new List<ContractConversationHistoryMessageDto>
+            {
+                new() { Role = "user", Text = "What notice period does the contract say?" },
+                new() { Role = "assistant", Text = "It mentions three calendar months in the clause excerpt." }
+            });
+
+        service.LastUserPrompt.ShouldContain("Conversation history for continuity only");
+        service.LastUserPrompt.ShouldContain("User: What notice period does the contract say?");
+        service.LastUserPrompt.ShouldContain("Assistant: It mentions three calendar months in the clause excerpt.");
+        service.LastRetrievalQuestion.ShouldContain("Current follow-up question: Can they still enforce that notice period?");
+        service.LastRetrievalQuestion.ShouldContain("User: What notice period does the contract say?");
+    }
+
+    [Fact]
     public void SelectRelevantExcerpts_PrefersQuestionAlignedLines()
     {
         var excerpts = ContractFollowUpService.SelectRelevantExcerpts(
@@ -125,25 +150,40 @@ public class ContractFollowUpServiceTests
 
     private sealed class TestableContractFollowUpService : ContractFollowUpService
     {
-        private readonly ContractLegislationContext _context;
         private readonly string _analysisResponse;
+        private readonly StubContextBuilder _contextBuilder;
 
         public TestableContractFollowUpService(
             ContractLegislationContext context,
             string translatedQuestionText,
             string analysisResponse)
-            : base(
+            : this(
                 new StubContextBuilder(context),
+                translatedQuestionText,
+                analysisResponse)
+        {
+        }
+
+        private TestableContractFollowUpService(
+            StubContextBuilder contextBuilder,
+            string translatedQuestionText,
+            string analysisResponse)
+            : base(
+                contextBuilder,
                 new StubLanguageAppService(translatedQuestionText),
                 Substitute.For<IHttpClientFactory>(),
                 BuildConfig())
         {
-            _context = context;
+            _contextBuilder = contextBuilder;
             _analysisResponse = analysisResponse;
         }
 
+        public string LastUserPrompt { get; private set; } = string.Empty;
+        public string LastRetrievalQuestion => _contextBuilder.LastFollowUpQuestion;
+
         protected override Task<string> CallChatCompletionsAsync(string systemPrompt, string userPrompt, double temperature)
         {
+            LastUserPrompt = userPrompt;
             return Task.FromResult(_analysisResponse);
         }
     }
@@ -151,6 +191,7 @@ public class ContractFollowUpServiceTests
     private sealed class StubContextBuilder : ContractLegislationContextBuilder
     {
         private readonly ContractLegislationContext _context;
+        public string LastFollowUpQuestion { get; private set; } = string.Empty;
 
         public StubContextBuilder(ContractLegislationContext context)
             : base(
@@ -166,6 +207,7 @@ public class ContractFollowUpServiceTests
             string extractedText,
             string followUpQuestion)
         {
+            LastFollowUpQuestion = followUpQuestion;
             return Task.FromResult(_context);
         }
     }

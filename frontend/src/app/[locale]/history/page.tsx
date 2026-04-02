@@ -65,7 +65,7 @@ function HistoryContent() {
               boxShadow: shadowOrganic,
             }}
           >
-            <Skeleton active paragraph={{ rows: 2 }} title={{ width: "70%" }} />
+            <Skeleton active paragraph={{ rows: 5 }} title={{ width: "70%" }} />
           </section>
         ))}
       </main>
@@ -103,7 +103,6 @@ function HistoryContent() {
           fontFamily: fontSans,
         }}
       >
-        {/* Page header */}
         <section
           style={{
             display: "flex",
@@ -152,7 +151,6 @@ function HistoryContent() {
         </section>
 
         {items.length === 0 ? (
-          /* Empty state */
           <section
             style={{
               display: "flex",
@@ -212,7 +210,6 @@ function HistoryContent() {
             </Link>
           </section>
         ) : (
-          /* Conversation list */
           <section
             style={{ display: "flex", flexDirection: "column", gap: 16 }}
           >
@@ -226,123 +223,155 @@ function HistoryContent() {
               );
 
               return (
-                <Link
+                <div
                   key={item.conversationId}
-                  href={href}
+                  className="grain-panel"
                   style={{
                     display: "flex",
-                    alignItems: "center",
+                    flexDirection: "column",
                     gap: 20,
                     padding: "24px 28px",
                     background: C.card,
                     border: `1px solid ${C.border}`,
                     borderRadius: r,
-                    boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
-                    textDecoration: "none",
-                    transition: "box-shadow 0.18s ease, transform 0.18s ease",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.boxShadow = shadowOrganic;
-                    e.currentTarget.style.transform = "translateY(-2px)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.boxShadow =
-                      "0 1px 4px rgba(0,0,0,0.04)";
-                    e.currentTarget.style.transform = "translateY(0)";
+                    boxShadow: shadowOrganic,
                   }}
                 >
-                  {/* Icon */}
-                  <div
+                  <Link
+                    href={href}
                     style={{
-                      width: 48,
-                      height: 48,
-                      borderRadius: 9999,
-                      background: `rgba(74,90,58,0.1)`,
                       display: "flex",
                       alignItems: "center",
-                      justifyContent: "center",
-                      color: C.primary,
-                      flexShrink: 0,
+                      gap: 20,
+                      textDecoration: "none",
                     }}
                   >
-                    <MessageSquare size={22} />
-                  </div>
-
-                  {/* Content */}
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p
-                      style={{
-                        fontSize: 16,
-                        fontWeight: 600,
-                        color: C.fg,
-                        margin: "0 0 6px",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {item.firstQuestion.length > 120
-                        ? `${item.firstQuestion.slice(0, 120)}…`
-                        : item.firstQuestion}
-                    </p>
                     <div
                       style={{
+                        width: 48,
+                        height: 48,
+                        borderRadius: 9999,
+                        background: `rgba(74,90,58,0.1)`,
                         display: "flex",
                         alignItems: "center",
-                        gap: 16,
-                        flexWrap: "wrap",
+                        justifyContent: "center",
+                        color: C.primary,
+                        flexShrink: 0,
                       }}
                     >
-                      <span
+                      <MessageSquare size={22} />
+                    </div>
+
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p
+                        style={{
+                          fontSize: 16,
+                          fontWeight: 600,
+                          color: C.fg,
+                          margin: "0 0 6px",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {item.firstQuestion.length > 120
+                          ? `${item.firstQuestion.slice(0, 120)}...`
+                          : item.firstQuestion}
+                      </p>
+                      <div
                         style={{
                           display: "flex",
                           alignItems: "center",
-                          gap: 4,
-                          fontSize: 13,
-                          color: C.mutedFg,
-                          fontWeight: 500,
+                          gap: 16,
+                          flexWrap: "wrap",
                         }}
                       >
-                        <Clock size={13} />
-                        {formatDate(item.startedAt, locale)}
-                      </span>
-                      <span
-                        style={{
-                          padding: "2px 10px",
-                          borderRadius: 9999,
-                          background: C.muted,
-                          color: C.mutedFg,
-                          fontSize: 12,
-                          fontWeight: 700,
-                        }}
-                      >
-                        {item.questionCount}{" "}
-                        {item.questionCount === 1 ? "question" : "questions"}
-                      </span>
-                      {item.locale !== "en" && (
+                        <span
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 4,
+                            fontSize: 13,
+                            color: C.mutedFg,
+                            fontWeight: 500,
+                          }}
+                        >
+                          <Clock size={13} />
+                          {formatDate(item.startedAt, locale)}
+                        </span>
                         <span
                           style={{
                             padding: "2px 10px",
                             borderRadius: 9999,
-                            background: `rgba(74,90,58,0.08)`,
-                            color: C.primary,
+                            background: C.muted,
+                            color: C.mutedFg,
                             fontSize: 12,
                             fontWeight: 700,
                           }}
                         >
-                          {LOCALE_NAMES[item.locale] ?? item.locale}
+                          {item.questionCount}{" "}
+                          {item.questionCount === 1 ? "question" : "questions"}
                         </span>
-                      )}
+                        {item.locale !== "en" && (
+                          <span
+                            style={{
+                              padding: "2px 10px",
+                              borderRadius: 9999,
+                              background: `rgba(74,90,58,0.08)`,
+                              color: C.primary,
+                              fontSize: 12,
+                              fontWeight: 700,
+                            }}
+                          >
+                            {LOCALE_NAMES[item.locale] ?? item.locale}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Arrow */}
-                  <ChevronRight
-                    size={20}
-                    color={C.mutedFg}
-                    style={{ flexShrink: 0 }}
-                  />
-                </Link>
+                    <ChevronRight
+                      size={20}
+                      color={C.mutedFg}
+                      style={{ flexShrink: 0 }}
+                    />
+                  </Link>
+
+                  {item.messages.length > 0 && (
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 12,
+                      }}
+                    >
+                      {item.messages.map((message) => (
+                        <div
+                          key={message.messageId}
+                          style={{
+                            alignSelf:
+                              message.type === "user"
+                                ? "flex-end"
+                                : "flex-start",
+                            maxWidth: "min(85%, 680px)",
+                            padding: "14px 18px",
+                            borderRadius: 18,
+                            background:
+                              message.type === "user" ? C.primary : C.muted,
+                            color:
+                              message.type === "user"
+                                ? C.primaryFg
+                                : C.fg,
+                            fontFamily: fontSans,
+                            lineHeight: 1.6,
+                            whiteSpace: "pre-wrap",
+                          }}
+                        >
+                          {message.text}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               );
             })}
           </section>

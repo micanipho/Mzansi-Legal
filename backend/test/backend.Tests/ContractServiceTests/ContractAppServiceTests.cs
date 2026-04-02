@@ -165,11 +165,17 @@ public class ContractAppServiceTests
         var result = await harness.Service.AskAsync(targetId, new AskContractQuestionRequest
         {
             QuestionText = "Can they really require three months notice?",
-            ResponseLanguageCode = "en"
+            ResponseLanguageCode = "en",
+            ConversationHistory = new List<ContractConversationHistoryMessageDto>
+            {
+                new() { Role = "user", Text = "What does the contract say about notice?" },
+                new() { Role = "assistant", Text = "It refers to three months written notice." }
+            }
         });
 
         result.AnswerMode.ShouldBe(RagAnswerMode.Cautious);
         result.ContractExcerpts.Count.ShouldBe(1);
+        harness.FollowUpService.LastConversationHistory?.Count.ShouldBe(2);
     }
 
     private sealed class ContractAppServiceHarness
@@ -329,12 +335,15 @@ public class ContractAppServiceTests
         }
 
         public ContractFollowUpAnswerDto Result { get; set; } = new();
+        public IReadOnlyList<ContractConversationHistoryMessageDto>? LastConversationHistory { get; private set; }
 
         public override Task<ContractFollowUpAnswerDto> AskAsync(
             ContractAnalysis analysis,
             string questionText,
-            string responseLanguageCode = null)
+            string responseLanguageCode = null,
+            IReadOnlyList<ContractConversationHistoryMessageDto> conversationHistory = null)
         {
+            LastConversationHistory = conversationHistory;
             return Task.FromResult(Result);
         }
     }
