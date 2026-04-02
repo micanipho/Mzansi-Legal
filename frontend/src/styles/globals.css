@@ -236,6 +236,12 @@ textarea:focus-visible {
   align-items: center;
 }
 
+.rights-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
 @media (max-width: 900px) {
   .app-navbar-shell {
     justify-content: center;
@@ -270,6 +276,10 @@ textarea:focus-visible {
   }
 
   .responsive-card-rail {
+    grid-template-columns: 1fr;
+  }
+
+  .rights-grid {
     grid-template-columns: 1fr;
   }
 }

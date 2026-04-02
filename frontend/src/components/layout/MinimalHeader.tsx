@@ -1,54 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { Scale, Globe } from "lucide-react";
-import { startTransition, useState, useRef, useEffect } from "react";
-import { appRoutes, createLocalizedPath, supportedLocales } from "@/i18n/routing";
-import { buildLocaleSwitchHref } from "@/i18n/localeSwitch";
+import { Scale } from "lucide-react";
+import { appRoutes, createLocalizedPath } from "@/i18n/routing";
+import LocaleSwitcher from "@/components/layout/LocaleSwitcher";
 import { C, fontSans, fontSerif } from "@/styles/theme";
-
-const LOCALE_NAMES: Record<string, string> = {
-  en: "English",
-  zu: "isiZulu",
-  st: "Sesotho",
-  af: "Afrikaans",
-};
 
 export default function MinimalHeader() {
   const locale = useLocale();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const router = useRouter();
   const tCommon = useTranslations("common");
-
-  const [langDropdownOpen, setLangDropdownOpen] = useState(false);
-  const langDropdownRef = useRef<HTMLDivElement>(null);
-
-  // Close dropdown on outside click
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (langDropdownRef.current && !langDropdownRef.current.contains(e.target as Node)) {
-        setLangDropdownOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const handleLocaleChange = (nextLocale: string) => {
-    const nextHref = buildLocaleSwitchHref({
-      pathname,
-      currentLocale: locale,
-      nextLocale,
-      searchParams,
-    });
-    startTransition(() => {
-      router.push(nextHref);
-      setLangDropdownOpen(false);
-    });
-  };
 
   return (
     <header
@@ -109,81 +70,7 @@ export default function MinimalHeader() {
 
         {/* Right side: Language selector + Sign In */}
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          {/* Language Selector */}
-          <div style={{ position: "relative" }} ref={langDropdownRef}>
-            <button
-              onClick={() => setLangDropdownOpen(!langDropdownOpen)}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                padding: "8px 14px",
-                background: C.muted,
-                border: `1px solid ${C.border}`,
-                borderRadius: 12,
-                cursor: "pointer",
-                fontSize: 14,
-                fontWeight: 500,
-                color: C.fg,
-                fontFamily: fontSans,
-              }}
-              aria-label="Select language"
-              aria-expanded={langDropdownOpen}
-            >
-              <Globe size={16} />
-              <span>{LOCALE_NAMES[locale] || locale.toUpperCase()}</span>
-            </button>
-
-            {langDropdownOpen && (
-              <div
-                style={{
-                  position: "absolute",
-                  top: "calc(100% + 8px)",
-                  right: 0,
-                  background: "#fff",
-                  border: `1px solid ${C.border}`,
-                  borderRadius: 12,
-                  boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
-                  minWidth: 160,
-                  padding: 8,
-                  zIndex: 100,
-                }}
-              >
-                {supportedLocales.map((loc) => (
-                  <button
-                    key={loc}
-                    onClick={() => handleLocaleChange(loc)}
-                    style={{
-                      width: "100%",
-                      textAlign: "left",
-                      padding: "10px 12px",
-                      background: locale === loc ? C.muted : "transparent",
-                      border: "none",
-                      borderRadius: 8,
-                      cursor: "pointer",
-                      fontSize: 14,
-                      fontWeight: locale === loc ? 600 : 400,
-                      color: C.fg,
-                      fontFamily: fontSans,
-                      transition: "background 0.2s",
-                    }}
-                    onMouseEnter={(e) => {
-                      if (locale !== loc) {
-                        e.currentTarget.style.background = C.muted;
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (locale !== loc) {
-                        e.currentTarget.style.background = "transparent";
-                      }
-                    }}
-                  >
-                    {LOCALE_NAMES[loc]}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          <LocaleSwitcher buttonStyle={{ background: C.muted, borderRadius: 12, fontSize: 14, fontWeight: 500 }} menuStyle={{ borderRadius: 12 }} itemStyle={{ fontSize: 14 }} />
 
           {/* Sign In Button */}
           <Link
