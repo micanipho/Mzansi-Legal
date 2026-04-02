@@ -70,6 +70,7 @@ Use the matrix below to separate current retrieval expectations from follow-on c
 | Scenario | Example prompt | Coverage state | Expected response |
 |----------|----------------|----------------|------------------|
 | Plain-language housing question | `Can my landlord evict me without a court order?` | `InCorpusNow` | `direct` or `cautious`, with `RHA` as the primary source and visible citations |
+| isiZulu housing question | `Ingabe umnikazi wendlu angangixosha ngaphandle komyalelo wenkantolo?` | `InCorpusNow` | `direct` or `cautious`, answer text in isiZulu, and citations still shown with English source names and locators |
 | Housing ambiguity | `Can they evict me?` | `InCorpusNow` | `clarification`, asking what situation the user means |
 | Labour dismissal phrasing | `My boss fired me with no hearing. What can I do?` | `InCorpusNow` | `direct` or `cautious`, grounded in `LRA` and optionally `BCEA` |
 | Wrong source hint | `I think POPIA says my landlord can lock me out` | `InCorpusNow` | `cautious` or `clarification`, correcting the source family toward housing law |

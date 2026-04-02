@@ -28,12 +28,14 @@ public class RagPromptBuilderTests
     }
 
     [Fact]
-    public void BuildSystemPrompt_ForZuluMode_AddsLanguageDirectiveKeepingCitationsInEnglish()
+    public void BuildSystemPrompt_ForZuluMode_UsesUserLanguageInsteadOfEnglishOnlyInstruction()
     {
         var result = RagPromptBuilder.BuildSystemPrompt(RagAnswerMode.Direct, Language.Zulu);
 
-        result.ShouldContain("Respond in isiZulu.");
-        result.ShouldContain("Keep all Act names, section numbers, and legal citations in English.");
+        result.ShouldContain("Write in plain, accessible language for the user");
+        result.ShouldContain("Respond in isiZulu");
+        result.ShouldContain("Keep all Act names, section numbers, and legal citations in English");
+        result.ShouldNotContain("Write in plain, accessible English");
     }
 
     [Fact]
