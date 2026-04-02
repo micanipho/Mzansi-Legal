@@ -1,17 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { Scale, Globe, ChevronDown } from "lucide-react";
-import { startTransition, useState, useRef, useEffect } from "react";
+import { Scale } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
 import {
   appRoutes,
   createLocalizedPath,
-  supportedLocales,
 } from "@/i18n/routing";
-import { buildLocaleSwitchHref } from "@/i18n/localeSwitch";
 import { useAuth } from "@/hooks/useAuth";
+import LocaleSwitcher from "@/components/layout/LocaleSwitcher";
 import { C, fontSans, fontSerif, shadowOrganic } from "@/styles/theme";
 
 const NAV_LINKS = [
@@ -32,26 +31,18 @@ function getUserInitials(name: string): string {
 export default function AppNavbar() {
   const locale = useLocale();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const router = useRouter();
   const tNav = useTranslations("nav");
-  const tCommon = useTranslations("common");
   const tAuth = useTranslations("auth");
   const { user, signOut } = useAuth();
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const [langOpen, setLangOpen] = useState(false);
-  const langRef = useRef<HTMLDivElement>(null);
 
   // Close dropdowns on outside click
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setDropdownOpen(false);
-      }
-      if (langRef.current && !langRef.current.contains(e.target as Node)) {
-        setLangOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -70,19 +61,6 @@ export default function AppNavbar() {
 
     return pathname.startsWith(full);
   };
-
-  const handleLocaleChange = (nextLocale: string) => {
-    const nextHref = buildLocaleSwitchHref({
-      pathname,
-      currentLocale: locale,
-      nextLocale,
-      searchParams,
-    });
-    startTransition(() => {
-      router.push(nextHref);
-    });
-  };
-
   return (
     <header
       style={{
@@ -108,6 +86,7 @@ export default function AppNavbar() {
           padding: "10px 16px",
           boxShadow: shadowOrganic,
           fontFamily: fontSans,
+          overflow: "visible",
         }}
       >
         <Link
@@ -169,82 +148,14 @@ export default function AppNavbar() {
         </div>
 
         <div className="app-navbar-actions">
-          {/* Language switcher */}
-          <div ref={langRef} style={{ position: "relative" }}>
-            <button
-              onClick={() => setLangOpen((v) => !v)}
-              aria-label={tNav("language")}
-              aria-haspopup="listbox"
-              aria-expanded={langOpen}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-                padding: "8px 14px",
-                background: "transparent",
-                border: `1px solid ${C.border}`,
-                borderRadius: 9999,
-                cursor: "pointer",
-                fontSize: 13,
-                fontWeight: 600,
-                color: C.fg,
-                fontFamily: fontSans,
-                transition: "background 0.15s",
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = C.muted)}
-              onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-            >
-              <Globe size={14} />
-              {tCommon(`locales.${locale}`)}
-              <ChevronDown size={12} style={{ opacity: 0.6, transform: langOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
-            </button>
-
-            {langOpen && (
-              <div
-                role="listbox"
-                aria-label={tNav("language")}
-                style={{
-                  position: "absolute",
-                  top: "calc(100% + 8px)",
-                  right: 0,
-                  background: "#fff",
-                  border: `1px solid ${C.border}`,
-                  borderRadius: 16,
-                  boxShadow: shadowOrganic,
-                  minWidth: 148,
-                  padding: 6,
-                  zIndex: 100,
-                }}
-              >
-                {supportedLocales.map((loc) => (
-                  <button
-                    key={loc}
-                    role="option"
-                    aria-selected={loc === locale}
-                    onClick={() => { handleLocaleChange(loc); setLangOpen(false); }}
-                    style={{
-                      display: "block",
-                      width: "100%",
-                      textAlign: "left",
-                      padding: "9px 14px",
-                      background: loc === locale ? C.muted : "transparent",
-                      border: "none",
-                      borderRadius: 10,
-                      cursor: "pointer",
-                      fontSize: 13,
-                      fontWeight: loc === locale ? 700 : 500,
-                      color: loc === locale ? C.primary : C.fg,
-                      fontFamily: fontSans,
-                    }}
-                    onMouseEnter={(e) => { if (loc !== locale) e.currentTarget.style.background = C.muted; }}
-                    onMouseLeave={(e) => { if (loc !== locale) e.currentTarget.style.background = "transparent"; }}
-                  >
-                    {tCommon(`locales.${loc}`)}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          <LocaleSwitcher
+            buttonStyle={{
+              background: "transparent",
+              borderRadius: 9999,
+              fontSize: 13,
+              fontWeight: 600,
+            }}
+          />
 
           {user ? (
             /* User avatar + dropdown */
