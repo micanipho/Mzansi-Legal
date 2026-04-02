@@ -1,15 +1,30 @@
-import Link from "next/link";
-import { notFound } from "next/navigation";
-import { getTranslations } from "next-intl/server";
-import { AlertCircle, AlertTriangle, ArrowLeft, CheckCircle, FileText, MessageSquareQuote } from "lucide-react";
-import { getContractById } from "@/components/contracts/contractData";
-import { appRoutes, createLocalizedPath } from "@/i18n/routing";
-import { C, R, fontSans, fontSerif, shadowOrganic } from "@/styles/theme";
-import ContractDetailGuard from "./ContractDetailGuard";
+"use client";
 
-interface ContractDetailPageProps {
-  params: Promise<{ locale: string; id: string }>;
-}
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import { useEffect } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import {
+  AlertCircle,
+  AlertTriangle,
+  ArrowLeft,
+  CheckCircle,
+  MessageSquareQuote,
+} from "lucide-react";
+import {
+  ContractsProvider,
+  useContractsAction,
+  useContractsState,
+} from "@/providers/contracts-provider";
+import {
+  formatContractDate,
+  getContractTypeLabel,
+  getContractVerdict,
+  groupFlags,
+} from "@/components/contracts/contractData";
+import { appRoutes, createLocalizedPath } from "@/i18n/routing";
+import { C, fontSans, fontSerif, R, shadowOrganic } from "@/styles/theme";
+import ContractDetailGuard from "./ContractDetailGuard";
 
 function getVerdictTone(verdict: "good" | "review" | "high-risk") {
   switch (verdict) {
@@ -34,19 +49,56 @@ function getVerdictTone(verdict: "good" | "review" | "high-risk") {
   }
 }
 
-export default async function ContractDetailPage({ params }: ContractDetailPageProps) {
-  const { locale, id } = await params;
-  const t = await getTranslations("contracts");
-  const contract = getContractById(id);
+function ContractDetailContent() {
+  const { id } = useParams<{ id: string }>();
+  const locale = useLocale();
+  const t = useTranslations("contracts");
+  const { selected, isPending, isError, errorMessage } = useContractsState();
+  const { fetchById } = useContractsAction();
 
-  if (!contract) {
-    notFound();
+  useEffect(() => {
+    if (!id) {
+      return;
+    }
+
+    void fetchById(id, locale);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, locale]);
+
+  if (isPending && !selected) {
+    return (
+      <main className="page-shell page-shell--narrow" style={{ display: "grid", gap: 16 }}>
+        <p style={{ margin: 0, color: C.mutedFg, fontFamily: fontSans }}>{t("loading")}</p>
+      </main>
+    );
   }
 
-  const verdictTone = getVerdictTone(contract.verdict);
+  if (isError || !selected) {
+    return (
+      <main className="page-shell page-shell--narrow" style={{ display: "grid", gap: 16 }}>
+        <Link
+          href={createLocalizedPath(locale, appRoutes.contracts)}
+          style={{ color: C.mutedFg, textDecoration: "none", fontWeight: 600, width: "fit-content" }}
+        >
+          {t("backToContracts")}
+        </Link>
+        <article className="surface-card grain-panel" style={{ borderRadius: 24, padding: 24, boxShadow: shadowOrganic }}>
+          <h1 style={{ margin: "0 0 10px", fontFamily: fontSerif, fontSize: 28, color: C.destructive }}>
+            {t("detailErrorTitle")}
+          </h1>
+          <p style={{ margin: 0, color: C.mutedFg, lineHeight: 1.7 }}>
+            {errorMessage ?? t("detailErrorBody")}
+          </p>
+        </article>
+      </main>
+    );
+  }
+
+  const verdict = getContractVerdict(selected.healthScore);
+  const verdictTone = getVerdictTone(verdict);
+  const groupedFlags = groupFlags(selected.flags);
 
   return (
-    <ContractDetailGuard>
     <main className="page-shell page-shell--narrow" style={{ display: "flex", flexDirection: "column", gap: 32 }}>
       <Link
         href={createLocalizedPath(locale, appRoutes.contracts)}
@@ -78,7 +130,9 @@ export default async function ContractDetailPage({ params }: ContractDetailPageP
             boxShadow: shadowOrganic,
           }}
         >
-          <strong style={{ fontFamily: fontSerif, fontSize: 64, lineHeight: 1, color: C.fg }}>{contract.score}</strong>
+          <strong style={{ fontFamily: fontSerif, fontSize: 64, lineHeight: 1, color: C.fg }}>
+            {selected.healthScore}
+          </strong>
           <span style={{ color: C.mutedFg, fontWeight: 700 }}>{t("scoreSuffix")}</span>
         </article>
 
@@ -95,70 +149,42 @@ export default async function ContractDetailPage({ params }: ContractDetailPageP
                 fontSize: 13,
               }}
             >
-              {t(`verdict.${contract.verdict}`)}
+              {t(`verdict.${verdict}`)}
             </span>
             <span style={{ color: C.mutedFg, fontSize: 14 }}>
               {t("detailMeta", {
-                date: contract.uploadedAt,
-                pages: contract.pages,
-                clauses: contract.clauses,
-                language: contract.language,
+                date: formatContractDate(selected.analysedAt, locale),
+                language: selected.language,
+                type: getContractTypeLabel(selected.contractType),
               })}
             </span>
           </div>
 
           <div>
             <h1 style={{ margin: "0 0 12px", fontFamily: fontSerif, fontSize: "clamp(2.2rem, 4vw, 3.4rem)", color: C.fg }}>
-              {contract.title}
+              {selected.displayTitle}
             </h1>
-            <p style={{ margin: 0, color: C.mutedFg, fontSize: 17, lineHeight: 1.7 }}>{contract.summary}</p>
-          </div>
-
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-            {contract.tags.map((tag) => (
-              <span
-                key={tag}
-                style={{
-                  padding: "6px 14px",
-                  borderRadius: 9999,
-                  background: C.muted,
-                  color: C.fg,
-                  fontWeight: 700,
-                  fontSize: 13,
-                }}
-              >
-                {tag}
-              </span>
-            ))}
+            <p style={{ margin: 0, color: C.mutedFg, fontSize: 17, lineHeight: 1.7 }}>{selected.summary}</p>
           </div>
         </article>
       </section>
 
       <section className="responsive-three-grid">
-        <article
-          className="surface-card grain-panel"
-          style={{ borderRadius: R.o2, padding: 24, textAlign: "center", boxShadow: shadowOrganic }}
-        >
+        <article className="surface-card grain-panel" style={{ borderRadius: R.o2, padding: 24, textAlign: "center", boxShadow: shadowOrganic }}>
           <strong style={{ display: "block", fontFamily: fontSerif, fontSize: 40, color: C.destructive }}>
-            {contract.redFlags.length}
+            {selected.redFlagCount}
           </strong>
           <span style={{ color: C.mutedFg, fontWeight: 700 }}>{t("redFlags")}</span>
         </article>
-        <article
-          className="surface-card grain-panel"
-          style={{ borderRadius: R.o3, padding: 24, textAlign: "center", boxShadow: shadowOrganic }}
-        >
+        <article className="surface-card grain-panel" style={{ borderRadius: R.o3, padding: 24, textAlign: "center", boxShadow: shadowOrganic }}>
           <strong style={{ display: "block", fontFamily: fontSerif, fontSize: 40, color: C.secondary }}>
-            {contract.cautionFlags.length}
+            {selected.amberFlagCount}
           </strong>
           <span style={{ color: C.mutedFg, fontWeight: 700 }}>{t("caution")}</span>
         </article>
-        <article
-          className="surface-card grain-panel"
-          style={{ borderRadius: R.o4, padding: 24, textAlign: "center", boxShadow: shadowOrganic }}
-        >
+        <article className="surface-card grain-panel" style={{ borderRadius: R.o4, padding: 24, textAlign: "center", boxShadow: shadowOrganic }}>
           <strong style={{ display: "block", fontFamily: fontSerif, fontSize: 40, color: C.primary }}>
-            {contract.standardCount}
+            {selected.greenFlagCount}
           </strong>
           <span style={{ color: C.mutedFg, fontWeight: 700 }}>{t("standard")}</span>
         </article>
@@ -172,26 +198,7 @@ export default async function ContractDetailPage({ params }: ContractDetailPageP
           <MessageSquareQuote size={20} color={C.secondary} />
           <h2 style={{ margin: 0, fontFamily: fontSerif, fontSize: 28 }}>{t("plainSummary")}</h2>
         </div>
-        <p style={{ margin: 0, color: C.fg, lineHeight: 1.7 }}>{contract.recommendation}</p>
-        <Link
-          href={createLocalizedPath(locale, appRoutes.ask, `q=${encodeURIComponent(`${t("followUpPrompt")} ${contract.title}`)}`)}
-          style={{
-            display: "inline-flex",
-            width: "fit-content",
-            alignItems: "center",
-            gap: 8,
-            padding: "12px 20px",
-            borderRadius: 9999,
-            background: C.primary,
-            color: C.primaryFg,
-            textDecoration: "none",
-            fontWeight: 700,
-            fontFamily: fontSans,
-          }}
-        >
-          <FileText size={16} />
-          {t("askAboutContract")}
-        </Link>
+        <p style={{ margin: 0, color: C.fg, lineHeight: 1.7 }}>{selected.summary}</p>
       </section>
 
       <section style={{ display: "grid", gap: 20 }}>
@@ -199,20 +206,19 @@ export default async function ContractDetailPage({ params }: ContractDetailPageP
           <AlertCircle size={20} color={C.destructive} />
           <h2 style={{ margin: 0, fontFamily: fontSerif, fontSize: 28 }}>{t("redFlags")}</h2>
         </div>
-        {contract.redFlags.map((flag) => (
+        {groupedFlags.redFlags.length === 0 ? (
+          <p style={{ margin: 0, color: C.mutedFg }}>{t("noRedFlags")}</p>
+        ) : null}
+        {groupedFlags.redFlags.map((flag) => (
           <article
-            key={flag.title}
+            key={`${flag.title}-${flag.clauseText}`}
             className="surface-card grain-panel"
-            style={{
-              borderRadius: 24,
-              padding: 24,
-              borderLeft: `4px solid ${C.destructive}`,
-              boxShadow: shadowOrganic,
-            }}
+            style={{ borderRadius: 24, padding: 24, borderLeft: `4px solid ${C.destructive}`, boxShadow: shadowOrganic }}
           >
             <h3 style={{ margin: "0 0 8px", fontSize: 18, color: C.destructive, fontFamily: fontSans }}>{flag.title}</h3>
-            <p style={{ margin: "0 0 12px", lineHeight: 1.7, color: C.fg }}>{flag.detail}</p>
-            {flag.citation ? (
+            <p style={{ margin: "0 0 12px", lineHeight: 1.7, color: C.fg }}>{flag.description}</p>
+            <p style={{ margin: "0 0 12px", lineHeight: 1.7, color: C.mutedFg }}>{flag.clauseText}</p>
+            {flag.legislationCitation ? (
               <span
                 style={{
                   display: "inline-flex",
@@ -224,7 +230,7 @@ export default async function ContractDetailPage({ params }: ContractDetailPageP
                   fontSize: 12,
                 }}
               >
-                {flag.citation}
+                {flag.legislationCitation}
               </span>
             ) : null}
           </article>
@@ -236,19 +242,18 @@ export default async function ContractDetailPage({ params }: ContractDetailPageP
           <AlertTriangle size={20} color={C.secondary} />
           <h2 style={{ margin: 0, fontFamily: fontSerif, fontSize: 28 }}>{t("caution")}</h2>
         </div>
-        {contract.cautionFlags.map((flag) => (
+        {groupedFlags.cautionFlags.length === 0 ? (
+          <p style={{ margin: 0, color: C.mutedFg }}>{t("noCautionFlags")}</p>
+        ) : null}
+        {groupedFlags.cautionFlags.map((flag) => (
           <article
-            key={flag.title}
+            key={`${flag.title}-${flag.clauseText}`}
             className="surface-card grain-panel"
-            style={{
-              borderRadius: 24,
-              padding: 24,
-              borderLeft: `4px solid ${C.secondary}`,
-              boxShadow: shadowOrganic,
-            }}
+            style={{ borderRadius: 24, padding: 24, borderLeft: `4px solid ${C.secondary}`, boxShadow: shadowOrganic }}
           >
             <h3 style={{ margin: "0 0 8px", fontSize: 18, color: C.secondary, fontFamily: fontSans }}>{flag.title}</h3>
-            <p style={{ margin: 0, lineHeight: 1.7, color: C.fg }}>{flag.detail}</p>
+            <p style={{ margin: "0 0 12px", lineHeight: 1.7, color: C.fg }}>{flag.description}</p>
+            <p style={{ margin: 0, lineHeight: 1.7, color: C.mutedFg }}>{flag.clauseText}</p>
           </article>
         ))}
       </section>
@@ -260,10 +265,19 @@ export default async function ContractDetailPage({ params }: ContractDetailPageP
         <CheckCircle size={22} color={C.primary} />
         <div>
           <h2 style={{ margin: "0 0 6px", fontFamily: fontSans, fontSize: 18, color: C.primary }}>{t("allStandard")}</h2>
-          <p style={{ margin: 0, lineHeight: 1.6, color: C.fg }}>{t("standardSummary", { count: contract.standardCount })}</p>
+          <p style={{ margin: 0, lineHeight: 1.6, color: C.fg }}>{t("standardSummary", { count: selected.greenFlagCount })}</p>
         </div>
       </section>
     </main>
-    </ContractDetailGuard>
+  );
+}
+
+export default function ContractDetailPage() {
+  return (
+    <ContractsProvider>
+      <ContractDetailGuard>
+        <ContractDetailContent />
+      </ContractDetailGuard>
+    </ContractsProvider>
   );
 }
