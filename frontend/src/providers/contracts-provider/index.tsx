@@ -2,9 +2,18 @@
 
 import { useContext, useReducer } from "react";
 import type { ContractListItem } from "@/components/contracts/contractData";
-import { analyseContract, getContractAnalysis, getMyContracts } from "@/services/contract.service";
+import { getUserFacingErrorMessage } from "@/lib/userFacingErrors";
+import {
+  analyseContract,
+  getContractAnalysis,
+  getMyContracts,
+} from "@/services/contract.service";
 import { ContractsReducer } from "./reducer";
-import { INITIAL_STATE, ContractsStateContext, ContractsActionContext } from "./context";
+import {
+  INITIAL_STATE,
+  ContractsStateContext,
+  ContractsActionContext,
+} from "./context";
 import { ContractsStateEnums } from "./actions";
 
 function toListItem(selected: {
@@ -33,7 +42,11 @@ function toListItem(selected: {
   };
 }
 
-export const ContractsProvider = ({ children }: { children: React.ReactNode }) => {
+export const ContractsProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
   const [state, dispatch] = useReducer(ContractsReducer, INITIAL_STATE);
 
   const fetchAll = async (locale?: string) => {
@@ -48,7 +61,10 @@ export const ContractsProvider = ({ children }: { children: React.ReactNode }) =
     } catch (error) {
       dispatch({
         type: ContractsStateEnums.CONTRACTS_FETCH_ALL_ERROR,
-        errorMessage: error instanceof Error ? error.message : "Failed to load contract analyses",
+        errorMessage: getUserFacingErrorMessage(
+          error,
+          "We couldn't load your contract analyses. Please try again.",
+        ),
       });
     }
   };
@@ -57,11 +73,17 @@ export const ContractsProvider = ({ children }: { children: React.ReactNode }) =
     dispatch({ type: ContractsStateEnums.CONTRACTS_FETCH_ONE_PENDING });
     try {
       const selected = await getContractAnalysis(id, locale);
-      dispatch({ type: ContractsStateEnums.CONTRACTS_FETCH_ONE_SUCCESS, selected });
+      dispatch({
+        type: ContractsStateEnums.CONTRACTS_FETCH_ONE_SUCCESS,
+        selected,
+      });
     } catch (error) {
       dispatch({
         type: ContractsStateEnums.CONTRACTS_FETCH_ONE_ERROR,
-        errorMessage: error instanceof Error ? error.message : "Failed to load contract analysis",
+        errorMessage: getUserFacingErrorMessage(
+          error,
+          "We couldn't load this contract analysis. Please try again.",
+        ),
       });
     }
   };
@@ -70,7 +92,10 @@ export const ContractsProvider = ({ children }: { children: React.ReactNode }) =
     dispatch({ type: ContractsStateEnums.CONTRACTS_ANALYSE_PENDING });
     try {
       const selected = await analyseContract(file, locale);
-      const nextItems = [toListItem(selected), ...state.items.filter((item) => item.id !== selected.id)];
+      const nextItems = [
+        toListItem(selected),
+        ...state.items.filter((item) => item.id !== selected.id),
+      ];
       dispatch({
         type: ContractsStateEnums.CONTRACTS_ANALYSE_SUCCESS,
         selected,
@@ -79,7 +104,10 @@ export const ContractsProvider = ({ children }: { children: React.ReactNode }) =
       });
       return selected;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to analyse contract";
+      const errorMessage = getUserFacingErrorMessage(
+        error,
+        "We couldn't analyse that contract just now. Please try again.",
+      );
       dispatch({
         type: ContractsStateEnums.CONTRACTS_ANALYSE_ERROR,
         errorMessage,
@@ -99,12 +127,14 @@ export const ContractsProvider = ({ children }: { children: React.ReactNode }) =
 
 export const useContractsState = () => {
   const context = useContext(ContractsStateContext);
-  if (!context) throw new Error("useContractsState must be used within ContractsProvider");
+  if (!context)
+    throw new Error("useContractsState must be used within ContractsProvider");
   return context;
 };
 
 export const useContractsAction = () => {
   const context = useContext(ContractsActionContext);
-  if (!context) throw new Error("useContractsAction must be used within ContractsProvider");
+  if (!context)
+    throw new Error("useContractsAction must be used within ContractsProvider");
   return context;
 };

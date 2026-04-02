@@ -1,38 +1,68 @@
 "use client";
 
+import { Skeleton } from "antd";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { DragEvent, useEffect, useRef, useState } from "react";
-import { ArrowRight, ShieldCheck, TriangleAlert, UploadCloud } from "lucide-react";
+import {
+  ArrowRight,
+  ShieldCheck,
+  TriangleAlert,
+  UploadCloud,
+} from "lucide-react";
+import RetryNotice from "@/components/feedback/RetryNotice";
 import {
   formatContractDate,
   getContractTypeLabel,
 } from "@/components/contracts/contractData";
 import AuthGuard from "@/components/guards/AuthGuard";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { appRoutes, createLocalizedPath } from "@/i18n/routing";
-import { useContractsAction, useContractsState, ContractsProvider } from "@/providers/contracts-provider";
+import {
+  useContractsAction,
+  useContractsState,
+  ContractsProvider,
+} from "@/providers/contracts-provider";
 import { C, fontSans, fontSerif, R, shadowOrganic } from "@/styles/theme";
 
 function getScoreTone(score: number) {
   if (score >= 75) {
-    return { fg: C.primary, bg: "rgba(93, 112, 82, 0.08)", border: "rgba(93, 112, 82, 0.2)" };
+    return {
+      fg: C.primary,
+      bg: "rgba(93, 112, 82, 0.08)",
+      border: "rgba(93, 112, 82, 0.2)",
+    };
   }
 
   if (score >= 55) {
-    return { fg: C.secondary, bg: "rgba(193, 140, 93, 0.08)", border: "rgba(193, 140, 93, 0.2)" };
+    return {
+      fg: C.secondary,
+      bg: "rgba(193, 140, 93, 0.08)",
+      border: "rgba(193, 140, 93, 0.2)",
+    };
   }
 
-  return { fg: C.destructive, bg: "rgba(168, 84, 72, 0.08)", border: "rgba(168, 84, 72, 0.2)" };
+  return {
+    fg: C.destructive,
+    bg: "rgba(168, 84, 72, 0.08)",
+    border: "rgba(168, 84, 72, 0.2)",
+  };
 }
 
 function ContractsContent() {
   const locale = useLocale();
   const router = useRouter();
   const t = useTranslations("contracts");
+  const isOnline = useOnlineStatus();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragActive, setIsDragActive] = useState(false);
-  const { items: contracts, isPending, isError, errorMessage } = useContractsState();
+  const {
+    items: contracts,
+    isPending,
+    isError,
+    errorMessage,
+  } = useContractsState();
   const { fetchAll, analyse } = useContractsAction();
 
   useEffect(() => {
@@ -42,7 +72,9 @@ function ContractsContent() {
 
   const handleSelectedFile = async (file: File) => {
     const result = await analyse(file, locale);
-    router.push(createLocalizedPath(locale, `${appRoutes.contracts}/${result.id}`));
+    router.push(
+      createLocalizedPath(locale, `${appRoutes.contracts}/${result.id}`),
+    );
   };
 
   const handleDrop = async (event: DragEvent<HTMLDivElement>) => {
@@ -63,7 +95,15 @@ function ContractsContent() {
 
   return (
     <AuthGuard>
-      <main className="page-shell" style={{ display: "flex", flexDirection: "column", gap: 32, fontFamily: fontSans }}>
+      <main
+        className="page-shell"
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 32,
+          fontFamily: fontSans,
+        }}
+      >
         <section className="responsive-two-grid">
           <article
             className="surface-card grain-panel"
@@ -91,10 +131,26 @@ function ContractsContent() {
             >
               {t("title")}
             </span>
-            <h1 style={{ margin: 0, fontFamily: fontSerif, fontSize: "clamp(2.4rem, 4vw, 3.6rem)", color: C.fg }}>
+            <h1
+              style={{
+                margin: 0,
+                fontFamily: fontSerif,
+                fontSize: "clamp(2.4rem, 4vw, 3.6rem)",
+                color: C.fg,
+              }}
+            >
               {t("uploadTitle")}
             </h1>
-            <p style={{ margin: 0, color: C.mutedFg, fontSize: 17, lineHeight: 1.7 }}>{t("uploadHint")}</p>
+            <p
+              style={{
+                margin: 0,
+                color: C.mutedFg,
+                fontSize: 17,
+                lineHeight: 1.7,
+              }}
+            >
+              {t("uploadHint")}
+            </p>
             <div
               role="button"
               tabIndex={0}
@@ -114,22 +170,39 @@ function ContractsContent() {
               style={{
                 borderRadius: 28,
                 border: `2px dashed ${isDragActive ? C.primary : "rgba(126, 107, 86, 0.28)"}`,
-                background: isDragActive ? "rgba(93, 112, 82, 0.08)" : "rgba(255,255,255,0.55)",
+                background: isDragActive
+                  ? "rgba(93, 112, 82, 0.08)"
+                  : "rgba(255,255,255,0.55)",
                 padding: 28,
                 display: "grid",
                 gap: 10,
                 cursor: isPending ? "progress" : "pointer",
                 transition: "all 160ms ease",
+                minHeight: 220,
               }}
               aria-label={t("uploadButton")}
             >
-              <div style={{ display: "inline-flex", alignItems: "center", gap: 10, color: C.primary, fontWeight: 800 }}>
+              <div
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 10,
+                  color: C.primary,
+                  fontWeight: 800,
+                }}
+              >
                 <UploadCloud size={18} />
                 {isPending ? t("loading") : t("dragDropTitle")}
               </div>
-              <p style={{ margin: 0, color: C.mutedFg, lineHeight: 1.7 }}>{t("dragDropHint")}</p>
-              <p style={{ margin: 0, fontSize: 13, color: C.mutedFg }}>{t("pdfLimit")}</p>
-              <p style={{ margin: 0, fontSize: 13, color: C.mutedFg }}>{t("mobileScanHint")}</p>
+              <p style={{ margin: 0, color: C.mutedFg, lineHeight: 1.7 }}>
+                {t("dragDropHint")}
+              </p>
+              <p style={{ margin: 0, fontSize: 13, color: C.mutedFg }}>
+                {t("pdfLimit")}
+              </p>
+              <p style={{ margin: 0, fontSize: 13, color: C.mutedFg }}>
+                {t("mobileScanHint")}
+              </p>
             </div>
             <input
               ref={fileInputRef}
@@ -153,7 +226,13 @@ function ContractsContent() {
               }}
             />
             {isError && errorMessage ? (
-              <p style={{ margin: 0, color: C.destructive, fontWeight: 600 }}>{errorMessage}</p>
+              <RetryNotice
+                compact
+                title={isOnline ? "Upload failed" : "You're offline right now"}
+                description={errorMessage}
+                onRetry={() => fileInputRef.current?.click()}
+                isOffline={!isOnline}
+              />
             ) : null}
           </article>
 
@@ -172,14 +251,33 @@ function ContractsContent() {
               <ShieldCheck size={20} color={C.primary} />
               <strong style={{ color: C.fg }}>{t("whyItMattersTitle")}</strong>
             </div>
-            <p style={{ margin: 0, color: C.mutedFg, lineHeight: 1.7 }}>{t("whyItMattersBody")}</p>
+            <p style={{ margin: 0, color: C.mutedFg, lineHeight: 1.7 }}>
+              {t("whyItMattersBody")}
+            </p>
             <div style={{ display: "grid", gap: 12 }}>
               {[
-                { icon: <ShieldCheck size={18} color={C.primary} />, text: t("benefits.fairness") },
-                { icon: <TriangleAlert size={18} color={C.secondary} />, text: t("benefits.risk") },
-                { icon: <ArrowRight size={18} color={C.destructive} />, text: t("benefits.nextStep") },
+                {
+                  icon: <ShieldCheck size={18} color={C.primary} />,
+                  text: t("benefits.fairness"),
+                },
+                {
+                  icon: <TriangleAlert size={18} color={C.secondary} />,
+                  text: t("benefits.risk"),
+                },
+                {
+                  icon: <ArrowRight size={18} color={C.destructive} />,
+                  text: t("benefits.nextStep"),
+                },
               ].map((item) => (
-                <div key={item.text} style={{ display: "flex", alignItems: "center", gap: 10, color: C.fg }}>
+                <div
+                  key={item.text}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    color: C.fg,
+                  }}
+                >
                   {item.icon}
                   <span>{item.text}</span>
                 </div>
@@ -189,27 +287,88 @@ function ContractsContent() {
         </section>
 
         <section style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              gap: 12,
+              alignItems: "center",
+              flexWrap: "wrap",
+            }}
+          >
             <div>
-              <h2 style={{ margin: "0 0 6px", fontFamily: fontSerif, fontSize: 30, color: C.fg }}>{t("recentAnalyses")}</h2>
-              <p style={{ margin: 0, color: C.mutedFg }}>{t("recentAnalysesHint")}</p>
+              <h2
+                style={{
+                  margin: "0 0 6px",
+                  fontFamily: fontSerif,
+                  fontSize: 30,
+                  color: C.fg,
+                }}
+              >
+                {t("recentAnalyses")}
+              </h2>
+              <p style={{ margin: 0, color: C.mutedFg }}>
+                {t("recentAnalysesHint")}
+              </p>
             </div>
           </div>
 
           {contracts.length === 0 && !isPending ? (
             <article
               className="surface-card grain-panel"
-              style={{ borderRadius: 28, padding: 28, boxShadow: shadowOrganic, display: "grid", gap: 10 }}
+              style={{
+                borderRadius: 28,
+                padding: 28,
+                boxShadow: shadowOrganic,
+                display: "grid",
+                gap: 10,
+              }}
             >
-              <h3 style={{ margin: 0, fontFamily: fontSerif, fontSize: 28, color: C.fg }}>{t("emptyTitle")}</h3>
-              <p style={{ margin: 0, color: C.mutedFg, lineHeight: 1.7 }}>{t("emptyBody")}</p>
+              <h3
+                style={{
+                  margin: 0,
+                  fontFamily: fontSerif,
+                  fontSize: 28,
+                  color: C.fg,
+                }}
+              >
+                {t("emptyTitle")}
+              </h3>
+              <p style={{ margin: 0, color: C.mutedFg, lineHeight: 1.7 }}>
+                {t("emptyBody")}
+              </p>
             </article>
+          ) : null}
+
+          {isPending && contracts.length === 0 ? (
+            <div style={{ display: "grid", gap: 20 }}>
+              {Array.from({ length: 3 }).map((_, index) => (
+                <article
+                  key={index}
+                  className="surface-card grain-panel"
+                  style={{
+                    borderRadius: 28,
+                    padding: 24,
+                    boxShadow: shadowOrganic,
+                  }}
+                >
+                  <Skeleton
+                    active
+                    paragraph={{ rows: 2 }}
+                    title={{ width: "55%" }}
+                  />
+                </article>
+              ))}
+            </div>
           ) : null}
 
           <div style={{ display: "grid", gap: 20 }}>
             {contracts.map((contract) => {
               const tone = getScoreTone(contract.healthScore);
-              const detailHref = createLocalizedPath(locale, `${appRoutes.contracts}/${contract.id}`);
+              const detailHref = createLocalizedPath(
+                locale,
+                `${appRoutes.contracts}/${contract.id}`,
+              );
 
               return (
                 <article
@@ -233,14 +392,36 @@ function ContractsContent() {
                       justifyContent: "center",
                     }}
                   >
-                    <strong style={{ fontFamily: fontSerif, fontSize: 42, color: tone.fg, lineHeight: 1 }}>
+                    <strong
+                      style={{
+                        fontFamily: fontSerif,
+                        fontSize: 42,
+                        color: tone.fg,
+                        lineHeight: 1,
+                      }}
+                    >
                       {contract.healthScore}
                     </strong>
-                    <span style={{ color: C.mutedFg, fontWeight: 700, fontSize: 13 }}>{t("scoreSuffix")}</span>
+                    <span
+                      style={{
+                        color: C.mutedFg,
+                        fontWeight: 700,
+                        fontSize: 13,
+                      }}
+                    >
+                      {t("scoreSuffix")}
+                    </span>
                   </div>
 
                   <div style={{ minWidth: 0, display: "grid", gap: 10 }}>
-                    <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: 10,
+                        flexWrap: "wrap",
+                        alignItems: "center",
+                      }}
+                    >
                       <span
                         style={{
                           padding: "5px 12px",
@@ -263,10 +444,21 @@ function ContractsContent() {
                       </span>
                     </div>
                     <div>
-                      <h3 style={{ margin: "0 0 8px", fontFamily: fontSerif, fontSize: 28, color: C.fg }}>
+                      <h3
+                        style={{
+                          margin: "0 0 8px",
+                          fontFamily: fontSerif,
+                          fontSize: 28,
+                          color: C.fg,
+                        }}
+                      >
                         {contract.displayTitle}
                       </h3>
-                      <p style={{ margin: 0, color: C.mutedFg, lineHeight: 1.7 }}>{contract.summary}</p>
+                      <p
+                        style={{ margin: 0, color: C.mutedFg, lineHeight: 1.7 }}
+                      >
+                        {contract.summary}
+                      </p>
                     </div>
                   </div>
 
@@ -277,6 +469,7 @@ function ContractsContent() {
                         display: "inline-flex",
                         alignItems: "center",
                         gap: 8,
+                        minHeight: 44,
                         padding: "12px 18px",
                         borderRadius: 9999,
                         textDecoration: "none",

@@ -2,11 +2,20 @@
 import { useContext, useEffect, useEffectEvent, useReducer } from "react";
 import { getConversations } from "@/services/qaService";
 import { useAuth } from "@/hooks/useAuth";
+import { getUserFacingErrorMessage } from "@/lib/userFacingErrors";
 import { HistoryReducer } from "./reducer";
-import { INITIAL_STATE, HistoryStateContext, HistoryActionContext } from "./context";
+import {
+  INITIAL_STATE,
+  HistoryStateContext,
+  HistoryActionContext,
+} from "./context";
 import { HistoryStateEnums } from "./actions";
 
-export const HistoryProvider = ({ children }: { children: React.ReactNode }) => {
+export const HistoryProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
   const { user, isLoading } = useAuth();
   const [state, dispatch] = useReducer(HistoryReducer, INITIAL_STATE);
 
@@ -25,8 +34,14 @@ export const HistoryProvider = ({ children }: { children: React.ReactNode }) => 
         })),
         totalCount: result.totalCount,
       });
-    } catch {
-      dispatch({ type: HistoryStateEnums.HISTORY_FETCH_ALL_ERROR });
+    } catch (error) {
+      dispatch({
+        type: HistoryStateEnums.HISTORY_FETCH_ALL_ERROR,
+        errorMessage: getUserFacingErrorMessage(
+          error,
+          "We couldn't load your conversation history. Please try again.",
+        ),
+      });
     }
   };
   const fetchAllOnReady = useEffectEvent(() => {
@@ -52,12 +67,14 @@ export const HistoryProvider = ({ children }: { children: React.ReactNode }) => 
 
 export const useHistoryState = () => {
   const context = useContext(HistoryStateContext);
-  if (!context) throw new Error("useHistoryState must be used within HistoryProvider");
+  if (!context)
+    throw new Error("useHistoryState must be used within HistoryProvider");
   return context;
 };
 
 export const useHistoryAction = () => {
   const context = useContext(HistoryActionContext);
-  if (!context) throw new Error("useHistoryAction must be used within HistoryProvider");
+  if (!context)
+    throw new Error("useHistoryAction must be used within HistoryProvider");
   return context;
 };

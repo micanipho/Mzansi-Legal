@@ -53,14 +53,16 @@ export default function ChatMessage({ message }: ChatMessageProps) {
           style={{
             background: C.primary,
             color: C.primaryFg,
-            padding: "16px 24px",
+            padding: "14px 18px",
             borderRadius: R.o2,
             borderBottomRightRadius: 4,
-            maxWidth: "85%",
+            maxWidth: "min(85%, 680px)",
             boxShadow: "0 1px 4px rgba(0,0,0,0.08)",
           }}
         >
-          <p style={{ fontSize: 17, margin: 0, fontFamily: fontSans }}>{message.text}</p>
+          <p style={{ fontSize: 17, margin: 0, fontFamily: fontSans }}>
+            {message.text}
+          </p>
         </div>
       </div>
     );
@@ -70,13 +72,17 @@ export default function ChatMessage({ message }: ChatMessageProps) {
   const modeStyles = getModeStyles(message.answerMode);
   const urgentStyles = getUrgentStyles();
   const citations = message.citations ?? [];
-  const hasPrimarySource = citations.some((citation) => citation.sourceRole === "primary");
-  const hasSupportingSource = citations.some((citation) => citation.sourceRole === "supporting");
+  const hasPrimarySource = citations.some(
+    (citation) => citation.sourceRole === "primary",
+  );
+  const hasSupportingSource = citations.some(
+    (citation) => citation.sourceRole === "supporting",
+  );
   const hasGuidanceCitations = citations.some(
-    (citation) => citation.authorityType === "officialGuidance"
+    (citation) => citation.authorityType === "officialGuidance",
   );
   const hasBindingLawCitations = citations.some(
-    (citation) => citation.authorityType === "bindingLaw"
+    (citation) => citation.authorityType === "bindingLaw",
   );
   const modeTitle =
     message.answerMode === "cautious"
@@ -117,10 +123,10 @@ export default function ChatMessage({ message }: ChatMessageProps) {
           border: `1px solid ${isError ? "#FCA5A5" : C.border}`,
           borderRadius: R.o1,
           borderBottomLeftRadius: 4,
-          maxWidth: "85%",
+          maxWidth: "min(85%, 680px)",
           boxShadow: shadowOrganic,
           overflow: "hidden",
-          padding: "24px 32px",
+          padding: "18px 20px",
           display: "flex",
           flexDirection: "column",
           gap: 12,
@@ -138,7 +144,9 @@ export default function ChatMessage({ message }: ChatMessageProps) {
               fontFamily: fontSans,
             }}
           >
-            <strong style={{ display: "block", marginBottom: 4 }}>{t("urgentLabel")}</strong>
+            <strong style={{ display: "block", marginBottom: 4 }}>
+              {t("urgentLabel")}
+            </strong>
             <span>{t("urgentHint")}</span>
           </div>
         )}
@@ -155,7 +163,9 @@ export default function ChatMessage({ message }: ChatMessageProps) {
               fontFamily: fontSans,
             }}
           >
-            <strong style={{ display: "block", marginBottom: 4 }}>{modeTitle}</strong>
+            <strong style={{ display: "block", marginBottom: 4 }}>
+              {modeTitle}
+            </strong>
             <span>{modeBody}</span>
           </div>
         )}
@@ -261,24 +271,25 @@ export default function ChatMessage({ message }: ChatMessageProps) {
           </ReactMarkdown>
         </div>
 
-        {message.answerMode === "clarification" && message.clarificationQuestion && (
-          <div
-            style={{
-              background: "rgba(59,130,246,0.06)",
-              borderLeft: "3px solid rgba(59,130,246,0.5)",
-              padding: "12px 14px",
-              borderRadius: 8,
-              color: C.fg,
-              fontFamily: fontSans,
-              lineHeight: 1.6,
-            }}
-          >
-            <strong style={{ display: "block", marginBottom: 6 }}>
-              {t("clarificationQuestionLabel")}
-            </strong>
-            <span>{message.clarificationQuestion}</span>
-          </div>
-        )}
+        {message.answerMode === "clarification" &&
+          message.clarificationQuestion && (
+            <div
+              style={{
+                background: "rgba(59,130,246,0.06)",
+                borderLeft: "3px solid rgba(59,130,246,0.5)",
+                padding: "12px 14px",
+                borderRadius: 8,
+                color: C.fg,
+                fontFamily: fontSans,
+                lineHeight: 1.6,
+              }}
+            >
+              <strong style={{ display: "block", marginBottom: 6 }}>
+                {t("clarificationQuestionLabel")}
+              </strong>
+              <span>{message.clarificationQuestion}</span>
+            </div>
+          )}
 
         {message.citations && message.citations.length > 0 && (
           <CitationList citations={message.citations} />
