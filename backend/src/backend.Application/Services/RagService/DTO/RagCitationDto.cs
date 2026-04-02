@@ -24,6 +24,26 @@ public class RagCitationDto
     public string SectionNumber { get; set; }
 
     /// <summary>
+    /// Preferred generic source title for any cited source, including official guidance.
+    /// </summary>
+    public string SourceTitle { get; set; }
+
+    /// <summary>
+    /// Preferred generic locator for the cited source such as a section, rule, or heading.
+    /// </summary>
+    public string SourceLocator { get; set; }
+
+    /// <summary>
+    /// Distinguishes binding law from supporting official guidance.
+    /// </summary>
+    public string AuthorityType { get; set; }
+
+    /// <summary>
+    /// Distinguishes the primary source from supporting sources in a multi-source answer.
+    /// </summary>
+    public string SourceRole { get; set; }
+
+    /// <summary>
     /// Relevant text excerpt from the chunk that supports the answer.
     /// Truncated to 500 characters if the full chunk content is longer.
     /// </summary>

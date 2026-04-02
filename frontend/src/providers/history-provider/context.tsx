@@ -7,29 +7,38 @@ export interface IConversationItem {
   questionCount: number;
   startedAt: string;
   locale: string;
+  messages: {
+    messageId: string;
+    type: "user" | "bot";
+    text: string;
+    createdAt: string;
+  }[];
 }
 
 export interface IHistoryStateContext {
   isPending: boolean;
   isSuccess: boolean;
   isError: boolean;
+  errorMessage: string | null;
   items: IConversationItem[];
   totalCount: number;
 }
 
 export interface IHistoryActionContext {
-  fetchAll: () => void;
+  fetchAll: () => Promise<void>;
 }
 
 export const INITIAL_STATE: IHistoryStateContext = {
   isPending: false,
   isSuccess: false,
   isError: false,
+  errorMessage: null,
   items: [],
   totalCount: 0,
 };
 
-export const HistoryStateContext = createContext<IHistoryStateContext>(INITIAL_STATE);
+export const HistoryStateContext =
+  createContext<IHistoryStateContext>(INITIAL_STATE);
 export const HistoryActionContext = createContext<IHistoryActionContext>({
-  fetchAll: () => {},
+  fetchAll: async () => {},
 });

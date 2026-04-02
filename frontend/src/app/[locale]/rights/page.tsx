@@ -1,42 +1,40 @@
 "use client";
 
+import { Empty, Skeleton, message } from "antd";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { Alert, Button } from "antd";
-import { Minus, Plus, Share2, Play } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  ArrowRight,
+  BookOpen,
+  GraduationCap,
+  Minus,
+  Play,
+  Plus,
+  Share2,
+  Trophy,
+} from "lucide-react";
+import {
+  getRightCardRadius,
+  getTopicLabelKey,
+  mergeRightsProgressIds,
+  readRightsProgress,
+  sortTopicKeys,
+  type PublicFaqItem,
+  type RightsAcademyLesson,
+  type RightsAcademyTrack,
+  writeRightsProgress,
+} from "@/components/rights/rightsData";
 import { appRoutes, createLocalizedPath } from "@/i18n/routing";
-import { C, R, shadowOrganic, fontSerif, fontSans } from "@/styles/theme";
-import { useAuth } from "@/hooks/useAuth";
-
-// Filter values are kept as stable English keys for category matching
-const FILTERS = ["All", "Employment", "Housing", "Consumer", "Debt & Credit", "Tax", "Privacy"];
-
-// Filter value → categories translation key
-const FILTER_CAT_KEYS: Record<string, string> = {
-  Employment: "employment",
-  Housing: "housing",
-  Consumer: "consumer",
-  "Debt & Credit": "debtCredit",
-  Tax: "tax",
-  Privacy: "privacy",
-};
-
-interface RightCard {
-  id: string;
-  category: string;
-  r: string;
-  hasQuote: boolean;
-}
-
-const CARDS: RightCard[] = [
-  { id: "eviction",        category: "Housing",      r: R.o1, hasQuote: true  },
-  { id: "payslip",         category: "Employment",   r: R.o2, hasQuote: false },
-  { id: "defectiveGoods",  category: "Consumer",     r: R.o3, hasQuote: false },
-  { id: "interestRates",   category: "Debt & Credit",r: R.o4, hasQuote: false },
-  { id: "unfairDismissal", category: "Employment",   r: R.o1, hasQuote: false },
-  { id: "dataConsent",     category: "Privacy",      r: R.o2, hasQuote: false },
-];
+import RetryNotice from "@/components/feedback/RetryNotice";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
+import {
+  getPublicFaqs,
+  getRightsAcademy,
+  getRightsAcademyProgress,
+  saveRightsAcademyProgress,
+} from "@/services/faq.service";
+import { C, fontSans, fontSerif, shadowOrganic } from "@/styles/theme";
 
 const LOCALE_NAMES: Record<string, string> = {
   en: "English",
@@ -44,42 +42,436 @@ const LOCALE_NAMES: Record<string, string> = {
   st: "Sesotho",
   af: "Afrikaans",
 };
+const SPEECH_LANGUAGES: Record<string, string> = {
+  en: "en-ZA",
+  zu: "zu-ZA",
+  st: "st-ZA",
+  af: "af-ZA",
+};
+type RightsExplorerCard = PublicFaqItem | RightsAcademyLesson;
 
-const TOTAL_TOPICS = 20;
+function topicLabel(
+  topicKey: string,
+  categoryName: string,
+  tc: (key: string) => string,
+): string {
+  const key = getTopicLabelKey(topicKey);
+  return key ? tc(key) : categoryName || topicKey;
+}
 
 export default function MyRightsPage() {
   const locale = useLocale();
   const router = useRouter();
-  const t  = useTranslations("rights");
+  const t = useTranslations("rights");
   const tc = useTranslations("categories");
   const tChat = useTranslations("chat");
-  const { user } = useAuth();
-  const [activeFilter, setActiveFilter] = useState("All");
-  const [expanded, setExpanded]         = useState<string | null>(CARDS[0].id);
-  const [exploredIds, setExploredIds]   = useState<Set<string>>(new Set([CARDS[0].id]));
+  const tCommon = useTranslations("common");
+  const isOnline = useOnlineStatus();
 
-  const explored = exploredIds.size;
-  const percent  = Math.round((explored / TOTAL_TOPICS) * 100);
+  const [faqItems, setFaqItems] = useState<PublicFaqItem[]>([]);
+  const [academyTracks, setAcademyTracks] = useState<RightsAcademyTrack[]>([]);
+  const [activeView, setActiveView] = useState<"academy" | "faqs">("academy");
+  const [activeFilter, setActiveFilter] = useState("all");
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [exploredIds, setExploredIds] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const handleToggle = (id: string) => {
-    const opening = expanded !== id;
-    setExpanded(opening ? id : null);
-    if (opening) {
-      setExploredIds((prev) => new Set(prev).add(id));
+  useEffect(() => setExploredIds(readRightsProgress()), []);
+
+  const syncProgress = async (nextIds: string[]) => {
+    writeRightsProgress(nextIds);
+    setExploredIds(nextIds);
+
+    try {
+      const saved = await saveRightsAcademyProgress(nextIds);
+      const merged = mergeRightsProgressIds(nextIds, saved.exploredLessonIds);
+      writeRightsProgress(merged);
+      setExploredIds(merged);
+    } catch {
+      // Keep local progress even if the server sync fails.
     }
   };
 
-  const handleSignIn = () => {
-    const returnUrl = encodeURIComponent(`/${locale}${appRoutes.rights}`);
-    router.push(`${createLocalizedPath(locale, appRoutes.auth)}?returnUrl=${returnUrl}`);
+  const loadContent = async (cancelledRef?: { current: boolean }) => {
+    const cancelled = cancelledRef?.current ?? false;
+    setIsLoading(true);
+    setErrorMessage(null);
+    try {
+      const localProgress = readRightsProgress();
+      const [faqResult, academyResult, progressResult] = await Promise.all([
+        getPublicFaqs(locale),
+        getRightsAcademy(locale),
+        getRightsAcademyProgress(),
+      ]);
+      if (cancelledRef?.current || cancelled) return;
+      setFaqItems(faqResult.items);
+      setAcademyTracks(academyResult.tracks);
+      const mergedProgress = mergeRightsProgressIds(
+        localProgress,
+        progressResult.exploredLessonIds,
+      );
+      writeRightsProgress(mergedProgress);
+      setExploredIds(mergedProgress);
+    } catch {
+      if (cancelledRef?.current || cancelled) return;
+      setErrorMessage(tCommon("error"));
+      setFaqItems([]);
+      setAcademyTracks([]);
+    } finally {
+      if (!cancelledRef?.current && !cancelled) setIsLoading(false);
+    }
   };
 
-  const getFilterLabel = (f: string) =>
-    f === "All" ? t("allCategories") : tc(FILTER_CAT_KEYS[f] as Parameters<typeof tc>[0] ?? f);
+  useEffect(() => {
+    const cancelledRef = { current: false };
+    void loadContent(cancelledRef);
+    return () => {
+      cancelledRef.current = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locale, tCommon]);
 
-  const filtered = activeFilter === "All"
-    ? CARDS
-    : CARDS.filter((c) => c.category === activeFilter);
+  const availableIds = useMemo(
+    () =>
+      new Set([
+        ...faqItems.map((item) => item.id),
+        ...academyTracks.flatMap((track) =>
+          track.lessons.map((lesson) => lesson.id),
+        ),
+      ]),
+    [academyTracks, faqItems],
+  );
+
+  useEffect(() => {
+    const nextExplored = exploredIds.filter((id) => availableIds.has(id));
+    if (nextExplored.length !== exploredIds.length) {
+      setExploredIds(nextExplored);
+      writeRightsProgress(nextExplored);
+    }
+    if (expandedId && !availableIds.has(expandedId)) setExpandedId(null);
+    if (typeof window === "undefined" || !window.location.hash) return;
+    const hashedId = window.location.hash.slice(1);
+    if (
+      !hashedId ||
+      !availableIds.has(hashedId) ||
+      nextExplored.includes(hashedId)
+    )
+      return;
+    setExpandedId(hashedId);
+    const updated = [...nextExplored, hashedId];
+    setExploredIds(updated);
+    writeRightsProgress(updated);
+  }, [availableIds, expandedId, exploredIds]);
+
+  useEffect(
+    () => () => {
+      if (typeof window !== "undefined" && "speechSynthesis" in window)
+        window.speechSynthesis.cancel();
+    },
+    [],
+  );
+
+  const faqTopicNames = new Map<string, string>();
+  faqItems.forEach((item) => {
+    if (!faqTopicNames.has(item.topicKey))
+      faqTopicNames.set(item.topicKey, item.categoryName);
+  });
+
+  const faqTopicKeys = sortTopicKeys(Array.from(faqTopicNames.keys()));
+  const filteredFaqItems =
+    activeFilter === "all"
+      ? faqItems
+      : faqItems.filter((item) => item.topicKey === activeFilter);
+  const academyTrackCards = academyTracks.map((track) => {
+    const exploredLessons = track.lessons.filter((lesson) =>
+      exploredIds.includes(lesson.id),
+    ).length;
+    return {
+      ...track,
+      topicLabel: topicLabel(track.topicKey, track.categoryName, tc),
+      exploredLessons,
+      completionPercent: track.lessons.length
+        ? Math.round((exploredLessons / track.lessons.length) * 100)
+        : 0,
+    };
+  });
+  const academyLessonIds = academyTrackCards.flatMap((track) =>
+    track.lessons.map((lesson) => lesson.id),
+  );
+  const exploredAcademyLessons = academyLessonIds.filter((id) =>
+    exploredIds.includes(id),
+  ).length;
+  const exploredAcademyTopics = academyTrackCards.filter((track) =>
+    track.lessons.some((lesson) => exploredIds.includes(lesson.id)),
+  ).length;
+  const completedTracks = academyTrackCards.filter(
+    (track) =>
+      track.lessons.length > 0 &&
+      track.lessons.every((lesson) => exploredIds.includes(lesson.id)),
+  ).length;
+  const progressPercent = academyTrackCards.length
+    ? Math.round((exploredAcademyTopics / academyTrackCards.length) * 100)
+    : 0;
+
+  const handleToggle = (itemId: string) => {
+    const opening = expandedId !== itemId;
+    setExpandedId(opening ? itemId : null);
+    if (!opening || exploredIds.includes(itemId)) return;
+    const updated = [...exploredIds, itemId];
+    void syncProgress(updated);
+  };
+
+  const askFollowUp = (item: RightsExplorerCard) => {
+    const query =
+      "askQuery" in item && item.askQuery ? item.askQuery : item.title;
+    router.push(
+      createLocalizedPath(
+        locale,
+        appRoutes.ask,
+        `q=${encodeURIComponent(query)}`,
+      ),
+    );
+  };
+
+  const listenToItem = (item: RightsExplorerCard) => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window))
+      return void message.warning(t("listenUnsupported"));
+    const utterance = new SpeechSynthesisUtterance(
+      `${item.title}. ${item.explanation}`,
+    );
+    utterance.lang = SPEECH_LANGUAGES[locale] ?? locale;
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utterance);
+  };
+
+  const shareItem = async (item: RightsExplorerCard) => {
+    if (typeof window === "undefined") return;
+    const shareUrl = `${window.location.origin}${createLocalizedPath(locale, `${appRoutes.rights}#${item.id}`)}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: item.title,
+          text: item.summary,
+          url: shareUrl,
+        });
+        return;
+      }
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(shareUrl);
+        return void message.success(t("shareCopied"));
+      }
+      void message.info(t("shareUnavailable"));
+    } catch {
+      void message.error(tCommon("error"));
+    }
+  };
+
+  const renderLessonCard = (item: RightsExplorerCard, index: number) => {
+    const isExpanded = expandedId === item.id;
+    return (
+      <article
+        key={item.id}
+        id={item.id}
+        className="surface-card grain-panel"
+        style={{
+          gridColumn: isExpanded ? "1 / -1" : undefined,
+          padding: 24,
+          borderRadius: getRightCardRadius(index),
+          boxShadow: isExpanded
+            ? shadowOrganic
+            : "0 8px 18px rgba(59, 52, 46, 0.08)",
+          display: "grid",
+          gap: isExpanded ? 22 : 14,
+          alignContent: "start",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            gap: 16,
+            alignItems: "flex-start",
+          }}
+        >
+          <div style={{ display: "grid", gap: 8, minWidth: 0 }}>
+            <h2
+              style={{
+                margin: 0,
+                color: C.fg,
+                fontFamily: fontSerif,
+                fontSize: isExpanded ? 30 : 24,
+                lineHeight: 1.2,
+              }}
+            >
+              {item.title}
+            </h2>
+            <span style={{ color: C.primary, fontWeight: 700, fontSize: 14 }}>
+              {item.primaryCitation || item.categoryName}
+            </span>
+            <p
+              style={{
+                margin: 0,
+                color: C.mutedFg,
+                lineHeight: 1.7,
+                display: isExpanded ? "block" : "-webkit-box",
+                WebkitLineClamp: isExpanded ? "unset" : 1,
+                WebkitBoxOrient: "vertical",
+                overflow: "hidden",
+              }}
+            >
+              {isExpanded ? item.explanation : item.summary}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => handleToggle(item.id)}
+            aria-expanded={isExpanded}
+            aria-label={isExpanded ? "Collapse" : "Expand"}
+            style={{
+              width: 42,
+              height: 42,
+              minWidth: 44,
+              minHeight: 44,
+              borderRadius: 9999,
+              border: `1px solid ${C.border}`,
+              background: "rgba(255,255,255,0.75)",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: C.fg,
+              cursor: "pointer",
+              flexShrink: 0,
+            }}
+          >
+            {isExpanded ? <Minus size={18} /> : <Plus size={18} />}
+          </button>
+        </div>
+
+        {isExpanded ? (
+          <>
+            {item.sourceQuote ? (
+              <blockquote
+                style={{
+                  margin: 0,
+                  padding: "18px 20px",
+                  borderLeft: `4px solid ${C.accent}`,
+                  borderRadius: "18px 14px 18px 14px",
+                  background: "rgba(243, 239, 229, 0.88)",
+                  color: C.mutedFg,
+                  fontFamily: fontSerif,
+                  fontSize: 18,
+                  fontStyle: "italic",
+                  lineHeight: 1.7,
+                }}
+              >
+                {item.sourceQuote}
+              </blockquote>
+            ) : null}
+
+            {item.citations.length > 0 ? (
+              <div style={{ display: "grid", gap: 10 }}>
+                <strong style={{ color: C.fg }}>
+                  {tChat("citationsTitle")}
+                </strong>
+                <div style={{ display: "grid", gap: 10 }}>
+                  {item.citations.map((citation) => (
+                    <div
+                      key={citation.id}
+                      style={{
+                        padding: "12px 14px",
+                        borderRadius: "16px 12px 16px 12px",
+                        border: `1px solid ${C.border}`,
+                        background: "rgba(255,255,255,0.55)",
+                        display: "grid",
+                        gap: 6,
+                      }}
+                    >
+                      <strong style={{ color: C.fg, fontSize: 14 }}>
+                        {[citation.actName, citation.sectionNumber]
+                          .filter(Boolean)
+                          .join(", ")}
+                      </strong>
+                      {citation.excerpt ? (
+                        <span style={{ color: C.mutedFg, lineHeight: 1.6 }}>
+                          {citation.excerpt}
+                        </span>
+                      ) : null}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
+              <button
+                type="button"
+                onClick={() => askFollowUp(item)}
+                style={{
+                  border: "none",
+                  borderRadius: 9999,
+                  background: C.primary,
+                  color: C.primaryFg,
+                  minHeight: 44,
+                  padding: "12px 18px",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 8,
+                }}
+              >
+                {t("askFollowUp")}
+                <ArrowRight size={16} />
+              </button>
+              <button
+                type="button"
+                onClick={() => listenToItem(item)}
+                style={{
+                  borderRadius: 9999,
+                  border: `1px solid ${C.border}`,
+                  background: "rgba(255,255,255,0.6)",
+                  color: C.fg,
+                  minHeight: 44,
+                  padding: "12px 18px",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 8,
+                }}
+              >
+                <Play size={16} />
+                {tChat("listenIn", {
+                  language: LOCALE_NAMES[locale] ?? locale,
+                })}
+              </button>
+              <button
+                type="button"
+                onClick={() => void shareItem(item)}
+                style={{
+                  borderRadius: 9999,
+                  border: `1px solid ${C.border}`,
+                  background: "rgba(255,255,255,0.6)",
+                  color: C.fg,
+                  minHeight: 44,
+                  padding: "12px 18px",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 8,
+                }}
+              >
+                <Share2 size={16} />
+                {t("share")}
+              </button>
+            </div>
+          </>
+        ) : null}
+      </article>
+    );
+  };
 
   return (
     <main
@@ -87,271 +479,602 @@ export default function MyRightsPage() {
       style={{
         display: "flex",
         flexDirection: "column",
-        gap: 40,
+        gap: 32,
         fontFamily: fontSans,
       }}
     >
-      {/* Header */}
-      <section style={{ textAlign: "center", maxWidth: 640, margin: "0 auto" }}>
-        <h1 style={{ fontFamily: fontSerif, fontSize: "clamp(2rem,5vw,3rem)", fontWeight: 700, color: C.fg, marginBottom: 16 }}>
+      <section style={{ display: "grid", gap: 14, maxWidth: 760 }}>
+        <h1
+          style={{
+            margin: 0,
+            color: C.fg,
+            fontFamily: fontSerif,
+            fontSize: "clamp(2.3rem, 5vw, 3.5rem)",
+          }}
+        >
           {t("title")}
         </h1>
-        <p style={{ fontSize: 17, color: C.mutedFg }}>
+        <p
+          style={{ margin: 0, color: C.mutedFg, fontSize: 17, lineHeight: 1.7 }}
+        >
           {t("headerDesc")}
         </p>
       </section>
 
-      {/* Guest Banner - Only show for non-logged-in users */}
-      {!user && (
-        <Alert
-          type="info"
-          message={t("guestProgressBanner")}
-          description={t("guestProgressDesc")}
-          action={
-            <Button
-              type="primary"
-              size="small"
-              onClick={handleSignIn}
-              style={{ whiteSpace: "nowrap" }}
-            >
-              {tChat("guestBannerAction")}
-            </Button>
-          }
-          style={{ borderRadius: 12 }}
-          showIcon
-        />
-      )}
-
-      {/* Knowledge score - Only show for logged-in users */}
-      {user && (
-        <section
+      <section
+        className="surface-card grain-panel"
+        style={{
+          display: "grid",
+          gap: 18,
+          padding: 28,
+          borderRadius: "26px 18px 30px 22px",
+          boxShadow: shadowOrganic,
+        }}
+      >
+        <div
           style={{
-            background: C.muted,
-            border: `1px solid ${C.border}`,
-            borderRadius: R.o2,
-            padding: 32,
             display: "flex",
-            alignItems: "center",
             justifyContent: "space-between",
             gap: 24,
+            alignItems: "flex-end",
             flexWrap: "wrap",
-            boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
           }}
         >
-          <div style={{ flex: 1, minWidth: 200 }}>
-            <h2 style={{ fontSize: 17, fontWeight: 700, color: C.fg, marginBottom: 16, fontFamily: fontSans }}>
-              {t("knowledgeScore", { explored, total: TOTAL_TOPICS })}
-            </h2>
-            <div style={{ height: 16, background: C.border, borderRadius: 9999, overflow: "hidden" }}>
-              <div style={{ height: "100%", background: C.primary, borderRadius: 9999, width: `${percent}%`, transition: "width 1s ease" }} />
-            </div>
-          </div>
-          <div style={{ fontFamily: fontSerif, fontSize: 48, fontWeight: 700, color: C.primary, flexShrink: 0 }}>
-            {percent}%
-          </div>
-        </section>
-      )}
-
-      {/* Filter tabs */}
-      <section
-        style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 4 }}
-        className="hide-scrollbar"
-      >
-        {FILTERS.map((f) => (
-          <button
-            key={f}
-            onClick={() => setActiveFilter(f)}
-            aria-pressed={f === activeFilter}
-            style={{
-              whiteSpace: "nowrap",
-              padding: "10px 24px",
-              borderRadius: 9999,
-              fontSize: 14,
-              fontWeight: 700,
-              border: `1px solid ${f === activeFilter ? C.primary : C.border}`,
-              background: f === activeFilter ? C.primary : "transparent",
-              color: f === activeFilter ? C.primaryFg : C.fg,
-              cursor: "pointer",
-              fontFamily: fontSans,
-            }}
-          >
-            {getFilterLabel(f)}
-          </button>
-        ))}
-      </section>
-
-      {/* Rights grid */}
-      <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 24 }}>
-        {filtered.map((card) => {
-          const isExpanded = expanded === card.id;
-          const titleKey  = `${card.id}Title`  as Parameters<typeof t>[0];
-          const citeKey   = `${card.id}Cite`   as Parameters<typeof t>[0];
-          const descKey   = `${card.id}Desc`   as Parameters<typeof t>[0];
-          const detailKey = `${card.id}Detail` as Parameters<typeof t>[0];
-          const quoteKey  = `${card.id}Quote`  as Parameters<typeof t>[0];
-
-          return (
+          <div style={{ display: "grid", gap: 10, minWidth: 240 }}>
+            <strong style={{ color: C.fg, fontSize: 16 }}>
+              {t("knowledgeScore", {
+                explored: exploredAcademyTopics,
+                total: academyTrackCards.length,
+              })}
+            </strong>
             <div
-              key={card.id}
               style={{
-                gridColumn: isExpanded ? "1 / -1" : undefined,
-                background: C.card,
-                border: `1px solid ${C.border}`,
-                borderRadius: card.r,
-                boxShadow: isExpanded ? shadowOrganic : "0 1px 4px rgba(0,0,0,0.04)",
+                height: 16,
+                borderRadius: 9999,
+                background: "rgba(126, 107, 86, 0.15)",
                 overflow: "hidden",
               }}
             >
-              {/* Card header */}
               <div
-                onClick={() => handleToggle(card.id)}
                 style={{
-                  padding: "24px 32px",
-                  display: "flex",
-                  alignItems: "flex-start",
-                  justifyContent: "space-between",
-                  gap: 16,
-                  cursor: "pointer",
+                  width: `${progressPercent}%`,
+                  height: "100%",
+                  borderRadius: 9999,
+                  background:
+                    "linear-gradient(90deg, rgba(93,112,82,0.92), rgba(126,107,86,0.88))",
+                  transition: "width 180ms ease",
+                }}
+              />
+            </div>
+          </div>
+          <div
+            style={{
+              color: C.primary,
+              fontFamily: fontSerif,
+              fontSize: "clamp(2.3rem, 5vw, 4rem)",
+              lineHeight: 1,
+            }}
+          >
+            {progressPercent}%
+          </div>
+        </div>
+      </section>
+
+      <section
+        className="hide-scrollbar"
+        style={{
+          display: "flex",
+          gap: 12,
+          overflowX: "auto",
+          paddingBottom: 4,
+        }}
+      >
+        <button
+          type="button"
+          onClick={() => setActiveView("academy")}
+          aria-pressed={activeView === "academy"}
+          style={{
+            whiteSpace: "nowrap",
+            minHeight: 44,
+            padding: "10px 18px",
+            borderRadius: 9999,
+            border: `1px solid ${activeView === "academy" ? C.primary : C.border}`,
+            background:
+              activeView === "academy" ? C.primary : "rgba(255,255,255,0.5)",
+            color: activeView === "academy" ? C.primaryFg : C.fg,
+            fontWeight: 700,
+            cursor: "pointer",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+          }}
+        >
+          <GraduationCap size={16} />
+          {t("academyTab")}
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveView("faqs")}
+          aria-pressed={activeView === "faqs"}
+          style={{
+            whiteSpace: "nowrap",
+            minHeight: 44,
+            padding: "10px 18px",
+            borderRadius: 9999,
+            border: `1px solid ${activeView === "faqs" ? C.primary : C.border}`,
+            background:
+              activeView === "faqs" ? C.primary : "rgba(255,255,255,0.5)",
+            color: activeView === "faqs" ? C.primaryFg : C.fg,
+            fontWeight: 700,
+            cursor: "pointer",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+          }}
+        >
+          <BookOpen size={16} />
+          {t("faqTab")}
+        </button>
+      </section>
+
+      {isLoading ? (
+        <section style={{ display: "grid", gap: 18 }}>
+          {Array.from({ length: 3 }).map((_, index) => (
+            <article
+              key={index}
+              className="surface-card grain-panel"
+              style={{
+                padding: 28,
+                borderRadius: "24px 18px 28px 20px",
+                boxShadow: shadowOrganic,
+              }}
+            >
+              <Skeleton
+                active
+                paragraph={{ rows: 3 }}
+                title={{ width: "50%" }}
+              />
+            </article>
+          ))}
+        </section>
+      ) : null}
+
+      {!isLoading && errorMessage ? (
+        <RetryNotice
+          title={
+            isOnline
+              ? "We couldn't load rights topics"
+              : "You're offline right now"
+          }
+          description={errorMessage}
+          onRetry={() => void loadContent()}
+          isOffline={!isOnline}
+        />
+      ) : null}
+
+      {!isLoading &&
+      !errorMessage &&
+      activeView === "academy" &&
+      academyTrackCards.length === 0 ? (
+        <section
+          className="surface-card grain-panel"
+          style={{
+            padding: 32,
+            borderRadius: "24px 18px 28px 20px",
+            boxShadow: shadowOrganic,
+          }}
+        >
+          <Empty description={false}>
+            <div style={{ display: "grid", gap: 10 }}>
+              <strong style={{ color: C.fg, fontSize: 18 }}>
+                {t("emptyAcademyTitle")}
+              </strong>
+              <p style={{ margin: 0, color: C.mutedFg, lineHeight: 1.7 }}>
+                {t("emptyAcademyBody")}
+              </p>
+            </div>
+          </Empty>
+        </section>
+      ) : null}
+
+      {!isLoading &&
+      !errorMessage &&
+      activeView === "faqs" &&
+      faqItems.length === 0 ? (
+        <section
+          className="surface-card grain-panel"
+          style={{
+            padding: 32,
+            borderRadius: "24px 18px 28px 20px",
+            boxShadow: shadowOrganic,
+          }}
+        >
+          <Empty description={false}>
+            <div style={{ display: "grid", gap: 10 }}>
+              <strong style={{ color: C.fg, fontSize: 18 }}>
+                {t("emptyFaqTitle")}
+              </strong>
+              <p style={{ margin: 0, color: C.mutedFg, lineHeight: 1.7 }}>
+                {t("emptyFaqBody")}
+              </p>
+            </div>
+          </Empty>
+        </section>
+      ) : null}
+
+      {!isLoading &&
+      !errorMessage &&
+      academyTrackCards.length > 0 &&
+      activeView === "academy" ? (
+        <section style={{ display: "grid", gap: 24 }}>
+          <section
+            className="surface-card grain-panel"
+            style={{
+              padding: 28,
+              borderRadius: "30px 18px 32px 22px",
+              boxShadow: shadowOrganic,
+              display: "grid",
+              gap: 22,
+            }}
+          >
+            <div style={{ display: "grid", gap: 8, maxWidth: 760 }}>
+              <span
+                style={{
+                  color: C.primary,
+                  fontWeight: 700,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                  fontSize: 12,
                 }}
               >
-                <div>
-                  <span
-                    style={{
-                      display: "inline-block",
-                      fontSize: 11,
-                      fontWeight: 700,
-                      padding: "3px 10px",
-                      borderRadius: 9999,
-                      background: `rgba(93,112,82,0.1)`,
-                      color: C.primary,
-                      marginBottom: 10,
-                      fontFamily: fontSans,
-                    }}
-                  >
-                    {tc(FILTER_CAT_KEYS[card.category] as Parameters<typeof tc>[0] ?? card.category)}
-                  </span>
-                  <h3
-                    style={{
-                      fontFamily: fontSans,
-                      fontSize: isExpanded ? 22 : 17,
-                      fontWeight: 700,
-                      color: C.fg,
-                      margin: "0 0 8px",
-                      lineHeight: 1.3,
-                    }}
-                  >
-                    {t(titleKey)}
-                  </h3>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: C.primary }}>{t(citeKey)}</span>
-                  {!isExpanded && (
-                    <p style={{ fontSize: 14, color: C.mutedFg, margin: "8px 0 0", lineHeight: 1.5 }}>
-                      {t(descKey)}
-                    </p>
-                  )}
-                </div>
-                <button
-                  style={{
-                    width: 40, height: 40,
-                    borderRadius: 9999,
-                    background: C.muted,
-                    border: "none",
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: C.fg,
-                    flexShrink: 0,
-                  }}
-                  aria-label={isExpanded ? "Collapse" : "Expand"}
-                  aria-expanded={isExpanded}
+                {t("academyEyebrow")}
+              </span>
+              <h2
+                style={{
+                  margin: 0,
+                  color: C.fg,
+                  fontFamily: fontSerif,
+                  fontSize: "clamp(2rem, 4vw, 3rem)",
+                  lineHeight: 1.08,
+                }}
+              >
+                {t("academyTitle")}
+              </h2>
+              <p
+                style={{
+                  margin: 0,
+                  color: C.mutedFg,
+                  fontSize: 16,
+                  lineHeight: 1.7,
+                }}
+              >
+                {t("academyIntro")}
+              </p>
+            </div>
+
+            <div
+              style={{
+                display: "grid",
+                gap: 16,
+                gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+              }}
+            >
+              <div
+                style={{
+                  padding: 20,
+                  borderRadius: "24px 18px 28px 16px",
+                  background: "rgba(255,255,255,0.62)",
+                  border: `1px solid ${C.border}`,
+                  display: "grid",
+                  gap: 10,
+                }}
+              >
+                <span
+                  style={{ color: C.mutedFg, fontSize: 13, fontWeight: 700 }}
                 >
-                  {isExpanded ? <Minus size={20} /> : <Plus size={20} />}
-                </button>
+                  {t("academyLessonsExplored")}
+                </span>
+                <strong
+                  style={{
+                    color: C.fg,
+                    fontFamily: fontSerif,
+                    fontSize: 34,
+                    lineHeight: 1,
+                  }}
+                >
+                  {exploredAcademyLessons}/{academyLessonIds.length}
+                </strong>
+                <span style={{ color: C.mutedFg }}>
+                  {t("academyLessonSummary", {
+                    explored: exploredAcademyLessons,
+                    total: academyLessonIds.length,
+                  })}
+                </span>
               </div>
+              <div
+                style={{
+                  padding: 20,
+                  borderRadius: "18px 26px 18px 30px",
+                  background: "rgba(255,255,255,0.62)",
+                  border: `1px solid ${C.border}`,
+                  display: "grid",
+                  gap: 10,
+                }}
+              >
+                <span
+                  style={{ color: C.mutedFg, fontSize: 13, fontWeight: 700 }}
+                >
+                  {t("academyTracksExplored")}
+                </span>
+                <strong
+                  style={{
+                    color: C.fg,
+                    fontFamily: fontSerif,
+                    fontSize: 34,
+                    lineHeight: 1,
+                  }}
+                >
+                  {completedTracks}/{academyTrackCards.length}
+                </strong>
+                <span style={{ color: C.mutedFg }}>
+                  {t("academyTrackSummary", {
+                    completed: completedTracks,
+                    total: academyTrackCards.length,
+                  })}
+                </span>
+              </div>
+              <div
+                style={{
+                  padding: 20,
+                  borderRadius: "26px 18px 18px 30px",
+                  background:
+                    "linear-gradient(135deg, rgba(93,112,82,0.15), rgba(126,107,86,0.08))",
+                  border: `1px solid ${C.border}`,
+                  display: "grid",
+                  gap: 10,
+                }}
+              >
+                <span
+                  style={{ color: C.mutedFg, fontSize: 13, fontWeight: 700 }}
+                >
+                  {t("knowledgeScore", {
+                    explored: exploredAcademyTopics,
+                    total: academyTrackCards.length,
+                  })}
+                </span>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <Trophy size={22} color={C.primary} />
+                  <strong
+                    style={{
+                      color: C.fg,
+                      fontFamily: fontSerif,
+                      fontSize: 34,
+                      lineHeight: 1,
+                    }}
+                  >
+                    {progressPercent}%
+                  </strong>
+                </div>
+              </div>
+            </div>
+          </section>
 
-              {/* Expanded content */}
-              {isExpanded && (
-                <div style={{ borderTop: `1px solid ${C.border}`, padding: "24px 32px", background: C.card }}>
-                  <p style={{ fontSize: 17, color: C.fg, lineHeight: 1.7, marginBottom: 24 }}>
-                    {t(detailKey)}
-                  </p>
-
-                  {card.hasQuote && (
-                    <div
-                      style={{
-                        background: C.muted,
-                        padding: 24,
-                        borderRadius: 16,
-                        borderLeft: `4px solid ${C.primary}`,
-                        marginBottom: 32,
-                      }}
-                    >
-                      <p style={{ fontFamily: fontSerif, fontSize: 17, color: C.mutedFg, fontStyle: "italic", margin: 0 }}>
-                        {t(quoteKey)}
-                      </p>
+          <section style={{ display: "grid", gap: 16 }}>
+            <div style={{ display: "grid", gap: 6, maxWidth: 720 }}>
+              <strong style={{ color: C.fg, fontSize: 18 }}>
+                {t("academyTrackLabel")}
+              </strong>
+              <p style={{ margin: 0, color: C.mutedFg, lineHeight: 1.7 }}>
+                {t("academyTrackHint")}
+              </p>
+            </div>
+            <div
+              style={{
+                display: "grid",
+                gap: 16,
+                gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+              }}
+            >
+              {academyTrackCards.map((track, index) => {
+                const isComplete =
+                  track.lessons.length > 0 && track.completionPercent === 100;
+                return (
+                  <article
+                    key={track.topicKey}
+                    className="surface-card grain-panel"
+                    style={{
+                      padding: 22,
+                      borderRadius: getRightCardRadius(index),
+                      boxShadow: "0 8px 18px rgba(59, 52, 46, 0.08)",
+                      display: "grid",
+                      gap: 16,
+                      border: `1px solid ${C.border}`,
+                    }}
+                  >
+                    <div style={{ display: "grid", gap: 8 }}>
+                      <span
+                        style={{
+                          color: C.primary,
+                          fontWeight: 700,
+                          fontSize: 13,
+                        }}
+                      >
+                        {track.lessons[0]?.lawShortName || track.topicLabel}
+                      </span>
+                      <h3
+                        style={{
+                          margin: 0,
+                          color: C.fg,
+                          fontFamily: fontSerif,
+                          fontSize: 28,
+                          lineHeight: 1.1,
+                        }}
+                      >
+                        {track.topicLabel}
+                      </h3>
+                      <span style={{ color: C.mutedFg }}>
+                        {t("academyLessonProgress", {
+                          explored: track.exploredLessons,
+                          total: track.lessons.length,
+                        })}
+                      </span>
                     </div>
-                  )}
-
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
+                    <div style={{ display: "grid", gap: 10 }}>
+                      <div
+                        style={{
+                          height: 12,
+                          borderRadius: 9999,
+                          background: "rgba(126, 107, 86, 0.14)",
+                          overflow: "hidden",
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: `${track.completionPercent}%`,
+                            height: "100%",
+                            borderRadius: 9999,
+                            background:
+                              "linear-gradient(90deg, rgba(93,112,82,0.92), rgba(190,120,81,0.76))",
+                            transition: "width 180ms ease",
+                          }}
+                        />
+                      </div>
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          gap: 12,
+                          alignItems: "center",
+                          flexWrap: "wrap",
+                        }}
+                      >
+                        <span style={{ color: C.mutedFg, fontSize: 14 }}>
+                          {t("academyLessonCount", {
+                            count: track.lessons.length,
+                          })}
+                        </span>
+                        <span
+                          style={{
+                            color: isComplete ? C.primary : C.mutedFg,
+                            fontWeight: 700,
+                            fontSize: 14,
+                          }}
+                        >
+                          {isComplete
+                            ? t("academyTrackComplete")
+                            : `${track.completionPercent}%`}
+                        </span>
+                      </div>
+                    </div>
                     <button
-                      onClick={() => router.push(createLocalizedPath(locale, appRoutes.ask, `q=${encodeURIComponent(`Tell me more about: ${t(titleKey)}`)}`))}
+                      type="button"
+                      onClick={() =>
+                        router.push(
+                          createLocalizedPath(
+                            locale,
+                            `${appRoutes.rights}/${track.topicKey}`,
+                          ),
+                        )
+                      }
                       style={{
+                        border: "none",
+                        borderRadius: 9999,
                         background: C.primary,
                         color: C.primaryFg,
-                        padding: "12px 24px",
-                        borderRadius: 9999,
-                        fontSize: 14,
-                        fontWeight: 700,
-                        border: "none",
-                        cursor: "pointer",
-                        fontFamily: fontSans,
-                      }}
-                    >
-                      {t("askFollowUp")}
-                    </button>
-                    <button
-                      style={{
-                        background: "transparent",
-                        border: `2px solid ${C.border}`,
-                        color: C.fg,
-                        padding: "12px 24px",
-                        borderRadius: 9999,
-                        fontSize: 14,
+                        minHeight: 44,
+                        padding: "12px 18px",
                         fontWeight: 700,
                         cursor: "pointer",
-                        display: "flex",
+                        display: "inline-flex",
                         alignItems: "center",
+                        justifyContent: "center",
                         gap: 8,
-                        fontFamily: fontSans,
                       }}
                     >
-                      <Play size={16} /> {tChat("listenIn", { language: LOCALE_NAMES[locale] ?? locale })}
+                      {track.exploredLessons > 0
+                        ? t("academyContinueTrack")
+                        : t("academyOpenTrack")}
+                      <ArrowRight size={16} />
                     </button>
-                    <button
-                      style={{
-                        background: "transparent",
-                        border: `2px solid ${C.border}`,
-                        color: C.fg,
-                        padding: "12px 24px",
-                        borderRadius: 9999,
-                        fontSize: 14,
-                        fontWeight: 700,
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 8,
-                        fontFamily: fontSans,
-                      }}
-                    >
-                      <Share2 size={16} /> {t("share")}
-                    </button>
-                  </div>
-                </div>
-              )}
+                  </article>
+                );
+              })}
             </div>
-          );
-        })}
-      </section>
+          </section>
+        </section>
+      ) : null}
+
+      {!isLoading &&
+      !errorMessage &&
+      filteredFaqItems.length > 0 &&
+      activeView === "faqs" ? (
+        <section style={{ display: "grid", gap: 18 }}>
+          <section
+            className="hide-scrollbar"
+            style={{
+              display: "flex",
+              gap: 12,
+              overflowX: "auto",
+              paddingBottom: 4,
+            }}
+          >
+            <button
+              type="button"
+              onClick={() => setActiveFilter("all")}
+              aria-pressed={activeFilter === "all"}
+              style={{
+                whiteSpace: "nowrap",
+                minHeight: 44,
+                padding: "10px 18px",
+                borderRadius: 9999,
+                border: `1px solid ${activeFilter === "all" ? C.primary : C.border}`,
+                background:
+                  activeFilter === "all" ? C.primary : "rgba(255,255,255,0.5)",
+                color: activeFilter === "all" ? C.primaryFg : C.fg,
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
+            >
+              {t("allCategories")}
+            </button>
+            {faqTopicKeys.map((topicKey) => {
+              const key = getTopicLabelKey(topicKey);
+              const label = key
+                ? tc(key as Parameters<typeof tc>[0])
+                : (faqTopicNames.get(topicKey) ?? topicKey);
+              return (
+                <button
+                  key={topicKey}
+                  type="button"
+                  onClick={() => setActiveFilter(topicKey)}
+                  aria-pressed={activeFilter === topicKey}
+                  style={{
+                    whiteSpace: "nowrap",
+                    minHeight: 44,
+                    padding: "10px 18px",
+                    borderRadius: 9999,
+                    border: `1px solid ${activeFilter === topicKey ? C.primary : C.border}`,
+                    background:
+                      activeFilter === topicKey
+                        ? C.primary
+                        : "rgba(255,255,255,0.5)",
+                    color: activeFilter === topicKey ? C.primaryFg : C.fg,
+                    fontWeight: 700,
+                    cursor: "pointer",
+                  }}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </section>
+          <section className="rights-grid">
+            {filteredFaqItems.map((item, index) =>
+              renderLessonCard(item, index),
+            )}
+          </section>
+        </section>
+      ) : null}
     </main>
   );
 }

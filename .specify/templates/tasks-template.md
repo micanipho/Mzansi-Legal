@@ -8,7 +8,9 @@ description: "Task list template for feature implementation"
 **Input**: Design documents from `/specs/[###-feature-name]/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+**Tests**: Include verification tasks for every changed behavior. Legal-AI
+features MUST include benchmark and/or adversarial validation tasks; docs-only
+changes may omit executable tests when no runtime behavior changes.
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
@@ -66,8 +68,12 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T005 [P] Implement authentication/authorization framework
 - [ ] T006 [P] Setup API routing and middleware structure
 - [ ] T007 Create base models/entities that all stories depend on
-- [ ] T008 Configure error handling and logging infrastructure
-- [ ] T009 Setup environment configuration management
+- [ ] T008 Configure error handling, logging, and audit/retention infrastructure
+- [ ] T009 Setup environment configuration, secret handling, and compliance hooks
+
+If the feature changes legal-AI behavior or corpus scope, foundational tasks
+should also cover source authority rules, provenance/licensing metadata,
+escalation behavior, and POPIA constraints before story work starts.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -79,12 +85,13 @@ Examples of foundational tasks (adjust based on your project):
 
 **Independent Test**: [How to verify this story works on its own]
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+### Verification for User Story 1 (include for any behavior change) ⚠️
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+> **NOTE: Define the required verification FIRST and ensure it exercises the
+> intended behavior change before implementation**
 
-- [ ] T010 [P] [US1] Contract test for [endpoint] in tests/contract/test_[name].py
-- [ ] T011 [P] [US1] Integration test for [user journey] in tests/integration/test_[name].py
+- [ ] T010 [P] [US1] Contract, benchmark, or snapshot validation for [endpoint/behavior] in tests/contract/test_[name].py
+- [ ] T011 [P] [US1] Integration, accessibility, or adversarial validation for [user journey] in tests/integration/test_[name].py
 
 ### Implementation for User Story 1
 
@@ -105,10 +112,10 @@ Examples of foundational tasks (adjust based on your project):
 
 **Independent Test**: [How to verify this story works on its own]
 
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
+### Verification for User Story 2 (include for any behavior change) ⚠️
 
-- [ ] T018 [P] [US2] Contract test for [endpoint] in tests/contract/test_[name].py
-- [ ] T019 [P] [US2] Integration test for [user journey] in tests/integration/test_[name].py
+- [ ] T018 [P] [US2] Contract, benchmark, or snapshot validation for [endpoint/behavior] in tests/contract/test_[name].py
+- [ ] T019 [P] [US2] Integration, accessibility, or adversarial validation for [user journey] in tests/integration/test_[name].py
 
 ### Implementation for User Story 2
 
@@ -127,10 +134,10 @@ Examples of foundational tasks (adjust based on your project):
 
 **Independent Test**: [How to verify this story works on its own]
 
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
+### Verification for User Story 3 (include for any behavior change) ⚠️
 
-- [ ] T024 [P] [US3] Contract test for [endpoint] in tests/contract/test_[name].py
-- [ ] T025 [P] [US3] Integration test for [user journey] in tests/integration/test_[name].py
+- [ ] T024 [P] [US3] Contract, benchmark, or snapshot validation for [endpoint/behavior] in tests/contract/test_[name].py
+- [ ] T025 [P] [US3] Integration, accessibility, or adversarial validation for [user journey] in tests/integration/test_[name].py
 
 ### Implementation for User Story 3
 
@@ -153,7 +160,8 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] TXXX [P] Documentation updates in docs/
 - [ ] TXXX Code cleanup and refactoring
 - [ ] TXXX Performance optimization across all stories
-- [ ] TXXX [P] Additional unit tests (if requested) in tests/unit/
+- [ ] TXXX [P] Benchmark, adversarial, or regression validation updates in tests/unit/ or tests/integration/
+- [ ] TXXX [P] Source provenance/licensing/freshness documentation updates when corpus inputs change
 - [ ] TXXX Security hardening
 - [ ] TXXX Run quickstart.md validation
 
@@ -178,7 +186,7 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Within Each User Story
 
-- Tests (if included) MUST be written and FAIL before implementation
+- Verification for changed behavior MUST be planned before implementation
 - Models before services
 - Services before endpoints
 - Core implementation before integration
@@ -198,9 +206,9 @@ Examples of foundational tasks (adjust based on your project):
 ## Parallel Example: User Story 1
 
 ```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for [endpoint] in tests/contract/test_[name].py"
-Task: "Integration test for [user journey] in tests/integration/test_[name].py"
+# Launch all verification tasks for User Story 1 together:
+Task: "Contract, benchmark, or snapshot validation for [endpoint/behavior] in tests/contract/test_[name].py"
+Task: "Integration, accessibility, or adversarial validation for [user journey] in tests/integration/test_[name].py"
 
 # Launch all models for User Story 1 together:
 Task: "Create [Entity1] model in src/models/[entity1].py"
@@ -245,7 +253,7 @@ With multiple developers:
 - [P] tasks = different files, no dependencies
 - [Story] label maps task to specific user story for traceability
 - Each user story should be independently completable and testable
-- Verify tests fail before implementing
+- Verify the planned validation actually covers the intended behavior change
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence

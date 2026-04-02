@@ -52,8 +52,9 @@ namespace backend.Web.Host.Startup
 
             services.AddSignalR();
 
-            // Named HttpClient for OpenAI APIs (embeddings + chat completions).
-            // EmbeddingAppService and RagAppService both resolve this client by name via IHttpClientFactory.
+            // Named HttpClient for OpenAI APIs (embeddings + chat completions + language detection/translation).
+            // EmbeddingAppService, RagAppService, and LanguageAppService all resolve this client by name
+            // via IHttpClientFactory. LanguageAppService is auto-registered by ABP as an ApplicationService.
             services.AddHttpClient("OpenAI", client =>
             {
                 client.BaseAddress = new Uri(_appConfiguration["OpenAI:BaseUrl"]);

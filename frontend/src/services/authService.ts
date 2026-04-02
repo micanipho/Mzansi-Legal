@@ -1,10 +1,66 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:21021";
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE ??
+  process.env.NEXT_PUBLIC_BASE_URL ??
+  "http://localhost:21021";
+const LOCAL_API_BASE_CANDIDATES = ["http://localhost:21021", "http://localhost:5000"];
 
 // ABP Zero multi-tenant header — ID 1 is the default tenant seeded on first run
 const ABP_HEADERS = {
   "Content-Type": "application/json",
   "Abp-TenantId": "1",
 };
+
+function isLocalBrowserSession(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return (
+    window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1"
+  );
+}
+
+function getApiBaseCandidates(): string[] {
+  if (!isLocalBrowserSession()) {
+    return [API_BASE];
+  }
+
+  const candidates = [...LOCAL_API_BASE_CANDIDATES];
+
+  if (!candidates.includes(API_BASE)) {
+    candidates.push(API_BASE);
+  }
+
+  for (const localBase of LOCAL_API_BASE_CANDIDATES) {
+    if (!candidates.includes(localBase)) {
+      candidates.push(localBase);
+    }
+  }
+
+  return candidates;
+}
+
+async function fetchWithFallback(
+  path: string,
+  init: RequestInit
+): Promise<Response> {
+  let lastNetworkError: TypeError | null = null;
+
+  for (const apiBase of getApiBaseCandidates()) {
+    try {
+      return await fetch(`${apiBase}${path}`, init);
+    } catch (error) {
+      if (!(error instanceof TypeError)) {
+        throw error;
+      }
+
+      lastNetworkError = error;
+    }
+  }
+
+  throw lastNetworkError ?? new TypeError("Failed to fetch");
+}
 
 // ─── Request / Response Types ────────────────────────────────────────────────
 
@@ -80,7 +136,7 @@ export function decodeJwtPayload(token: string): JwtPayload {
 export async function signIn(
   credentials: SignInCredentials
 ): Promise<AuthenticateResultModel> {
-  const res = await fetch(`${API_BASE}/api/TokenAuth/Authenticate`, {
+  const res = await fetchWithFallback("/api/TokenAuth/Authenticate", {
     method: "POST",
     headers: ABP_HEADERS,
     body: JSON.stringify(credentials),
@@ -110,7 +166,7 @@ export async function register(
   const { preferredLanguage: _omit, ...payload } = data;
   void _omit;
 
-  const res = await fetch(`${API_BASE}/api/services/app/Account/Register`, {
+  const res = await fetchWithFallback("/api/services/app/Account/Register", {
     method: "POST",
     headers: ABP_HEADERS,
     body: JSON.stringify(payload),

@@ -17,21 +17,34 @@ namespace backend.Web.Host.Startup
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<RagStartupService> _logger;
+        private readonly IHostApplicationLifetime _appLifetime;
 
         /// <summary>Initialises the startup service with the DI service provider and logger.</summary>
-        public RagStartupService(IServiceProvider serviceProvider, ILogger<RagStartupService> logger)
+        public RagStartupService(
+            IServiceProvider serviceProvider,
+            ILogger<RagStartupService> logger,
+            IHostApplicationLifetime appLifetime)
         {
             _serviceProvider = serviceProvider;
             _logger = logger;
+            _appLifetime = appLifetime;
         }
 
         /// <summary>
-        /// Resolves <see cref="IRagAppService"/> from a scoped service provider and calls
+        /// Waits for the application to fully start (ensuring ABP/Windsor has completed its
+        /// assembly scanning and component registration via <c>app.UseAbp()</c>) before
+        /// resolving <see cref="IRagAppService"/> and calling
         /// <see cref="IRagAppService.InitialiseAsync"/> to populate the in-memory embedding store.
-        /// Logs a warning when the store is empty after initialisation (ETL pipeline not yet run).
         /// </summary>
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            // ABP registers Windsor components during app.UseAbp() in Configure(), which runs
+            // as part of GenericWebHostService startup. Waiting for ApplicationStarted guarantees
+            // Windsor is fully initialised before we try to resolve IRagAppService.
+            var appStarted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            _appLifetime.ApplicationStarted.Register(() => appStarted.TrySetResult());
+            await appStarted.Task.WaitAsync(stoppingToken);
+
             try
             {
                 using (var scope = _serviceProvider.CreateScope())

@@ -4,13 +4,14 @@ import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useLocale } from "next-intl";
 import { useAuth } from "./useAuth";
+import type { AuthUser } from "@/components/providers/AuthProvider";
 import { appRoutes, createLocalizedPath } from "@/i18n/routing";
 
 export interface RouteGuardReturn {
   isAuthenticated: boolean;
   isAdmin: boolean;
   isLoading: boolean;
-  user: any;
+  user: AuthUser | null;
 }
 
 /**

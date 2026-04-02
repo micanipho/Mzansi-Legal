@@ -23,6 +23,7 @@ const ITEM_STYLE = { marginBottom: 12 };
 
 export default function RegisterForm() {
   const t = useTranslations("auth");
+  const tCommon = useTranslations("common");
   const { register } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -55,7 +56,9 @@ export default function RegisterForm() {
       await register(data);
     } catch (err) {
       const e = err as Error & { status?: number };
-      if (e.status === 400) {
+      if (e.message?.includes("Failed to fetch")) {
+        setError(tCommon("error"));
+      } else if (e.status === 400) {
         setError(t("emailTaken"));
       } else {
         setError(e.message || t("invalidCredentials"));

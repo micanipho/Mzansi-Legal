@@ -2,6 +2,7 @@
 using Abp.Localization;
 using Abp.MultiTenancy;
 using Abp.Net.Mail;
+using backend.Configuration;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 
@@ -31,6 +32,9 @@ public class DefaultSettingsCreator
 
         // Languages
         AddSettingIfNotExists(LocalizationSettingNames.DefaultLanguage, "en", tenantId);
+
+        // Rights academy
+        AddSettingIfNotExists(AppSettingNames.RightsAcademyCatalog, RightsAcademySeedData.GetCatalogJson(), tenantId);
     }
 
     private void AddSettingIfNotExists(string name, string value, int? tenantId = null)

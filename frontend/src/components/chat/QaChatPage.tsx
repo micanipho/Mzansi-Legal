@@ -2,7 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useEffectEvent, useRef } from "react";
 import { C, fontSans } from "@/styles/theme";
 import { useChatState, useChatAction } from "@/providers/chat-provider";
 import ChatInput from "./ChatInput";
@@ -13,16 +13,63 @@ export default function QaChatPage() {
   const t = useTranslations("chat");
   const searchParams = useSearchParams();
   const initialQuestion = searchParams.get("q") ?? "";
+  const requestedConversationId = searchParams.get("conversationId");
+  const lastAutoSentQuestionRef = useRef<string | null>(null);
+  const lastLoadedConversationRef = useRef<string | null>(null);
 
-  const { messages, isPending: isLoading, error } = useChatState();
-  const { sendMessage } = useChatAction();
+  const {
+    messages,
+    isPending: isLoading,
+    error,
+    conversationId,
+  } = useChatState();
+  const { sendMessage, loadConversation } = useChatAction();
+  const autoSendQuestion = useEffectEvent((question: string) => {
+    void sendMessage(question, locale);
+  });
+  const hydrateConversation = useEffectEvent((nextConversationId: string) => {
+    void loadConversation(nextConversationId);
+  });
 
   useEffect(() => {
-    if (initialQuestion) {
-      void sendMessage(initialQuestion, locale);
+    const trimmedConversationId = requestedConversationId?.trim();
+
+    if (!trimmedConversationId) {
+      return;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+
+    if (
+      lastLoadedConversationRef.current === trimmedConversationId &&
+      conversationId === trimmedConversationId
+    ) {
+      return;
+    }
+
+    lastLoadedConversationRef.current = trimmedConversationId;
+    hydrateConversation(trimmedConversationId);
+  }, [conversationId, requestedConversationId]);
+
+  useEffect(() => {
+    const trimmedQuestion = initialQuestion.trim();
+
+    if (!trimmedQuestion) {
+      return;
+    }
+
+    if (
+      requestedConversationId?.trim() &&
+      conversationId !== requestedConversationId.trim()
+    ) {
+      return;
+    }
+
+    if (lastAutoSentQuestionRef.current === trimmedQuestion) {
+      return;
+    }
+
+    lastAutoSentQuestionRef.current = trimmedQuestion;
+    autoSendQuestion(trimmedQuestion);
+  }, [conversationId, initialQuestion, requestedConversationId]);
 
   const handleSend = (text: string) => {
     // Allow guests to chat, no redirect
@@ -33,7 +80,7 @@ export default function QaChatPage() {
     <main
       className="page-shell page-shell--narrow"
       style={{
-        paddingBottom: 128,
+        paddingBottom: 176,
         display: "flex",
         flexDirection: "column",
         gap: 24,
@@ -55,12 +102,12 @@ export default function QaChatPage() {
           bottom: 0,
           left: 0,
           right: 0,
-          padding: 16,
+          padding: "12px 16px calc(12px + env(safe-area-inset-bottom, 0px))",
           background: `linear-gradient(to top, ${C.bg} 60%, transparent)`,
           zIndex: 40,
         }}
       >
-        <div style={{ maxWidth: 896, margin: "0 auto" }}>
+        <div style={{ maxWidth: 896, margin: "0 auto", width: "100%" }}>
           <ChatInput
             onSend={handleSend}
             disabled={isLoading}

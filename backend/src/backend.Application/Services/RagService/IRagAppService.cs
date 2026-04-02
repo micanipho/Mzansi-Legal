@@ -1,4 +1,6 @@
+using Abp.Application.Services;
 using backend.Services.RagService.DTO;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -6,19 +8,25 @@ namespace backend.Services.RagService;
 
 /// <summary>
 /// Orchestrates retrieval-augmented generation (RAG) for South African legal Q&amp;A.
-/// Loads legislation embeddings at startup, embeds questions, performs cosine similarity
-/// retrieval, calls the LLM, and persists the resulting Q&amp;A chain.
+/// Loads legislation embeddings at startup, plans document-aware retrieval from user intent,
+/// calls the LLM for grounded answers or clarification questions, and persists grounded answers.
 /// </summary>
-public interface IRagAppService
+public interface IRagAppService : IApplicationService
 {
     /// <summary>
-    /// Accepts a user's natural-language legal question and returns a grounded, cited answer.
-    /// Performs in-memory cosine similarity search, calls GPT-4o, and persists the exchange.
-    /// Returns <see cref="RagAnswerResult.IsInsufficientInformation"/> = <c>true</c>
-    /// when no chunk scores ≥ 0.7 — no LLM call or DB write occurs in that case.
+    /// Accepts a user's natural-language legal question and returns a structured response.
+    /// The pipeline detects whether the user wrote in English, isiZulu, Sesotho, or Afrikaans,
+    /// translates non-English input to English for retrieval, and then instructs the answer model
+    /// to respond in the user's language while keeping legal source references in English.
+    /// The answer may be direct, cautious, clarification-seeking, or insufficient depending
+    /// on how strongly the indexed legislation supports the question, whether official guidance
+    /// supplements the law, and whether urgent risk indicators require a safer posture.
     /// </summary>
-    /// <param name="request">The user's question. <see cref="AskQuestionRequest.QuestionText"/> must not be null or whitespace.</param>
-    /// <returns>A <see cref="RagAnswerResult"/> with the answer text, citations, and chunk IDs.</returns>
+    /// <param name="request">
+    /// The user's question. <see cref="AskQuestionRequest.QuestionText"/> must not be null or whitespace.
+    /// <see cref="AskQuestionRequest.ConversationId"/> may be supplied to continue an existing conversation owned by the current user.
+    /// </param>
+    /// <returns>A <see cref="RagAnswerResult"/> with the answer text, citations, and persistence identifiers.</returns>
     Task<RagAnswerResult> AskAsync(AskQuestionRequest request);
 
     /// <summary>
@@ -27,6 +35,11 @@ public interface IRagAppService
     /// and the total number of questions in that conversation.
     /// </summary>
     Task<ConversationsListDto> GetConversationsAsync();
+
+    /// <summary>
+    /// Returns the full stored thread for one authenticated user's conversation.
+    /// </summary>
+    Task<ConversationDetailDto> GetConversationAsync(Guid conversationId);
 
     /// <summary>
     /// Loads all <see cref="backend.Domains.LegalDocuments.DocumentChunk"/> embeddings into memory.

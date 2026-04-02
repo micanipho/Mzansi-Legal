@@ -1,14 +1,23 @@
 "use client";
 import { createContext } from "react";
-import type { RagCitationDto } from "@/services/qa.service";
+import type {
+  RagAnswerMode,
+  RagCitationDto,
+  RagConfidenceBand,
+} from "@/services/qa.service";
 
 export interface IChatMessage {
   id: string;
   type: "user" | "bot";
   text: string;
   status: "sending" | "sent" | "error";
+  detectedLanguageCode?: string;
   citations?: RagCitationDto[];
   isInsufficientInformation?: boolean;
+  answerMode?: RagAnswerMode;
+  confidenceBand?: RagConfidenceBand;
+  clarificationQuestion?: string | null;
+  requiresUrgentAttention?: boolean;
 }
 
 export interface IChatStateContext {
@@ -17,10 +26,12 @@ export interface IChatStateContext {
   isError: boolean;
   messages: IChatMessage[];
   error: string | null;
+  conversationId: string | null;
 }
 
 export interface IChatActionContext {
   sendMessage: (text: string, locale?: string) => void;
+  loadConversation: (conversationId: string) => void;
   clearMessages: () => void;
 }
 
@@ -30,10 +41,12 @@ export const INITIAL_STATE: IChatStateContext = {
   isError: false,
   messages: [],
   error: null,
+  conversationId: null,
 };
 
 export const ChatStateContext = createContext<IChatStateContext>(INITIAL_STATE);
 export const ChatActionContext = createContext<IChatActionContext>({
   sendMessage: () => {},
+  loadConversation: () => {},
   clearMessages: () => {},
 });
