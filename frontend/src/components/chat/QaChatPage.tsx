@@ -45,7 +45,7 @@ export default function QaChatPage() {
     <main
       className="page-shell page-shell--narrow"
       style={{
-        paddingBottom: 128,
+        paddingBottom: 176,
         display: "flex",
         flexDirection: "column",
         gap: 24,
@@ -67,12 +67,12 @@ export default function QaChatPage() {
           bottom: 0,
           left: 0,
           right: 0,
-          padding: 16,
+          padding: "12px 16px calc(12px + env(safe-area-inset-bottom, 0px))",
           background: `linear-gradient(to top, ${C.bg} 60%, transparent)`,
           zIndex: 40,
         }}
       >
-        <div style={{ maxWidth: 896, margin: "0 auto" }}>
+        <div style={{ maxWidth: 896, margin: "0 auto", width: "100%" }}>
           <ChatInput
             onSend={handleSend}
             disabled={isLoading}

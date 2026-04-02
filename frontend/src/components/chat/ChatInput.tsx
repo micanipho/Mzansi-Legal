@@ -10,7 +10,11 @@ interface ChatInputProps {
   placeholder?: string;
 }
 
-export default function ChatInput({ onSend, disabled = false, placeholder = "Ask a legal question…" }: ChatInputProps) {
+export default function ChatInput({
+  onSend,
+  disabled = false,
+  placeholder = "Ask a legal question…",
+}: ChatInputProps) {
   const [value, setValue] = useState("");
 
   const handleSend = () => {
@@ -29,9 +33,10 @@ export default function ChatInput({ onSend, disabled = false, placeholder = "Ask
         alignItems: "center",
         background: C.card,
         border: `2px solid ${C.border}`,
-        borderRadius: 9999,
+        borderRadius: 28,
         padding: 8,
         boxShadow: shadowOrganic,
+        width: "100%",
       }}
     >
       <input
@@ -45,14 +50,15 @@ export default function ChatInput({ onSend, disabled = false, placeholder = "Ask
         disabled={disabled}
         style={{
           flex: 1,
+          minWidth: 0,
           background: "transparent",
           border: "none",
           outline: "none",
-          padding: "12px 24px",
+          padding: "14px 18px",
           fontSize: 16,
           fontFamily: fontSans,
           color: C.fg,
-          paddingRight: 56,
+          paddingRight: 64,
         }}
         aria-label="Question input"
       />
@@ -62,8 +68,8 @@ export default function ChatInput({ onSend, disabled = false, placeholder = "Ask
         style={{
           position: "absolute",
           right: 8,
-          width: 40,
-          height: 40,
+          width: 44,
+          height: 44,
           borderRadius: 9999,
           background: C.primary,
           border: "none",

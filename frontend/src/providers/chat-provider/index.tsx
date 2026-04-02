@@ -1,5 +1,6 @@
 "use client";
 import { useContext, useReducer } from "react";
+import { getUserFacingErrorMessage } from "@/lib/userFacingErrors";
 import { askRagQuestion } from "@/services/qa.service";
 import { ChatReducer } from "./reducer";
 import { INITIAL_STATE, ChatStateContext, ChatActionContext } from "./context";
@@ -26,8 +27,8 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
       const result = await askRagQuestion({ questionText: trimmed }, locale);
 
       // Validate the result structure
-      if (!result || typeof result !== 'object') {
-        throw new Error('Invalid response from server');
+      if (!result || typeof result !== "object") {
+        throw new Error("Invalid response from server");
       }
 
       const botMsg: IChatMessage = {
@@ -47,7 +48,10 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
       dispatch({ type: ChatStateEnums.CHAT_SEND_SUCCESS, botMsg });
     } catch (err) {
       console.error("Chat error:", err);
-      const error = err instanceof Error ? err.message : "An unexpected error occurred.";
+      const error = getUserFacingErrorMessage(
+        err,
+        "We couldn't send that question just now. Please try again.",
+      );
       const errorMsg: IChatMessage = {
         id: crypto.randomUUID(),
         type: "bot",
@@ -73,12 +77,14 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
 
 export const useChatState = () => {
   const context = useContext(ChatStateContext);
-  if (!context) throw new Error("useChatState must be used within ChatProvider");
+  if (!context)
+    throw new Error("useChatState must be used within ChatProvider");
   return context;
 };
 
 export const useChatAction = () => {
   const context = useContext(ChatActionContext);
-  if (!context) throw new Error("useChatAction must be used within ChatProvider");
+  if (!context)
+    throw new Error("useChatAction must be used within ChatProvider");
   return context;
 };

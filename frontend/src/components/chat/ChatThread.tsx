@@ -12,7 +12,12 @@ interface ChatThreadProps {
   emptyStateText?: string;
 }
 
-export default function ChatThread({ messages, isLoading, error, emptyStateText }: ChatThreadProps) {
+export default function ChatThread({
+  messages,
+  isLoading,
+  error,
+  emptyStateText,
+}: ChatThreadProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -20,9 +25,19 @@ export default function ChatThread({ messages, isLoading, error, emptyStateText 
   }, [messages, isLoading]);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
       {messages.length === 0 && !isLoading && (
-        <div style={{ textAlign: "center", color: C.mutedFg, marginTop: 48 }}>
+        <div
+          className="surface-card grain-panel"
+          style={{
+            textAlign: "center",
+            color: C.mutedFg,
+            marginTop: 24,
+            padding: "28px 20px",
+            borderRadius: R.o2,
+            boxShadow: shadowOrganic,
+          }}
+        >
           <p style={{ fontSize: 16, fontFamily: fontSans }}>
             {emptyStateText ?? "Ask a legal question to get started."}
           </p>
@@ -70,8 +85,8 @@ export default function ChatThread({ messages, isLoading, error, emptyStateText 
           style={{
             background: "rgba(254,226,226,0.4)",
             border: "1px solid #FCA5A5",
-            borderRadius: 12,
-            padding: "12px 16px",
+            borderRadius: 18,
+            padding: "14px 16px",
             fontSize: 14,
             color: "#DC2626",
             fontFamily: fontSans,
