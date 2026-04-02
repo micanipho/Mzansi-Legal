@@ -37,7 +37,8 @@ namespace backend.Web.Host.Controllers
 
         /// <summary>
         /// Returns the authenticated user's conversation history, newest first.
-        /// Each item includes the first question and total question count.
+        /// Each item includes the conversation ID that clients can send back on follow-up questions,
+        /// along with the first question and total question count.
         /// </summary>
         [HttpGet("conversations")]
         [AbpAuthorize]

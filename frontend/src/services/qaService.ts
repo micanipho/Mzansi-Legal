@@ -3,6 +3,58 @@ const API_BASE =
   process.env.NEXT_PUBLIC_BASE_URL ??
   "http://localhost:21021";
 const ABP_TENANT_HEADER = { "Abp-TenantId": "1" };
+const LOCAL_API_BASE_CANDIDATES = ["http://localhost:21021", "http://localhost:5000"];
+
+function getCookie(name: string): string | null {
+  if (typeof document === "undefined") return null;
+  const prefix = `${name}=`;
+  for (const part of document.cookie.split(";")) {
+    const trimmed = part.trim();
+    if (trimmed.startsWith(prefix)) {
+      return decodeURIComponent(trimmed.slice(prefix.length));
+    }
+  }
+  return null;
+}
+
+function isLocalBrowserSession(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+}
+
+function getApiBaseCandidates(): string[] {
+  if (!isLocalBrowserSession()) {
+    return [API_BASE];
+  }
+
+  const candidates = [...LOCAL_API_BASE_CANDIDATES];
+  if (!candidates.includes(API_BASE)) {
+    candidates.push(API_BASE);
+  }
+
+  return candidates;
+}
+
+async function fetchWithFallback(path: string, init: RequestInit): Promise<Response> {
+  let lastNetworkError: TypeError | null = null;
+
+  for (const apiBase of getApiBaseCandidates()) {
+    try {
+      return await fetch(`${apiBase}${path}`, init);
+    } catch (error) {
+      if (!(error instanceof TypeError)) {
+        throw error;
+      }
+
+      lastNetworkError = error;
+    }
+  }
+
+  throw lastNetworkError ?? new TypeError("Failed to fetch");
+}
 
 export interface CitationDto {
   actName: string;
@@ -87,22 +139,36 @@ export interface ConversationsListResponse {
 }
 
 export async function getConversations(token?: string): Promise<ConversationsListResponse> {
-  const res = await fetch(`${API_BASE}/api/app/qa/conversations`, {
+  const authToken = token ?? getCookie("ml_token");
+  const res = await fetchWithFallback("/api/app/qa/conversations", {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
       ...ABP_TENANT_HEADER,
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
     },
   });
 
-  const json = await res.json();
+  const json = await res.json().catch(() => ({}));
 
   if (!res.ok) {
     throw new Error(json?.error?.message || "Failed to fetch conversations");
   }
 
-  return json.result as ConversationsListResponse;
+  const result = json.result as ConversationsListResponse;
+
+  return {
+    items: Array.isArray(result?.items)
+      ? result.items.map((item) => ({
+          conversationId: item.conversationId,
+          firstQuestion: item.firstQuestion,
+          questionCount: item.questionCount,
+          startedAt: item.startedAt,
+          locale: item.locale ?? (item as ConversationSummary & { language?: string }).language ?? "en",
+        }))
+      : [],
+    totalCount: result?.totalCount ?? 0,
+  };
 }
 
 export async function textToSpeech(

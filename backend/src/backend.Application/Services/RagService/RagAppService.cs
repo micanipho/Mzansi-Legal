@@ -135,12 +135,12 @@ public class RagAppService : ApplicationService, IRagAppService
         var userId = AbpSession.UserId
             ?? throw new Abp.Authorization.AbpAuthorizationException("You must be signed in to view conversation history.");
 
-        var conversations = await _conversationRepository
-            .GetAll()
-            .Include(c => c.Questions)
-            .Where(c => c.UserId == userId)
-            .OrderByDescending(c => c.StartedAt)
-            .ToListAsync();
+        var conversations = await ListConversationsAsync(
+            _conversationRepository
+                .GetAll()
+                .Include(c => c.Questions)
+                .Where(c => c.UserId == userId)
+                .OrderByDescending(c => c.StartedAt));
 
         var items = conversations.Select(conversation => new ConversationSummaryDto
         {
@@ -197,6 +197,7 @@ public class RagAppService : ApplicationService, IRagAppService
         {
             await PersistQuestionIfAuthenticatedAsync(
                 userId,
+                request.ConversationId,
                 request.QuestionText,
                 translatedText,
                 detectedLanguage);
@@ -219,6 +220,7 @@ public class RagAppService : ApplicationService, IRagAppService
 
             await PersistQuestionIfAuthenticatedAsync(
                 userId,
+                request.ConversationId,
                 request.QuestionText,
                 translatedText,
                 detectedLanguage);
@@ -238,18 +240,21 @@ public class RagAppService : ApplicationService, IRagAppService
             retrievalDecision);
 
         Guid? answerId = null;
+        Guid? conversationId = null;
         if (userId.HasValue)
         {
-            var questionId = await PersistQuestionAsync(
+            var persistedQuestion = await PersistQuestionAsync(
                 userId.Value,
+                request.ConversationId,
                 request.QuestionText,
                 translatedText,
                 detectedLanguage);
+            conversationId = persistedQuestion.ConversationId;
 
             if (ShouldPersistAnswer(retrievalDecision.AnswerMode))
             {
                 answerId = await PersistAnswerAsync(
-                    questionId,
+                    persistedQuestion.QuestionId,
                     answerText,
                     detectedLanguage,
                     retrievalDecision.SelectedChunks);
@@ -263,6 +268,7 @@ public class RagAppService : ApplicationService, IRagAppService
             Citations = CreateCitations(retrievalDecision.SelectedChunks),
             ChunkIds = retrievalDecision.SelectedChunks.Select(chunk => chunk.ChunkId).ToList(),
             AnswerId = answerId,
+            ConversationId = conversationId,
             DetectedLanguageCode = detectedLanguageCode,
             AnswerMode = retrievalDecision.AnswerMode,
             ConfidenceBand = retrievalDecision.ConfidenceBand,
@@ -275,6 +281,7 @@ public class RagAppService : ApplicationService, IRagAppService
 
     private async Task PersistQuestionIfAuthenticatedAsync(
         long? userId,
+        Guid? conversationId,
         string originalText,
         string translatedText,
         Language language)
@@ -284,7 +291,7 @@ public class RagAppService : ApplicationService, IRagAppService
             return;
         }
 
-        await PersistQuestionAsync(userId.Value, originalText, translatedText, language);
+        await PersistQuestionAsync(userId.Value, conversationId, originalText, translatedText, language);
     }
 
     private async Task EnsureIndexLoadedAsync()
@@ -410,31 +417,38 @@ public class RagAppService : ApplicationService, IRagAppService
                ?? throw new InvalidOperationException("OpenAI chat response contained no content.");
     }
 
-    protected virtual async Task<Guid> PersistQuestionAsync(
+    protected virtual async Task<PersistedQuestionResult> PersistQuestionAsync(
         long userId,
+        Guid? conversationId,
         string originalText,
         string translatedText,
         Language language)
     {
-        var conversation = new Conversation
+        var resolvedConversationId = conversationId.HasValue
+            ? (await _conversationRepository.FirstOrDefaultAsync(
+                conversation => conversation.Id == conversationId.Value && conversation.UserId == userId))?.Id
+            : null;
+
+        if (!resolvedConversationId.HasValue)
         {
-            UserId = userId,
-            Language = language,
-            InputMethod = InputMethod.Text,
-            StartedAt = DateTime.UtcNow,
-            IsPublicFaq = false
-        };
-        var conversationId = await _conversationRepository.InsertAndGetIdAsync(conversation);
+            resolvedConversationId = await CreateConversationAsync(userId, language);
+        }
 
         var question = new Question
         {
-            ConversationId = conversationId,
+            ConversationId = resolvedConversationId.Value,
             OriginalText = originalText,
             TranslatedText = translatedText,
             Language = language,
-            InputMethod = InputMethod.Text
+            InputMethod = InputMethod.Text,
         };
-        return await _questionRepository.InsertAndGetIdAsync(question);
+        var questionId = await _questionRepository.InsertAndGetIdAsync(question);
+        return new PersistedQuestionResult(questionId, resolvedConversationId.Value);
+    }
+
+    protected virtual Task<List<Conversation>> ListConversationsAsync(IOrderedQueryable<Conversation> query)
+    {
+        return query.ToListAsync();
     }
 
     protected virtual async Task<Guid> PersistAnswerAsync(
@@ -464,6 +478,20 @@ public class RagAppService : ApplicationService, IRagAppService
         }
 
         return answerId;
+    }
+
+    private async Task<Guid> CreateConversationAsync(long userId, Language language)
+    {
+        var conversation = new Conversation
+        {
+            UserId = userId,
+            Language = language,
+            InputMethod = InputMethod.Text,
+            StartedAt = DateTime.UtcNow,
+            IsPublicFaq = false
+        };
+
+        return await _conversationRepository.InsertAndGetIdAsync(conversation);
     }
 
     private static string SanitizeClarificationQuestion(string generatedQuestion, string fallbackQuestion)
@@ -530,4 +558,6 @@ public class RagAppService : ApplicationService, IRagAppService
 
     private sealed record OpenAiChatChoice(
         [property: JsonPropertyName("message")] OpenAiChatMessage Message);
+
+    protected sealed record PersistedQuestionResult(Guid QuestionId, Guid ConversationId);
 }

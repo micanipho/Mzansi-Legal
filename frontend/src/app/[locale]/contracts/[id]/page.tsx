@@ -1,5 +1,6 @@
 "use client";
 
+import { Skeleton } from "antd";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
@@ -24,14 +25,22 @@ import {
   getContractVerdict,
   groupFlags,
 } from "@/components/contracts/contractData";
+import RetryNotice from "@/components/feedback/RetryNotice";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { askContractQuestion } from "@/services/contract.service";
+import { getUserFacingErrorMessage } from "@/lib/userFacingErrors";
 import { appRoutes, createLocalizedPath } from "@/i18n/routing";
 import { C, fontSans, fontSerif, R, shadowOrganic } from "@/styles/theme";
 import ContractDetailGuard from "./ContractDetailGuard";
 
 type FollowUpMessage =
   | { id: string; role: "user"; text: string }
-  | { id: string; role: "assistant"; text: string; answer: ContractFollowUpAnswer };
+  | {
+      id: string;
+      role: "assistant";
+      text: string;
+      answer: ContractFollowUpAnswer;
+    };
 
 function getVerdictTone(verdict: "good" | "review" | "high-risk") {
   switch (verdict) {
@@ -58,7 +67,8 @@ function getVerdictTone(verdict: "good" | "review" | "high-risk") {
 
 function getScoreRing(score: number) {
   const clamped = Math.max(0, Math.min(score, 100));
-  const color = clamped >= 75 ? C.primary : clamped >= 55 ? C.secondary : C.destructive;
+  const color =
+    clamped >= 75 ? C.primary : clamped >= 55 ? C.secondary : C.destructive;
 
   return {
     color,
@@ -80,7 +90,7 @@ function formatContractTime(value: string, locale: string): string {
 
 function getChatModeLabel(
   answerMode: ContractFollowUpAnswer["answerMode"],
-  t: ReturnType<typeof useTranslations>
+  t: ReturnType<typeof useTranslations>,
 ) {
   switch (answerMode) {
     case "direct":
@@ -92,7 +102,10 @@ function getChatModeLabel(
   }
 }
 
-function getConfidenceLabel(confidenceBand: ContractFollowUpAnswer["confidenceBand"], tChat: ReturnType<typeof useTranslations>) {
+function getConfidenceLabel(
+  confidenceBand: ContractFollowUpAnswer["confidenceBand"],
+  tChat: ReturnType<typeof useTranslations>,
+) {
   switch (confidenceBand) {
     case "high":
       return tChat("confidenceHigh");
@@ -103,13 +116,19 @@ function getConfidenceLabel(confidenceBand: ContractFollowUpAnswer["confidenceBa
   }
 }
 
-function getAuthorityLabel(authorityType: string, tChat: ReturnType<typeof useTranslations>) {
+function getAuthorityLabel(
+  authorityType: string,
+  tChat: ReturnType<typeof useTranslations>,
+) {
   return authorityType === "officialGuidance"
     ? tChat("authorityOfficialGuidance")
     : tChat("authorityBindingLaw");
 }
 
-function getSourceRoleLabel(sourceRole: string, tChat: ReturnType<typeof useTranslations>) {
+function getSourceRoleLabel(
+  sourceRole: string,
+  tChat: ReturnType<typeof useTranslations>,
+) {
   return sourceRole === "supporting"
     ? tChat("sourceRoleSupporting")
     : tChat("sourceRolePrimary");
@@ -120,10 +139,13 @@ function ContractDetailContent() {
   const locale = useLocale();
   const t = useTranslations("contracts");
   const tChat = useTranslations("chat");
+  const isOnline = useOnlineStatus();
   const { selected, isPending, isError, errorMessage } = useContractsState();
   const { fetchById } = useContractsAction();
   const [followUpQuestion, setFollowUpQuestion] = useState("");
-  const [followUpMessages, setFollowUpMessages] = useState<FollowUpMessage[]>([]);
+  const [followUpMessages, setFollowUpMessages] = useState<FollowUpMessage[]>(
+    [],
+  );
   const [isFollowUpPending, setIsFollowUpPending] = useState(false);
   const [followUpError, setFollowUpError] = useState<string | null>(null);
 
@@ -138,29 +160,62 @@ function ContractDetailContent() {
 
   if (isPending && !selected) {
     return (
-      <main className="page-shell page-shell--narrow" style={{ display: "grid", gap: 16 }}>
-        <p style={{ margin: 0, color: C.mutedFg, fontFamily: fontSans }}>{t("loading")}</p>
+      <main
+        className="page-shell page-shell--narrow"
+        style={{ display: "grid", gap: 20 }}
+      >
+        <section
+          className="surface-card grain-panel"
+          style={{ padding: 24, borderRadius: 28, boxShadow: shadowOrganic }}
+        >
+          <Skeleton active paragraph={{ rows: 3 }} title={{ width: "45%" }} />
+        </section>
+        <section className="responsive-three-grid">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <article
+              key={index}
+              className="surface-card grain-panel"
+              style={{
+                padding: 24,
+                borderRadius: R.o2,
+                boxShadow: shadowOrganic,
+              }}
+            >
+              <Skeleton
+                active
+                paragraph={{ rows: 1 }}
+                title={{ width: "35%" }}
+              />
+            </article>
+          ))}
+        </section>
       </main>
     );
   }
 
   if (isError || !selected) {
     return (
-      <main className="page-shell page-shell--narrow" style={{ display: "grid", gap: 16 }}>
+      <main
+        className="page-shell page-shell--narrow"
+        style={{ display: "grid", gap: 16 }}
+      >
         <Link
           href={createLocalizedPath(locale, appRoutes.contracts)}
-          style={{ color: C.mutedFg, textDecoration: "none", fontWeight: 600, width: "fit-content" }}
+          style={{
+            color: C.mutedFg,
+            textDecoration: "none",
+            fontWeight: 600,
+            width: "fit-content",
+          }}
         >
           {t("backToContracts")}
         </Link>
-        <article className="surface-card grain-panel" style={{ borderRadius: 24, padding: 24, boxShadow: shadowOrganic }}>
-          <h1 style={{ margin: "0 0 10px", fontFamily: fontSerif, fontSize: 28, color: C.destructive }}>
-            {t("detailErrorTitle")}
-          </h1>
-          <p style={{ margin: 0, color: C.mutedFg, lineHeight: 1.7 }}>
-            {errorMessage ?? t("detailErrorBody")}
-          </p>
-        </article>
+        <RetryNotice
+          title={isOnline ? t("detailErrorTitle") : "You're offline right now"}
+          description={errorMessage ?? t("detailErrorBody")}
+          onRetry={() => void fetchById(id, locale)}
+          isOffline={!isOnline}
+        />
       </main>
     );
   }
@@ -169,7 +224,10 @@ function ContractDetailContent() {
   const verdictTone = getVerdictTone(verdict);
   const scoreRing = getScoreRing(selected.healthScore);
   const groupedFlags = groupFlags(selected.flags);
-  const strengths = selected.strengths.length > 0 ? selected.strengths : groupedFlags.standardFlags;
+  const strengths =
+    selected.strengths.length > 0
+      ? selected.strengths
+      : groupedFlags.standardFlags;
 
   const handleFollowUpSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -199,14 +257,17 @@ function ContractDetailContent() {
         },
       ]);
     } catch (error) {
-      setFollowUpError(error instanceof Error ? error.message : t("followUpError"));
+      setFollowUpError(getUserFacingErrorMessage(error, t("followUpError")));
     } finally {
       setIsFollowUpPending(false);
     }
   };
 
   return (
-    <main className="page-shell page-shell--narrow" style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+    <main
+      className="page-shell page-shell--narrow"
+      style={{ display: "flex", flexDirection: "column", gap: 32 }}
+    >
       <style jsx global>{`
         @keyframes contractBlobFloat {
           0%,
@@ -235,24 +296,35 @@ function ContractDetailContent() {
         {t("backToContracts")}
       </Link>
 
-      <section style={{ display: "flex", gap: 28, alignItems: "stretch", flexWrap: "wrap" }} className="md-flex-row">
+      <section
+        style={{
+          display: "flex",
+          gap: 28,
+          alignItems: "stretch",
+          flexWrap: "wrap",
+        }}
+        className="md-flex-row"
+      >
         <article
           className="surface-card grain-panel"
           style={{
             flex: "0 0 250px",
+            width: "100%",
+            maxWidth: 280,
             minHeight: 260,
             borderRadius: R.o1,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             boxShadow: shadowOrganic,
-            background: "linear-gradient(180deg, rgba(255,255,255,0.92), rgba(240,233,222,0.96))",
+            background:
+              "linear-gradient(180deg, rgba(255,255,255,0.92), rgba(240,233,222,0.96))",
           }}
         >
           <div
             style={{
-              width: 220,
-              height: 220,
+              width: "min(220px, 56vw)",
+              aspectRatio: "1 / 1",
               padding: 14,
               borderRadius: "42% 58% 47% 53% / 44% 39% 61% 56%",
               background: scoreRing.background,
@@ -266,7 +338,8 @@ function ContractDetailContent() {
                 width: "100%",
                 height: "100%",
                 borderRadius: "46% 54% 59% 41% / 43% 58% 42% 57%",
-                background: "linear-gradient(180deg, rgba(246,241,230,0.98), rgba(234,226,214,0.94))",
+                background:
+                  "linear-gradient(180deg, rgba(246,241,230,0.98), rgba(234,226,214,0.94))",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -274,19 +347,51 @@ function ContractDetailContent() {
                 textAlign: "center",
               }}
             >
-              <span style={{ color: C.mutedFg, fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+              <span
+                style={{
+                  color: C.mutedFg,
+                  fontSize: 12,
+                  fontWeight: 800,
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
+                }}
+              >
                 {t("healthScore")}
               </span>
-              <strong style={{ fontFamily: fontSerif, fontSize: 64, lineHeight: 1, color: scoreRing.color }}>
+              <strong
+                style={{
+                  fontFamily: fontSerif,
+                  fontSize: 64,
+                  lineHeight: 1,
+                  color: scoreRing.color,
+                }}
+              >
                 {selected.healthScore}
               </strong>
-              <span style={{ color: C.mutedFg, fontWeight: 700 }}>{t("scoreSuffix")}</span>
+              <span style={{ color: C.mutedFg, fontWeight: 700 }}>
+                {t("scoreSuffix")}
+              </span>
             </div>
           </div>
         </article>
 
-        <article style={{ flex: 1, minWidth: 280, display: "flex", flexDirection: "column", gap: 22 }}>
-          <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
+        <article
+          style={{
+            flex: 1,
+            minWidth: 280,
+            display: "flex",
+            flexDirection: "column",
+            gap: 22,
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              gap: 12,
+              flexWrap: "wrap",
+              alignItems: "center",
+            }}
+          >
             <span
               style={{
                 padding: "8px 14px",
@@ -303,10 +408,26 @@ function ContractDetailContent() {
           </div>
 
           <div>
-            <h1 style={{ margin: "0 0 12px", fontFamily: fontSerif, fontSize: "clamp(2.2rem, 4vw, 3.6rem)", color: C.fg }}>
+            <h1
+              style={{
+                margin: "0 0 12px",
+                fontFamily: fontSerif,
+                fontSize: "clamp(2.2rem, 4vw, 3.6rem)",
+                color: C.fg,
+              }}
+            >
               {selected.displayTitle}
             </h1>
-            <p style={{ margin: 0, color: C.mutedFg, fontSize: 17, lineHeight: 1.7 }}>{selected.summary}</p>
+            <p
+              style={{
+                margin: 0,
+                color: C.mutedFg,
+                fontSize: 17,
+                lineHeight: 1.7,
+              }}
+            >
+              {selected.summary}
+            </p>
           </div>
 
           <article
@@ -314,26 +435,48 @@ function ContractDetailContent() {
             style={{
               borderRadius: 24,
               padding: 22,
-              background: "linear-gradient(180deg, rgba(241, 233, 221, 0.92), rgba(228, 217, 203, 0.96))",
+              background:
+                "linear-gradient(180deg, rgba(241, 233, 221, 0.92), rgba(228, 217, 203, 0.96))",
               boxShadow: shadowOrganic,
               display: "grid",
               gap: 16,
             }}
           >
-            <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                gap: 12,
+                flexWrap: "wrap",
+              }}
+            >
               <div>
-                <strong style={{ display: "block", color: C.fg, marginBottom: 4 }}>{t("uploadedOn")}</strong>
-                <span style={{ color: C.mutedFg }}>{formatContractDate(selected.analysedAt, locale)}</span>
+                <strong
+                  style={{ display: "block", color: C.fg, marginBottom: 4 }}
+                >
+                  {t("uploadedOn")}
+                </strong>
+                <span style={{ color: C.mutedFg }}>
+                  {formatContractDate(selected.analysedAt, locale)}
+                </span>
               </div>
               <div>
-                <strong style={{ display: "block", color: C.fg, marginBottom: 4 }}>{t("analysedAt")}</strong>
-                <span style={{ color: C.mutedFg }}>{formatContractTime(selected.analysedAt, locale)}</span>
+                <strong
+                  style={{ display: "block", color: C.fg, marginBottom: 4 }}
+                >
+                  {t("analysedAt")}
+                </strong>
+                <span style={{ color: C.mutedFg }}>
+                  {formatContractTime(selected.analysedAt, locale)}
+                </span>
               </div>
             </div>
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
               {[
                 getContractTypeLabel(selected.contractType),
-                selected.pageCount ? t("pageCountValue", { count: selected.pageCount }) : t("pageCountUnknown"),
+                selected.pageCount
+                  ? t("pageCountValue", { count: selected.pageCount })
+                  : t("pageCountUnknown"),
                 `${t("languageTag")} ${selected.language.toUpperCase()}`,
               ].map((tag) => (
                 <span
@@ -357,23 +500,74 @@ function ContractDetailContent() {
       </section>
 
       <section className="responsive-three-grid">
-        <article className="surface-card grain-panel" style={{ borderRadius: R.o2, padding: 24, textAlign: "center", boxShadow: shadowOrganic }}>
-          <strong style={{ display: "block", fontFamily: fontSerif, fontSize: 40, color: C.destructive }}>
+        <article
+          className="surface-card grain-panel"
+          style={{
+            borderRadius: R.o2,
+            padding: 24,
+            textAlign: "center",
+            boxShadow: shadowOrganic,
+          }}
+        >
+          <strong
+            style={{
+              display: "block",
+              fontFamily: fontSerif,
+              fontSize: 40,
+              color: C.destructive,
+            }}
+          >
             {selected.redFlagCount}
           </strong>
-          <span style={{ color: C.mutedFg, fontWeight: 700 }}>{t("redFlags")}</span>
+          <span style={{ color: C.mutedFg, fontWeight: 700 }}>
+            {t("redFlags")}
+          </span>
         </article>
-        <article className="surface-card grain-panel" style={{ borderRadius: R.o3, padding: 24, textAlign: "center", boxShadow: shadowOrganic }}>
-          <strong style={{ display: "block", fontFamily: fontSerif, fontSize: 40, color: C.secondary }}>
+        <article
+          className="surface-card grain-panel"
+          style={{
+            borderRadius: R.o3,
+            padding: 24,
+            textAlign: "center",
+            boxShadow: shadowOrganic,
+          }}
+        >
+          <strong
+            style={{
+              display: "block",
+              fontFamily: fontSerif,
+              fontSize: 40,
+              color: C.secondary,
+            }}
+          >
             {selected.amberFlagCount}
           </strong>
-          <span style={{ color: C.mutedFg, fontWeight: 700 }}>{t("caution")}</span>
+          <span style={{ color: C.mutedFg, fontWeight: 700 }}>
+            {t("caution")}
+          </span>
         </article>
-        <article className="surface-card grain-panel" style={{ borderRadius: R.o4, padding: 24, textAlign: "center", boxShadow: shadowOrganic }}>
-          <strong style={{ display: "block", fontFamily: fontSerif, fontSize: 40, color: C.primary }}>
+        <article
+          className="surface-card grain-panel"
+          style={{
+            borderRadius: R.o4,
+            padding: 24,
+            textAlign: "center",
+            boxShadow: shadowOrganic,
+          }}
+        >
+          <strong
+            style={{
+              display: "block",
+              fontFamily: fontSerif,
+              fontSize: 40,
+              color: C.primary,
+            }}
+          >
             {selected.greenFlagCount}
           </strong>
-          <span style={{ color: C.mutedFg, fontWeight: 700 }}>{t("standard")}</span>
+          <span style={{ color: C.mutedFg, fontWeight: 700 }}>
+            {t("standard")}
+          </span>
         </article>
       </section>
 
@@ -386,20 +580,27 @@ function ContractDetailContent() {
           display: "flex",
           flexDirection: "column",
           gap: 16,
-          background: "linear-gradient(180deg, rgba(237,230,219,0.94), rgba(225,214,198,0.98))",
+          background:
+            "linear-gradient(180deg, rgba(237,230,219,0.94), rgba(225,214,198,0.98))",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <MessageSquareQuote size={20} color={C.secondary} />
-          <h2 style={{ margin: 0, fontFamily: fontSerif, fontSize: 28 }}>{t("plainSummary")}</h2>
+          <h2 style={{ margin: 0, fontFamily: fontSerif, fontSize: 28 }}>
+            {t("plainSummary")}
+          </h2>
         </div>
-        <p style={{ margin: 0, color: C.fg, lineHeight: 1.7 }}>{selected.summary}</p>
+        <p style={{ margin: 0, color: C.fg, lineHeight: 1.7 }}>
+          {selected.summary}
+        </p>
       </section>
 
       <section style={{ display: "grid", gap: 20 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <CheckCircle size={20} color={C.primary} />
-          <h2 style={{ margin: 0, fontFamily: fontSerif, fontSize: 28 }}>{t("whatGreat")}</h2>
+          <h2 style={{ margin: 0, fontFamily: fontSerif, fontSize: 28 }}>
+            {t("whatGreat")}
+          </h2>
         </div>
         {strengths.length === 0 ? (
           <p style={{ margin: 0, color: C.mutedFg }}>{t("noGreatPoints")}</p>
@@ -408,11 +609,29 @@ function ContractDetailContent() {
           <article
             key={`${flag.title}-${flag.clauseText}`}
             className="surface-card grain-panel"
-            style={{ borderRadius: 24, padding: 24, borderLeft: `4px solid ${C.primary}`, boxShadow: shadowOrganic }}
+            style={{
+              borderRadius: 24,
+              padding: 24,
+              borderLeft: `4px solid ${C.primary}`,
+              boxShadow: shadowOrganic,
+            }}
           >
-            <h3 style={{ margin: "0 0 8px", fontSize: 18, color: C.primary, fontFamily: fontSans }}>{flag.title}</h3>
-            <p style={{ margin: "0 0 12px", lineHeight: 1.7, color: C.fg }}>{flag.description}</p>
-            <p style={{ margin: 0, lineHeight: 1.7, color: C.mutedFg }}>{flag.clauseText}</p>
+            <h3
+              style={{
+                margin: "0 0 8px",
+                fontSize: 18,
+                color: C.primary,
+                fontFamily: fontSans,
+              }}
+            >
+              {flag.title}
+            </h3>
+            <p style={{ margin: "0 0 12px", lineHeight: 1.7, color: C.fg }}>
+              {flag.description}
+            </p>
+            <p style={{ margin: 0, lineHeight: 1.7, color: C.mutedFg }}>
+              {flag.clauseText}
+            </p>
           </article>
         ))}
       </section>
@@ -420,7 +639,9 @@ function ContractDetailContent() {
       <section style={{ display: "grid", gap: 20 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <AlertCircle size={20} color={C.destructive} />
-          <h2 style={{ margin: 0, fontFamily: fontSerif, fontSize: 28 }}>{t("redFlags")}</h2>
+          <h2 style={{ margin: 0, fontFamily: fontSerif, fontSize: 28 }}>
+            {t("redFlags")}
+          </h2>
         </div>
         {groupedFlags.redFlags.length === 0 ? (
           <p style={{ margin: 0, color: C.mutedFg }}>{t("noRedFlags")}</p>
@@ -429,11 +650,31 @@ function ContractDetailContent() {
           <article
             key={`${flag.title}-${flag.clauseText}`}
             className="surface-card grain-panel"
-            style={{ borderRadius: 24, padding: 24, borderLeft: `5px solid ${C.destructive}`, boxShadow: shadowOrganic }}
+            style={{
+              borderRadius: 24,
+              padding: 24,
+              borderLeft: `5px solid ${C.destructive}`,
+              boxShadow: shadowOrganic,
+            }}
           >
-            <h3 style={{ margin: "0 0 8px", fontSize: 18, color: C.destructive, fontFamily: fontSans }}>{flag.title}</h3>
-            <p style={{ margin: "0 0 12px", lineHeight: 1.7, color: C.fg }}>{flag.description}</p>
-            <p style={{ margin: "0 0 12px", lineHeight: 1.7, color: C.mutedFg }}>{flag.clauseText}</p>
+            <h3
+              style={{
+                margin: "0 0 8px",
+                fontSize: 18,
+                color: C.destructive,
+                fontFamily: fontSans,
+              }}
+            >
+              {flag.title}
+            </h3>
+            <p style={{ margin: "0 0 12px", lineHeight: 1.7, color: C.fg }}>
+              {flag.description}
+            </p>
+            <p
+              style={{ margin: "0 0 12px", lineHeight: 1.7, color: C.mutedFg }}
+            >
+              {flag.clauseText}
+            </p>
             {flag.legislationCitation ? (
               <span
                 style={{
@@ -456,7 +697,9 @@ function ContractDetailContent() {
       <section style={{ display: "grid", gap: 20 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <AlertTriangle size={20} color={C.secondary} />
-          <h2 style={{ margin: 0, fontFamily: fontSerif, fontSize: 28 }}>{t("caution")}</h2>
+          <h2 style={{ margin: 0, fontFamily: fontSerif, fontSize: 28 }}>
+            {t("caution")}
+          </h2>
         </div>
         {groupedFlags.cautionFlags.length === 0 ? (
           <p style={{ margin: 0, color: C.mutedFg }}>{t("noCautionFlags")}</p>
@@ -465,11 +708,31 @@ function ContractDetailContent() {
           <article
             key={`${flag.title}-${flag.clauseText}`}
             className="surface-card grain-panel"
-            style={{ borderRadius: 24, padding: 24, borderLeft: `5px solid ${C.secondary}`, boxShadow: shadowOrganic }}
+            style={{
+              borderRadius: 24,
+              padding: 24,
+              borderLeft: `5px solid ${C.secondary}`,
+              boxShadow: shadowOrganic,
+            }}
           >
-            <h3 style={{ margin: "0 0 8px", fontSize: 18, color: C.secondary, fontFamily: fontSans }}>{flag.title}</h3>
-            <p style={{ margin: "0 0 12px", lineHeight: 1.7, color: C.fg }}>{flag.description}</p>
-            <p style={{ margin: "0 0 12px", lineHeight: 1.7, color: C.mutedFg }}>{flag.clauseText}</p>
+            <h3
+              style={{
+                margin: "0 0 8px",
+                fontSize: 18,
+                color: C.secondary,
+                fontFamily: fontSans,
+              }}
+            >
+              {flag.title}
+            </h3>
+            <p style={{ margin: "0 0 12px", lineHeight: 1.7, color: C.fg }}>
+              {flag.description}
+            </p>
+            <p
+              style={{ margin: "0 0 12px", lineHeight: 1.7, color: C.mutedFg }}
+            >
+              {flag.clauseText}
+            </p>
             {flag.legislationCitation ? (
               <span
                 style={{
@@ -503,8 +766,19 @@ function ContractDetailContent() {
       >
         <CheckCircle size={22} color={C.primary} />
         <div>
-          <h2 style={{ margin: "0 0 6px", fontFamily: fontSans, fontSize: 18, color: C.primary }}>{t("allStandard")}</h2>
-          <p style={{ margin: 0, lineHeight: 1.6, color: C.fg }}>{t("standardSummary", { count: selected.greenFlagCount })}</p>
+          <h2
+            style={{
+              margin: "0 0 6px",
+              fontFamily: fontSans,
+              fontSize: 18,
+              color: C.primary,
+            }}
+          >
+            {t("allStandard")}
+          </h2>
+          <p style={{ margin: 0, lineHeight: 1.6, color: C.fg }}>
+            {t("standardSummary", { count: selected.greenFlagCount })}
+          </p>
         </div>
       </section>
 
@@ -516,12 +790,15 @@ function ContractDetailContent() {
           boxShadow: shadowOrganic,
           display: "grid",
           gap: 20,
-          background: "linear-gradient(180deg, rgba(252,250,245,0.96), rgba(239,232,221,0.96))",
+          background:
+            "linear-gradient(180deg, rgba(252,250,245,0.96), rgba(239,232,221,0.96))",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <MessageSquareQuote size={20} color={C.secondary} />
-          <h2 style={{ margin: 0, fontFamily: fontSerif, fontSize: 28 }}>{t("followUp")}</h2>
+          <h2 style={{ margin: 0, fontFamily: fontSerif, fontSize: 28 }}>
+            {t("followUp")}
+          </h2>
         </div>
 
         {followUpMessages.length === 0 ? (
@@ -579,19 +856,28 @@ function ContractDetailContent() {
                       fontSize: 12,
                     }}
                   >
-                    {tChat("confidenceLabel")}: {getConfidenceLabel(message.answer.confidenceBand, tChat)}
+                    {tChat("confidenceLabel")}:{" "}
+                    {getConfidenceLabel(message.answer.confidenceBand, tChat)}
                   </span>
                 </div>
 
-                <p style={{ margin: 0, lineHeight: 1.75, color: C.fg }}>{message.text}</p>
+                <p style={{ margin: 0, lineHeight: 1.75, color: C.fg }}>
+                  {message.text}
+                </p>
 
                 {message.answer.requiresUrgentAttention ? (
-                  <p style={{ margin: 0, color: C.destructive, fontWeight: 700 }}>{tChat("urgentHint")}</p>
+                  <p
+                    style={{ margin: 0, color: C.destructive, fontWeight: 700 }}
+                  >
+                    {tChat("urgentHint")}
+                  </p>
                 ) : null}
 
                 {message.answer.contractExcerpts.length > 0 ? (
                   <div style={{ display: "grid", gap: 10 }}>
-                    <strong style={{ color: C.fg }}>{t("followUpContractExcerpts")}</strong>
+                    <strong style={{ color: C.fg }}>
+                      {t("followUpContractExcerpts")}
+                    </strong>
                     {message.answer.contractExcerpts.map((excerpt) => (
                       <article
                         key={excerpt}
@@ -611,7 +897,9 @@ function ContractDetailContent() {
 
                 {message.answer.citations.length > 0 ? (
                   <div style={{ display: "grid", gap: 10 }}>
-                    <strong style={{ color: C.fg }}>{t("followUpSources")}</strong>
+                    <strong style={{ color: C.fg }}>
+                      {t("followUpSources")}
+                    </strong>
                     {message.answer.citations.map((citation) => (
                       <article
                         key={`${citation.sourceTitle}-${citation.sourceLocator}-${citation.excerpt}`}
@@ -624,29 +912,65 @@ function ContractDetailContent() {
                           gap: 8,
                         }}
                       >
-                        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-                          <strong style={{ color: C.fg }}>{citation.sourceTitle}</strong>
-                          <span style={{ color: C.mutedFg }}>{citation.sourceLocator}</span>
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: 8,
+                            flexWrap: "wrap",
+                            alignItems: "center",
+                          }}
+                        >
+                          <strong style={{ color: C.fg }}>
+                            {citation.sourceTitle}
+                          </strong>
+                          <span style={{ color: C.mutedFg }}>
+                            {citation.sourceLocator}
+                          </span>
                         </div>
-                        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                          <span style={{ color: C.secondary, fontSize: 12, fontWeight: 700 }}>
+                        <div
+                          style={{ display: "flex", gap: 8, flexWrap: "wrap" }}
+                        >
+                          <span
+                            style={{
+                              color: C.secondary,
+                              fontSize: 12,
+                              fontWeight: 700,
+                            }}
+                          >
                             {getAuthorityLabel(citation.authorityType, tChat)}
                           </span>
-                          <span style={{ color: C.mutedFg, fontSize: 12, fontWeight: 700 }}>
+                          <span
+                            style={{
+                              color: C.mutedFg,
+                              fontSize: 12,
+                              fontWeight: 700,
+                            }}
+                          >
                             {getSourceRoleLabel(citation.sourceRole, tChat)}
                           </span>
                         </div>
-                        <p style={{ margin: 0, color: C.mutedFg, lineHeight: 1.7 }}>{citation.excerpt}</p>
+                        <p
+                          style={{
+                            margin: 0,
+                            color: C.mutedFg,
+                            lineHeight: 1.7,
+                          }}
+                        >
+                          {citation.excerpt}
+                        </p>
                       </article>
                     ))}
                   </div>
                 ) : null}
               </article>
-            )
+            ),
           )}
         </div>
 
-        <form onSubmit={handleFollowUpSubmit} style={{ display: "grid", gap: 12 }}>
+        <form
+          onSubmit={handleFollowUpSubmit}
+          style={{ display: "grid", gap: 12 }}
+        >
           <textarea
             value={followUpQuestion}
             onChange={(event) => setFollowUpQuestion(event.target.value)}
@@ -665,10 +989,22 @@ function ContractDetailContent() {
             }}
           />
           {followUpError ? (
-            <p style={{ margin: 0, color: C.destructive, fontWeight: 600 }}>{followUpError}</p>
+            <p style={{ margin: 0, color: C.destructive, fontWeight: 600 }}>
+              {followUpError}
+            </p>
           ) : null}
-          <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
-            <span style={{ color: C.mutedFg, fontSize: 13 }}>{t("followUpHint")}</span>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              gap: 12,
+              flexWrap: "wrap",
+              alignItems: "center",
+            }}
+          >
+            <span style={{ color: C.mutedFg, fontSize: 13 }}>
+              {t("followUpHint")}
+            </span>
             <button
               type="submit"
               disabled={isFollowUpPending || !followUpQuestion.trim()}
@@ -676,6 +1012,7 @@ function ContractDetailContent() {
                 display: "inline-flex",
                 alignItems: "center",
                 gap: 8,
+                minHeight: 44,
                 padding: "12px 18px",
                 borderRadius: 9999,
                 border: "none",
@@ -683,7 +1020,8 @@ function ContractDetailContent() {
                 color: C.primaryFg,
                 fontWeight: 700,
                 cursor: isFollowUpPending ? "progress" : "pointer",
-                opacity: isFollowUpPending || !followUpQuestion.trim() ? 0.75 : 1,
+                opacity:
+                  isFollowUpPending || !followUpQuestion.trim() ? 0.75 : 1,
               }}
             >
               <SendHorizonal size={16} />

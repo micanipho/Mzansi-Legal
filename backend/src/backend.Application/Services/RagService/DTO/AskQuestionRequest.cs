@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace backend.Services.RagService.DTO;
@@ -15,4 +16,11 @@ public class AskQuestionRequest
     [Required]
     [MaxLength(30_000)]
     public string QuestionText { get; set; }
+
+    /// <summary>
+    /// Optional ID of an existing conversation to continue.
+    /// When null, the service creates a new conversation for the question.
+    /// When provided, the service reuses it only if it belongs to the current user.
+    /// </summary>
+    public Guid? ConversationId { get; set; }
 }
