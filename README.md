@@ -17,6 +17,7 @@ MzansiLegal is a platform that helps South Africans understand their legal and f
 ## The Solution
 
 A single platform where citizens can:
+
 - **Ask** legal and financial questions in English, isiZulu, Sesotho, or Afrikaans (text or voice)
 - **Upload** contracts and get an instant health score, red flag alerts citing legislation, and a plain-language summary
 - **Explore** their rights interactively with a gamified knowledge tracker
@@ -27,12 +28,14 @@ A single platform where citizens can:
 ## Features
 
 ### AI Legal & Financial Q&A (RAG Pipeline)
+
 - Ask a question in any supported language via text or voice
 - System detects language, translates internally, searches legislation via embeddings
 - Returns a cited answer in the user's language with Act name and section number
 - Cross-domain questions (e.g. retrenchment rights + severance tax) answered holistically
 
 ### AI Contract Analysis
+
 - Upload a lease, employment, credit, or service contract (PDF or photo)
 - Auto-detects contract type
 - Generates health score (0–100) with traffic light breakdown
@@ -41,6 +44,7 @@ A single platform where citizens can:
 - Follow-up chat to ask questions about specific clauses
 
 ### Voice Support & Accessibility
+
 - Voice input via OpenAI Whisper API (all 4 languages)
 - Voice output via OpenAI TTS API (read answers aloud)
 - Auto-play for blind users (configurable)
@@ -49,18 +53,21 @@ A single platform where citizens can:
 - High contrast mode respecting OS settings
 
 ### My Rights Explorer
+
 - Interactive browse experience — not a static FAQ list
 - Rights organised by category with expandable cards and legislation citations
 - Gamified knowledge score tracking exploration progress
 - "Ask a follow-up", "Listen in isiZulu", and "Share" actions per card
 
 ### FAQ System
+
 - Admin creates conversations, system generates AI answers
 - Admin reviews and publishes as public FAQs
 - FAQs appear on home page, My Rights explorer, and as related suggestions
 - Same Conversation entity — distinguished by `IsPublicFaq` flag
 
 ### Admin Analytics Dashboard
+
 - Live stats: questions, contracts analysed, response time, citation accuracy
 - Questions by category (bar chart)
 - Language distribution with voice vs text breakdown
@@ -71,38 +78,39 @@ A single platform where citizens can:
 
 ## Tech Stack
 
-| Layer | Technology | Purpose |
-|-------|-----------|---------|
-| Frontend | Next.js + Ant Design | Responsive multilingual web UI |
-| Backend API | .NET 8 + ABP Framework | RESTful API with auth, modules |
-| Database | PostgreSQL | All data storage |
-| AI / LLM | OpenAI GPT-4o | Language detection, translation, Q&A, contract analysis |
-| Speech-to-Text | OpenAI Whisper API | Voice input (4 languages) |
-| Text-to-Speech | OpenAI TTS API | Voice output |
-| Embeddings | text-embedding-ada-002 | Semantic search vectors |
-| Vector Search | In-memory cosine similarity | Chunk retrieval |
-| PDF Processing | PdfPig | Legislation and contract text extraction |
-| Contract OCR | OpenAI Vision API | Text from photographed contracts |
-| Auth | ABP Identity | Registration, login, roles |
-| i18n | next-intl + JSON locales | UI in 4 languages |
-| Hosting | Azure App Service / Docker | CI/CD via Azure DevOps |
+| Layer          | Technology                  | Purpose                                                 |
+| -------------- | --------------------------- | ------------------------------------------------------- |
+| Frontend       | Next.js + Ant Design        | Responsive multilingual web UI                          |
+| Backend API    | .NET 8 + ABP Framework      | RESTful API with auth, modules                          |
+| Database       | PostgreSQL                  | All data storage                                        |
+| AI / LLM       | OpenAI GPT-4o               | Language detection, translation, Q&A, contract analysis |
+| Speech-to-Text | OpenAI Whisper API          | Voice input (4 languages)                               |
+| Text-to-Speech | OpenAI TTS API              | Voice output                                            |
+| Embeddings     | text-embedding-ada-002      | Semantic search vectors                                 |
+| Vector Search  | In-memory cosine similarity | Chunk retrieval                                         |
+| PDF Processing | PdfPig                      | Legislation and contract text extraction                |
+| Contract OCR   | OpenAI Vision API           | Text from photographed contracts                        |
+| Auth           | ABP Identity                | Registration, login, roles                              |
+| i18n           | next-intl + JSON locales    | UI in 4 languages                                       |
+| Hosting        | Azure App Service / Docker  | CI/CD via Azure DevOps                                  |
 
 ---
 
 ## Supported Languages
 
-| Language | Code | Speakers (L1+L2) | AI Quality |
-|----------|------|-------------------|------------|
-| English | en | 17M | Excellent |
-| isiZulu | zu | 28M | Good |
-| Sesotho | st | 14M | Good |
-| Afrikaans | af | 16M | Very Good |
+| Language  | Code | Speakers (L1+L2) | AI Quality |
+| --------- | ---- | ---------------- | ---------- |
+| English   | en   | 17M              | Excellent  |
+| isiZulu   | zu   | 28M              | Good       |
+| Sesotho   | st   | 14M              | Good       |
+| Afrikaans | af   | 16M              | Very Good  |
 
 ---
 
 ## Knowledge Base
 
 ### Legal Legislation
+
 1. Constitution of the Republic of South Africa, 1996
 2. Basic Conditions of Employment Act 75 of 1997 (BCEA)
 3. Consumer Protection Act 68 of 2008 (CPA)
@@ -112,6 +120,7 @@ A single platform where citizens can:
 7. Protection from Harassment Act 17 of 2011
 
 ### Financial Legislation & Guidance
+
 1. National Credit Act 34 of 2005 (NCA)
 2. Financial Advisory and Intermediary Services Act 37 of 2002 (FAIS)
 3. Tax Administration Act 28 of 2011
@@ -144,9 +153,19 @@ fsca.co.za.
 
 ---
 
-## Domain Model
+## Design
 
-Domain model (https://lucid.app/lucidchart/3b02f4bb-af2b-4a9e-a99e-216f699c0555/edit?view_items=G0sID~H.Ll67&page=0_0&invitationId=inv_6692b21a-876f-4dbf-ad6c-b643288bdb25)
+## [Wireframes](https://www.figma.com/file/ATCmuf9e3eFScItIYkp2Zd/innminds-tutors?type=design&node-id=0%3A1&mode=dev&t=KOQnxVDxgaIX0gUm-1)
+
+## [Figma Design](https://www.figma.com/design/TLWojEI22q0P38GRWogmMZ/Mzansi-Legal?node-id=0-1&t=CdRlpnxV9hpGaQqO-1)
+
+## [Domain Model](https://lucid.app/lucidchart/3b02f4bb-af2b-4a9e-a99e-216f699c0555/edit?view_items=G0sID~H.Ll67&page=0_0&invitationId=inv_6692b21a-876f-4dbf-ad6c-b643288bdb25)
+
+## [State diagram](https://viewer.diagrams.net/?tags=%7B%7D&highlight=0000ff&edit=_blank&layers=1&nav=1&title=Untitled%20Diagram.drawio#R7Vzfc5s4EP5r%2FJgbkMB2HlMn%2FTGTzmTGnbumb7KRDSlGnBCxub%2F%2BhBEgEKlJY3tx2zwk1krC4ttvtdpdyAjPNrsPnMT%2BZ%2BbRcIQsbzfCtyOE0NiZyD%2B5JFMS18aFZM0Dr5DZtWAe%2FEWV0FLSNPBo0hgoGAtFEDeFSxZFdCkaMsI52zaHrVjY%2FNaYrKkhmC9JaEr%2FCTzhK6ltWXXHRxqsffXVU1d1bEg5WAkSn3hsq4nw3QjPOGOi%2BLTZzWiYo1fiUsx7%2F0JvtTBOI9Fnwu3nBXn6lD18u4v87NvSuv%2F%2B5dOVusozCVN1w2qxIisRkFeRYMvGO19sQimz5Ud5M3HenwjCxVwQkfevgjCcsZDx%2FURs7X%2FywYKz71TrWa1Uj%2Fp2ygXdvXhbdgWWpBllGyp4JofsKlUUU0qGXav2tlYXViJfU1QpI4og6%2BrKNYbyg4LxFZCiHpB6kmOqybjw2ZpFJLyrpTrUOTqBJORNGKwjKVswIdhGdtDIu8kZnl8kplEhURY0%2FSHsnKWRR%2FObsPaz5G1%2F1RuPeeMvt2ze7vTO20y1itvK76WhuoSlfEkPc85QsbRswtdU%2FGAq7qYCpyERwXNzHV2KVVMfWCC%2FuaYQchsUwuMWN4p1qVktelTL%2BHnGYIMxH%2BU1y82pTR6NGls%2FEHQekz3cW7kDH8ekKtsoTWpqmlRldrpNuaeyqeufMKEmyesx94zFCr8nKkSmLIakgjUNr7aL2hQe9b7X2UUH3w%2BaitPTLsZvtIs3KadkwjC0Yw1POxNQ7dgg2tkF4qv2WfMoslWrJm9ko5P4oVNqdAqpUcdwF2QpAhYZei4Padxnm0Uql%2FEupjyQi6C8lj7Uok5%2FoimVqBPIUuK6H38EX%2BO0j28T1%2FQ1qMPXtH300eB1gXczazxp8d8%2B5HH2LU2RxzYL3NMsHEizGBtmcRPHYbYP%2Brj8PRepR9UBTtcuBOlRk%2FT2pOOAZXWQ3jkV6ScHwPsiGcuHCB2eduwXZ4WuTGj8cbA9dpJpz53ERpBbydSwhpCtA9PBAvB%2FjNqxGTj%2Fx8AOEyo4s1FfMoP6RXsyJP2cMTzrrx8XVD8wyY3L9B%2F9dQoaopXL1DyIyOI8pcdW8leaUPMwdQnR2tQZWrSGoMM1MO%2FTN1eBYL2Pma14KRCrtbKnL18q%2BG0LiOxuK0rD0FEagjlqKVdRu4dHreeQq4Bz%2F25fAwGNNcplagbSHWwP3TwcBB2JYHQpJ6lj0rxvSI3eWjx9G83NmPrG23TE1EOjuW2NhxZxlwcsDcsZp%2FkzGMi6p0nSUQoYwP4w7qoinxc30EjLesX%2BULnP6kB59kgL9Y20EGh5E%2F%2Buxef%2B%2BrFA9XMx5WcQ3YBmKcpl6j65byXZY%2Bli32tfRKLCdTqcz1kTFQ6MIcAnKlDv6jHoRuVcfBlvcs7TQW%2BlggbXzqBqU%2Bc8HfTWD2jtA5mPvv4qHsjGg8uVYwfCGo7J6r45bwya68CwadqGK0GDL%2Bnh675KfetWtZ96wznJtAFx%2FlR%2Fol259XLAdSv9M2m9ZXNg%2BFWZ4qgJVaygptcx3iCY%2FjaWDZptQGY161fxV%2B2I6aqr2nXe0q75UOLfAd1KyS1J%2FAUj3DNgh3giy2qFmi54ntPMtXP6b0qTQTz8alcsGgxg2DyGPhdMS9LFE10W%2FgEauHZC%2FcqGB84sXuavzkYe4UNAzG6%2FHHpVcQ8OMnNXU1wLB1O6Gbdhg0ft2kDtgbNVEJrvRw6BZ%2BCGWV64Y0cTZBjbmY0H93xNkaxqOc51kAhOOg95EKi1jxudaYXzotbhBMpydOeTjkMgm3NCsslm%2FW8dihCv%2Fu8Y%2BO5%2F)
+
+---
+
+## Domain Model
 
 ### Aggregates
 
@@ -193,6 +212,7 @@ FK References (normal arrow):
 ```
 
 ### RefList Enumerations
+
 - **Domain**: Legal | Financial
 - **Language**: en | zu | st | af
 - **InputMethod**: Text | Voice
@@ -204,13 +224,13 @@ FK References (normal arrow):
 
 ## Application Pages
 
-| # | Page | Purpose |
-|---|------|---------|
-| 1 | Home Dashboard | Stats, categories, trending questions, CTAs |
-| 2 | Contract Analysis | Upload, health score, red flags, follow-up chat |
-| 3 | Q&A Chat | Multilingual conversation, voice I/O, citations |
-| 4 | My Rights Explorer | Gamified rights browser with knowledge score |
-| 5 | Admin Analytics | Charts, language distribution, review queue |
+| #   | Page               | Purpose                                         |
+| --- | ------------------ | ----------------------------------------------- |
+| 1   | Home Dashboard     | Stats, categories, trending questions, CTAs     |
+| 2   | Contract Analysis  | Upload, health score, red flags, follow-up chat |
+| 3   | Q&A Chat           | Multilingual conversation, voice I/O, citations |
+| 4   | My Rights Explorer | Gamified rights browser with knowledge score    |
+| 5   | Admin Analytics    | Charts, language distribution, review queue     |
 
 ---
 
@@ -249,61 +269,32 @@ Adding a new language requires zero re-indexing.
 mzansilegal/
 ├── backend/
 │   ├── src/
-│   │   ├── MzansiLegal.Domain/
-│   │   │   ├── Entities/
-│   │   │   │   ├── LegalDocument.cs
-│   │   │   │   ├── DocumentChunk.cs
-│   │   │   │   ├── ChunkEmbedding.cs
-│   │   │   │   ├── Category.cs
-│   │   │   │   ├── Conversation.cs
-│   │   │   │   ├── Question.cs
-│   │   │   │   ├── Answer.cs
-│   │   │   │   ├── AnswerCitation.cs
-│   │   │   │   ├── ContractAnalysis.cs
-│   │   │   │   ├── ContractFlag.cs
-│   │   │   │   └── AppUser.cs
-│   │   │   └── Services/
-│   │   │       ├── PdfIngestionService.cs
-│   │   │       ├── EmbeddingService.cs
-│   │   │       ├── RagService.cs
-│   │   │       └── ContractAnalysisService.cs
-│   │   ├── MzansiLegal.Application/
-│   │   │   ├── QuestionAppService.cs
-│   │   │   ├── ContractAppService.cs
-│   │   │   └── AdminAppService.cs
-│   │   ├── MzansiLegal.HttpApi/
-│   │   └── MzansiLegal.DbMigrator/
-│   └── test/
+│   │   ├── backend.Core/               # Domain Layer (Entities, Services)
+│   │   │   ├── Domains/
+│   │   │   │   ├── LegalDocuments/
+│   │   │   │   ├── QA/
+│   │   │   │   └── ContractAnalysis/
+│   │   ├── backend.Application/        # Application Layer (AppServices)
+│   │   ├── backend.EntityFrameworkCore/# Infrastructure Layer (DB Context)
+│   │   ├── backend.Migrator/           # DB Seed & Migrations
+│   │   └── backend.Web.Host/           # API Host
 ├── frontend/
 │   ├── src/
 │   │   ├── app/
-│   │   │   ├── page.tsx                  # Home dashboard
-│   │   │   ├── ask/page.tsx              # Q&A chat
-│   │   │   ├── contracts/page.tsx        # Contract upload
-│   │   │   ├── contracts/[id]/page.tsx   # Contract analysis results
-│   │   │   ├── rights/page.tsx           # My Rights explorer
-│   │   │   └── admin/
-│   │   │       └── dashboard/page.tsx    # Admin analytics
-│   │   ├── components/
-│   │   │   ├── ChatInterface.tsx
-│   │   │   ├── CitationCard.tsx
-│   │   │   ├── ContractScoreRing.tsx
-│   │   │   ├── RedFlagCard.tsx
-│   │   │   ├── RightsCard.tsx
-│   │   │   ├── CategoryGrid.tsx
-│   │   │   ├── VoicePlayback.tsx
-│   │   │   └── KnowledgeScore.tsx
-│   │   ├── locales/
-│   │   │   ├── en.json
-│   │   │   ├── zu.json
-│   │   │   ├── st.json
-│   │   │   └── af.json
-│   │   └── services/
-│   │       └── api.ts
-│   └── package.json
+│   │   │   ├── [locale]/               # I18n Grouped Pages
+│   │   │   │   ├── page.tsx            # Home dashboard
+│   │   │   │   ├── ask/                # Q&A chat
+│   │   │   │   ├── contracts/          # Contract analysis
+│   │   │   │   ├── rights/             # My Rights explorer
+│   │   │   │   ├── history/            # User history
+│   │   │   │   ├── admin/              # Admin dashboard
+│   │   │   │   └── auth/               # Auth routes
+│   │   ├── components/                 # UI Components
+│   │   ├── locales/                    # Intal translations (en, zu, st, af)
+│   │   └── services/                   # API clients
 └── seed-data/
-    ├── legislation/                # Downloaded PDFs from justice.gov.za
-    └── financial/                  # NCA, SARS guides, FSCA materials
+    ├── legislation/                    # Legislation PDFs
+    └── financial/                      # Financial guides
 ```
 
 ---
@@ -311,27 +302,25 @@ mzansilegal/
 ## Getting Started
 
 ### Prerequisites
+
 - .NET 8 SDK
 - Node.js 18+
 - PostgreSQL
 - OpenAI API key
 
 ### Backend Setup
+
 ```bash
-# Scaffold ABP project
-abp new MzansiLegal -t app --ui none --mobile none --db-provider ef -dbms PostgreSQL
+# Choose backend.Web.Host as startup project in Visual Studio
+# Run migrations using Migrator project
+dotnet run --project src/backend.Migrator
 
-# Install PdfPig for PDF processing
-dotnet add package UglyToad.PdfPig
-
-# Run migrations
-dotnet run --project src/MzansiLegal.DbMigrator
-
-# Start the API
-dotnet run --project src/MzansiLegal.HttpApi.Host
+# Or start the API
+dotnet run --project src/backend.Web.Host
 ```
 
 ### Frontend Setup
+
 ```bash
 cd frontend
 npm install
@@ -341,33 +330,15 @@ npm run dev
 ```
 
 ### Environment Variables
+
 ```env
-# Backend
+# Backend (appsettings.json)
 OpenAI__ApiKey=sk-...
-OpenAI__EmbeddingModel=text-embedding-ada-002
-OpenAI__ChatModel=gpt-4o
 ConnectionStrings__Default=Host=localhost;Database=MzansiLegal;Username=postgres;Password=...
 
-# Frontend
-NEXT_PUBLIC_API_URL=https://localhost:44301/api
+# Frontend (.env)
+NEXT_PUBLIC_BASE_URL=http://localhost:5000
 ```
-
-### Seed the Knowledge Base
-1. Download legislation PDFs from justice.gov.za, sars.gov.za, fsca.co.za
-2. Place them in `seed-data/legislation/` and `seed-data/financial/`
-3. Use the admin upload endpoint or run the DbMigrator seed method
-
----
-
-## 5-Day Implementation Plan
-
-| Day | Focus | Key Deliverables |
-|-----|-------|-----------------|
-| 1 | Setup & Data Pipeline | ABP scaffold, PDF ingestion, seed 13 documents, Next.js shell |
-| 2 | RAG + Multilingual Q&A | Embedding search, language detection, Q&A API |
-| 3 | Frontend + Voice + Contracts | Home dashboard, chat with voice, contract analysis pipeline |
-| 4 | Explorer + Admin + Auth | My Rights page, analytics dashboard, review queue, auth |
-| 5 | Accessibility + Polish + Deploy | ARIA, dyslexia mode, i18n files, CI/CD, demo prep |
 
 ---
 
