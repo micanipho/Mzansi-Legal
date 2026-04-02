@@ -14,6 +14,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,11 +24,12 @@ namespace backend.Services.RagService;
 /// <summary>
 /// Core RAG orchestration service for South African legal Q&amp;A.
 /// Loads chunk embeddings and source metadata into memory, plans document-aware retrieval,
-/// calls the chat model only when grounding is adequate, persists question history for
-/// authenticated users, and stores answers only for grounded outcomes.
+/// calls the chat model only when grounding is adequate, persists conversation history for
+/// authenticated users, and can rehydrate stored threads back into the client.
 /// </summary>
 public class RagAppService : ApplicationService, IRagAppService
 {
+    private const int MaxConversationHistoryMessages = 6;
     private readonly IEmbeddingAppService _embeddingService;
     private readonly ILanguageAppService _languageService;
     private readonly IRepository<DocumentChunk, Guid> _chunkRepository;
@@ -157,6 +159,20 @@ public class RagAppService : ApplicationService, IRagAppService
         return new ConversationsListDto { Items = items, TotalCount = items.Count };
     }
 
+    public async Task<ConversationDetailDto> GetConversationAsync(Guid conversationId)
+    {
+        var userId = AbpSession.UserId
+            ?? throw new Abp.Authorization.AbpAuthorizationException("You must be signed in to view conversation history.");
+
+        var conversation = await LoadConversationThreadAsync(userId, conversationId);
+        if (conversation is null)
+        {
+            throw new Abp.Authorization.AbpAuthorizationException("Conversation not found.");
+        }
+
+        return MapConversationDetail(conversation);
+    }
+
     public async Task<RagAnswerResult> AskAsync(AskQuestionRequest request)
     {
         Guard.Against.Null(request, nameof(request));
@@ -165,14 +181,19 @@ public class RagAppService : ApplicationService, IRagAppService
         await EnsureIndexLoadedAsync();
 
         var userId = AbpSession.UserId;
+        var existingConversation = userId.HasValue && request.ConversationId.HasValue
+            ? await LoadConversationThreadAsync(userId.Value, request.ConversationId.Value)
+            : null;
         var detectedLanguage = await _languageService.DetectLanguageAsync(request.QuestionText);
         var translatedText = await _languageService.TranslateToEnglishAsync(request.QuestionText, detectedLanguage);
         var detectedLanguageCode = RagPromptBuilder.ToIsoCode(detectedLanguage);
-        var embeddingResult = await _embeddingService.GenerateEmbeddingAsync(translatedText);
-        var focusQueryText = RagQueryFocusBuilder.Build(translatedText);
+        var conversationHistoryBlock = BuildConversationHistoryBlock(existingConversation);
+        var retrievalQuestionText = BuildRetrievalQuestionText(translatedText, conversationHistoryBlock);
+        var embeddingResult = await _embeddingService.GenerateEmbeddingAsync(retrievalQuestionText);
+        var focusQueryText = RagQueryFocusBuilder.Build(retrievalQuestionText);
         float[] focusVector = null;
         if (!string.IsNullOrWhiteSpace(focusQueryText) &&
-            !string.Equals(focusQueryText, translatedText, StringComparison.OrdinalIgnoreCase))
+            !string.Equals(focusQueryText, retrievalQuestionText, StringComparison.OrdinalIgnoreCase))
         {
             focusVector = (await _embeddingService.GenerateEmbeddingAsync(focusQueryText)).Vector;
         }
@@ -184,31 +205,46 @@ public class RagAppService : ApplicationService, IRagAppService
             embeddingResult.Vector,
             loadedChunks,
             focusVector);
-        var sourceHints = _sourceHintExtractor.Extract(translatedText, loadedChunks);
+        var sourceHints = _sourceHintExtractor.Extract(retrievalQuestionText, loadedChunks);
         var retrievalPlan = _retrievalPlanner.BuildPlan(
-            translatedText,
+            retrievalQuestionText,
             embeddingResult.Vector,
             semanticMatches,
             sourceHints,
             documentProfiles);
-        var retrievalDecision = _confidenceEvaluator.Evaluate(translatedText, retrievalPlan);
+        var retrievalDecision = _confidenceEvaluator.Evaluate(retrievalQuestionText, retrievalPlan);
+        Guid? answerId = null;
+        Guid? conversationId = null;
 
         if (retrievalDecision.AnswerMode == RagAnswerMode.Insufficient)
         {
-            await PersistQuestionIfAuthenticatedAsync(
-                userId,
-                request.ConversationId,
-                request.QuestionText,
-                translatedText,
-                detectedLanguage);
-
-            return BuildNonGroundedResult(
+            var result = BuildNonGroundedResult(
                 detectedLanguage,
                 detectedLanguageCode,
                 RagAnswerMode.Insufficient,
                 retrievalDecision.ConfidenceBand,
                 null,
                 retrievalDecision.RequiresUrgentAttention);
+
+            if (userId.HasValue)
+            {
+                var persistedQuestion = await PersistQuestionAsync(
+                    userId.Value,
+                    existingConversation?.Id,
+                    request.QuestionText,
+                    translatedText,
+                    detectedLanguage);
+                conversationId = persistedQuestion.ConversationId;
+                answerId = await PersistAnswerAsync(
+                    persistedQuestion.QuestionId,
+                    result.AnswerText,
+                    detectedLanguage,
+                    Array.Empty<RetrievedChunk>());
+                result.ConversationId = conversationId;
+                result.AnswerId = answerId;
+            }
+
+            return result;
         }
 
         if (retrievalDecision.AnswerMode == RagAnswerMode.Clarification)
@@ -216,36 +252,48 @@ public class RagAppService : ApplicationService, IRagAppService
             var clarificationQuestion = await BuildClarificationQuestionAsync(
                 request.QuestionText,
                 detectedLanguage,
-                retrievalDecision);
+                retrievalDecision,
+                conversationHistoryBlock);
 
-            await PersistQuestionIfAuthenticatedAsync(
-                userId,
-                request.ConversationId,
-                request.QuestionText,
-                translatedText,
-                detectedLanguage);
-
-            return BuildNonGroundedResult(
+            var result = BuildNonGroundedResult(
                 detectedLanguage,
                 detectedLanguageCode,
                 RagAnswerMode.Clarification,
                 retrievalDecision.ConfidenceBand,
                 clarificationQuestion,
                 retrievalDecision.RequiresUrgentAttention);
+
+            if (userId.HasValue)
+            {
+                var persistedQuestion = await PersistQuestionAsync(
+                    userId.Value,
+                    existingConversation?.Id,
+                    request.QuestionText,
+                    translatedText,
+                    detectedLanguage);
+                conversationId = persistedQuestion.ConversationId;
+                answerId = await PersistAnswerAsync(
+                    persistedQuestion.QuestionId,
+                    BuildStoredClarificationAnswer(result.AnswerText, clarificationQuestion),
+                    detectedLanguage,
+                    Array.Empty<RetrievedChunk>());
+                result.ConversationId = conversationId;
+                result.AnswerId = answerId;
+            }
+
+            return result;
         }
 
         var answerText = await BuildGroundedAnswerAsync(
             request.QuestionText,
             detectedLanguage,
-            retrievalDecision);
-
-        Guid? answerId = null;
-        Guid? conversationId = null;
+            retrievalDecision,
+            conversationHistoryBlock);
         if (userId.HasValue)
         {
             var persistedQuestion = await PersistQuestionAsync(
                 userId.Value,
-                request.ConversationId,
+                existingConversation?.Id,
                 request.QuestionText,
                 translatedText,
                 detectedLanguage);
@@ -272,27 +320,20 @@ public class RagAppService : ApplicationService, IRagAppService
             DetectedLanguageCode = detectedLanguageCode,
             AnswerMode = retrievalDecision.AnswerMode,
             ConfidenceBand = retrievalDecision.ConfidenceBand,
+            PrimarySourceTitle = GetPrimarySourceTitle(retrievalDecision.SelectedChunks),
+            PrimarySourceLocator = GetPrimarySourceLocator(retrievalDecision.SelectedChunks),
+            PrimaryAuthorityType = GetPrimaryAuthorityType(retrievalDecision.SelectedChunks),
+            HasSupportingSources = retrievalDecision.SelectedChunks.Any(chunk =>
+                string.Equals(chunk.SourceRole, RagSourceMetadata.Supporting, StringComparison.Ordinal)),
             RequiresUrgentAttention = retrievalDecision.RequiresUrgentAttention
         };
     }
 
     public static bool ShouldPersistAnswer(RagAnswerMode answerMode) =>
-        answerMode == RagAnswerMode.Direct || answerMode == RagAnswerMode.Cautious;
-
-    private async Task PersistQuestionIfAuthenticatedAsync(
-        long? userId,
-        Guid? conversationId,
-        string originalText,
-        string translatedText,
-        Language language)
-    {
-        if (!userId.HasValue)
-        {
-            return;
-        }
-
-        await PersistQuestionAsync(userId.Value, conversationId, originalText, translatedText, language);
-    }
+        answerMode == RagAnswerMode.Direct ||
+        answerMode == RagAnswerMode.Cautious ||
+        answerMode == RagAnswerMode.Clarification ||
+        answerMode == RagAnswerMode.Insufficient;
 
     private async Task EnsureIndexLoadedAsync()
     {
@@ -326,6 +367,10 @@ public class RagAppService : ApplicationService, IRagAppService
             DetectedLanguageCode = detectedLanguageCode,
             AnswerMode = answerMode,
             ConfidenceBand = confidenceBand,
+            PrimarySourceTitle = null,
+            PrimarySourceLocator = null,
+            PrimaryAuthorityType = null,
+            HasSupportingSources = false,
             ClarificationQuestion = answerMode == RagAnswerMode.Clarification ? clarificationQuestion : null,
             RequiresUrgentAttention = requiresUrgentAttention
         };
@@ -334,7 +379,8 @@ public class RagAppService : ApplicationService, IRagAppService
     private async Task<string> BuildGroundedAnswerAsync(
         string originalQuestionText,
         Language detectedLanguage,
-        RetrievalDecision retrievalDecision)
+        RetrievalDecision retrievalDecision,
+        string conversationHistoryBlock)
     {
         var systemPrompt = RagPromptBuilder.BuildSystemPrompt(
             retrievalDecision.AnswerMode,
@@ -345,6 +391,7 @@ public class RagAppService : ApplicationService, IRagAppService
             originalQuestionText,
             contextBlock,
             retrievalDecision.AnswerMode,
+            conversationHistoryBlock: conversationHistoryBlock,
             requiresUrgentAttention: retrievalDecision.RequiresUrgentAttention);
 
         return await CallChatCompletionsAsync(
@@ -356,7 +403,8 @@ public class RagAppService : ApplicationService, IRagAppService
     private async Task<string> BuildClarificationQuestionAsync(
         string originalQuestionText,
         Language detectedLanguage,
-        RetrievalDecision retrievalDecision)
+        RetrievalDecision retrievalDecision,
+        string conversationHistoryBlock)
     {
         if (retrievalDecision.SelectedChunks.Count == 0)
         {
@@ -375,6 +423,7 @@ public class RagAppService : ApplicationService, IRagAppService
                 contextBlock,
                 RagAnswerMode.Clarification,
                 retrievalDecision.ClarificationQuestion,
+                conversationHistoryBlock,
                 retrievalDecision.RequiresUrgentAttention);
 
             var response = await CallChatCompletionsAsync(
@@ -528,6 +577,161 @@ public class RagAppService : ApplicationService, IRagAppService
                 RelevanceScore = chunk.RelevanceScore
             })
             .ToList();
+
+    private static RetrievedChunk GetPrimarySourceChunk(IEnumerable<RetrievedChunk> usedChunks) =>
+        usedChunks?
+            .FirstOrDefault(chunk =>
+                string.Equals(chunk.SourceRole, RagSourceMetadata.Primary, StringComparison.Ordinal)) ??
+        usedChunks?
+            .FirstOrDefault();
+
+    private static string BuildStoredClarificationAnswer(string answerLead, string clarificationQuestion)
+    {
+        if (string.IsNullOrWhiteSpace(clarificationQuestion))
+        {
+            return answerLead;
+        }
+
+        return $"{answerLead}\n\n{clarificationQuestion.Trim()}";
+    }
+
+    private static string BuildRetrievalQuestionText(string translatedQuestionText, string conversationHistoryBlock)
+    {
+        if (string.IsNullOrWhiteSpace(conversationHistoryBlock))
+        {
+            return translatedQuestionText;
+        }
+
+        return
+            $"Current question: {translatedQuestionText.Trim()}\n\n" +
+            $"Recent conversation context:\n{conversationHistoryBlock}";
+    }
+
+    private static string BuildConversationHistoryBlock(Conversation conversation)
+    {
+        var messageEntries = conversation?.Questions?
+            .OrderBy(question => question.CreationTime)
+            .SelectMany(question =>
+            {
+                var entries = new List<(DateTime CreatedAt, string Role, string Text)>
+                {
+                    (question.CreationTime, "User", question.OriginalText ?? string.Empty)
+                };
+
+                if (question.Answers != null)
+                {
+                    entries.AddRange(question.Answers
+                        .OrderBy(answer => answer.CreationTime)
+                        .Select(answer => (answer.CreationTime, "Assistant", answer.Text ?? string.Empty)));
+                }
+
+                return entries;
+            })
+            .OrderBy(entry => entry.CreatedAt)
+            .TakeLast(MaxConversationHistoryMessages)
+            .ToList();
+
+        if (messageEntries is null || messageEntries.Count == 0)
+        {
+            return string.Empty;
+        }
+
+        var sb = new StringBuilder();
+        foreach (var entry in messageEntries)
+        {
+            var text = entry.Text.Trim();
+            if (text.Length > 500)
+            {
+                text = $"{text[..500]}...";
+            }
+
+            sb.AppendLine($"{entry.Role}: {text}");
+        }
+
+        return sb.ToString().TrimEnd();
+    }
+
+    private static string GetPrimarySourceTitle(IEnumerable<RetrievedChunk> usedChunks) =>
+        GetPrimarySourceChunk(usedChunks)?.SourceTitle;
+
+    private static string GetPrimarySourceLocator(IEnumerable<RetrievedChunk> usedChunks) =>
+        GetPrimarySourceChunk(usedChunks)?.SourceLocator;
+
+    private static string GetPrimaryAuthorityType(IEnumerable<RetrievedChunk> usedChunks) =>
+        GetPrimarySourceChunk(usedChunks)?.AuthorityType;
+
+    protected virtual Task<Conversation> LoadConversationThreadAsync(long userId, Guid conversationId)
+    {
+        return _conversationRepository
+            .GetAll()
+            .Include(conversation => conversation.Questions)
+                .ThenInclude(question => question.Answers)
+                    .ThenInclude(answer => answer.Citations)
+                        .ThenInclude(citation => citation.Chunk)
+                            .ThenInclude(chunk => chunk.Document)
+            .FirstOrDefaultAsync(conversation =>
+                conversation.Id == conversationId &&
+                conversation.UserId == userId);
+    }
+
+    private static ConversationDetailDto MapConversationDetail(Conversation conversation)
+    {
+        var messages = new List<ConversationHistoryMessageDto>();
+
+        foreach (var question in conversation.Questions.OrderBy(item => item.CreationTime))
+        {
+            messages.Add(new ConversationHistoryMessageDto
+            {
+                MessageId = question.Id,
+                Type = "user",
+                Text = question.OriginalText ?? string.Empty,
+                CreatedAt = question.CreationTime,
+                DetectedLanguageCode = RagPromptBuilder.ToIsoCode(question.Language),
+                Citations = new List<RagCitationDto>()
+            });
+
+            foreach (var answer in (question.Answers ?? Array.Empty<Answer>()).OrderBy(item => item.CreationTime))
+            {
+                messages.Add(new ConversationHistoryMessageDto
+                {
+                    MessageId = answer.Id,
+                    Type = "bot",
+                    Text = answer.Text ?? string.Empty,
+                    CreatedAt = answer.CreationTime,
+                    DetectedLanguageCode = RagPromptBuilder.ToIsoCode(answer.Language),
+                    Citations = (answer.Citations ?? Array.Empty<AnswerCitation>())
+                        .OrderByDescending(citation => citation.RelevanceScore)
+                        .Select(citation => new RagCitationDto
+                        {
+                            ChunkId = citation.ChunkId,
+                            ActName = citation.Chunk?.Document?.Title ?? "Unknown Act",
+                            SectionNumber = citation.SectionNumber,
+                            SourceTitle = citation.Chunk?.Document?.Title ?? "Unknown Act",
+                            SourceLocator = citation.SectionNumber,
+                            AuthorityType = citation.Chunk?.Document is null
+                                ? null
+                                : RagSourceMetadata.DeriveAuthorityType(
+                                    citation.Chunk.Document.Title,
+                                    citation.Chunk.Document.ShortName,
+                                    citation.Chunk.Document.ActNumber),
+                            SourceRole = null,
+                            Excerpt = citation.Excerpt,
+                            RelevanceScore = (float)citation.RelevanceScore
+                        })
+                        .ToList()
+                });
+            }
+        }
+
+        return new ConversationDetailDto
+        {
+            ConversationId = conversation.Id,
+            StartedAt = conversation.StartedAt,
+            Language = conversation.Language.ToString().ToLowerInvariant(),
+            QuestionCount = conversation.Questions?.Count ?? 0,
+            Messages = messages
+        };
+    }
 
     private static List<string> ParseKeywords(string rawKeywords)
     {

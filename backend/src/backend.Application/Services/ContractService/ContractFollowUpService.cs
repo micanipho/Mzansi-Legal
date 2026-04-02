@@ -23,6 +23,8 @@ namespace backend.Services.ContractService;
 /// </summary>
 public class ContractFollowUpService : ApplicationService
 {
+    private const int MaxConversationHistoryMessages = 6;
+
     private static readonly HashSet<string> UrgentTerms = new(StringComparer.Ordinal)
     {
         "asap", "deadline", "evict", "eviction", "hearing", "immediately", "lockout", "urgent"
@@ -76,7 +78,8 @@ public class ContractFollowUpService : ApplicationService
     public virtual async Task<ContractFollowUpAnswerDto> AskAsync(
         ContractAnalysis analysis,
         string questionText,
-        string responseLanguageCode = null)
+        string responseLanguageCode = null,
+        IReadOnlyList<ContractConversationHistoryMessageDto> conversationHistory = null)
     {
         Guard.Against.Null(analysis, nameof(analysis));
         Guard.Against.NullOrWhiteSpace(questionText, nameof(questionText));
@@ -87,13 +90,14 @@ public class ContractFollowUpService : ApplicationService
         var responseLanguage = string.IsNullOrWhiteSpace(responseLanguageCode)
             ? detectedLanguage
             : ContractAnalysisService.ParseLanguageCode(responseLanguageCode);
-        var requiresUrgentAttention = RequiresUrgentAttention(translatedQuestionText);
+        var retrievalQuestionText = BuildRetrievalQuestionText(translatedQuestionText, conversationHistory);
+        var requiresUrgentAttention = RequiresUrgentAttention(retrievalQuestionText);
 
-        var contractExcerpts = SelectRelevantExcerpts(analysis.ExtractedText, translatedQuestionText);
+        var contractExcerpts = SelectRelevantExcerpts(analysis.ExtractedText, retrievalQuestionText);
         var context = await _contractLegislationContextBuilder.BuildForFollowUpAsync(
             analysis.ContractType,
             analysis.ExtractedText,
-            translatedQuestionText);
+            retrievalQuestionText);
         var (answerMode, confidenceBand) = DetermineAnswerMode(context, contractExcerpts.Count, requiresUrgentAttention);
 
         if (answerMode == RagAnswerMode.Insufficient)
@@ -112,7 +116,8 @@ public class ContractFollowUpService : ApplicationService
             answerMode,
             contractExcerpts,
             context,
-            requiresUrgentAttention);
+            requiresUrgentAttention,
+            conversationHistory);
 
         return new ContractFollowUpAnswerDto
         {
@@ -200,7 +205,8 @@ public class ContractFollowUpService : ApplicationService
         RagAnswerMode answerMode,
         IReadOnlyList<string> contractExcerpts,
         ContractLegislationContext context,
-        bool requiresUrgentAttention)
+        bool requiresUrgentAttention,
+        IReadOnlyList<ContractConversationHistoryMessageDto> conversationHistory)
     {
         var systemPrompt = BuildSystemPrompt(answerMode, responseLanguage, requiresUrgentAttention);
         var userPrompt = BuildUserPrompt(
@@ -209,7 +215,8 @@ public class ContractFollowUpService : ApplicationService
             answerMode,
             contractExcerpts,
             context,
-            requiresUrgentAttention);
+            requiresUrgentAttention,
+            conversationHistory);
 
         return await CallChatCompletionsAsync(
             systemPrompt,
@@ -311,16 +318,17 @@ public class ContractFollowUpService : ApplicationService
             "2. Include citations for every material legal claim in the format [Act Name, Section X].\n" +
             "3. If the support is limited, say so clearly instead of overstating certainty.\n" +
             "4. Keep the answer practical, plain-language, and focused on what the clause means for the user.\n" +
-            "5. Keep Act names, section numbers, and quoted clause text in English.";
+            "5. Keep Act names, section numbers, and quoted clause text in English.\n" +
+            "6. Conversation history may help you resolve follow-up references like 'that clause', but prior assistant replies are not legal authority.";
 
         if (answerMode == RagAnswerMode.Cautious)
         {
-            prompt += "\n6. Lead with what is uncertain or needs review before giving the grounded answer.";
+            prompt += "\n7. Lead with what is uncertain or needs review before giving the grounded answer.";
         }
 
         if (requiresUrgentAttention)
         {
-            prompt += "\n7. Add a short immediate-help note if the situation may involve urgent deadlines, lockout, eviction, or immediate harm.";
+            prompt += "\n8. Add a short immediate-help note if the situation may involve urgent deadlines, lockout, eviction, or immediate harm.";
         }
 
         var languageDirective = responseLanguage switch
@@ -333,7 +341,7 @@ public class ContractFollowUpService : ApplicationService
 
         if (!string.IsNullOrWhiteSpace(languageDirective))
         {
-            prompt += $"\n8. {languageDirective}";
+            prompt += $"\n9. {languageDirective}";
         }
 
         return prompt;
@@ -345,12 +353,17 @@ public class ContractFollowUpService : ApplicationService
         RagAnswerMode answerMode,
         IReadOnlyList<string> contractExcerpts,
         ContractLegislationContext context,
-        bool requiresUrgentAttention)
+        bool requiresUrgentAttention,
+        IReadOnlyList<ContractConversationHistoryMessageDto> conversationHistory)
     {
         var contractTextBlock = string.Join(
             "\n\n",
             contractExcerpts.Select((excerpt, index) => $"Contract excerpt {index + 1}:\n{excerpt}"));
         var legislationContextBlock = ContractPromptBuilder.BuildContextBlock(context.AllChunks);
+        var conversationHistoryBlock = BuildConversationHistoryBlock(conversationHistory);
+        var historyPrefix = string.IsNullOrWhiteSpace(conversationHistoryBlock)
+            ? string.Empty
+            : $"Conversation history for continuity only (not legal authority):\n\n{conversationHistoryBlock}\n\n";
         var answerLead = answerMode == RagAnswerMode.Cautious
             ? "Answer carefully. Explain what is clear, what is uncertain, and what should be reviewed."
             : "Answer directly using the contract excerpts and legislation context only.";
@@ -365,11 +378,55 @@ public class ContractFollowUpService : ApplicationService
             $"Contract type: {ContractPromptBuilder.ToContractTypeValue(analysis.ContractType)}\n" +
             $"Coverage state: {context.CoverageState}\n" +
             $"Coverage notes: {context.CoverageNotes}\n\n" +
+            historyPrefix +
             $"Relevant contract excerpts:\n\n{contractTextBlock}\n\n" +
             $"Legislation context:\n\n{legislationContextBlock}\n\n" +
             $"Follow-up question: {originalQuestionText}\n\n" +
             $"{answerLead}\n\n" +
             "Answer:";
+    }
+
+    private static string BuildConversationHistoryBlock(IReadOnlyList<ContractConversationHistoryMessageDto> conversationHistory)
+    {
+        if (conversationHistory is null || conversationHistory.Count == 0)
+        {
+            return string.Empty;
+        }
+
+        var entries = conversationHistory
+            .Where(message =>
+                message is not null &&
+                !string.IsNullOrWhiteSpace(message.Text) &&
+                (string.Equals(message.Role, "user", StringComparison.OrdinalIgnoreCase) ||
+                 string.Equals(message.Role, "assistant", StringComparison.OrdinalIgnoreCase)))
+            .TakeLast(MaxConversationHistoryMessages)
+            .Select(message =>
+            {
+                var roleLabel = string.Equals(message.Role, "assistant", StringComparison.OrdinalIgnoreCase)
+                    ? "Assistant"
+                    : "User";
+                return $"{roleLabel}: {message.Text.Trim()}";
+            })
+            .ToList();
+
+        return entries.Count == 0
+            ? string.Empty
+            : string.Join("\n\n", entries);
+    }
+
+    private static string BuildRetrievalQuestionText(
+        string translatedQuestionText,
+        IReadOnlyList<ContractConversationHistoryMessageDto> conversationHistory)
+    {
+        var conversationHistoryBlock = BuildConversationHistoryBlock(conversationHistory);
+        if (string.IsNullOrWhiteSpace(conversationHistoryBlock))
+        {
+            return translatedQuestionText;
+        }
+
+        return
+            $"Current follow-up question: {translatedQuestionText.Trim()}\n\n" +
+            $"Recent contract conversation context:\n{conversationHistoryBlock}";
     }
 
     private sealed record OpenAiChatRequest(

@@ -7,6 +7,12 @@ export interface IConversationItem {
   questionCount: number;
   startedAt: string;
   locale: string;
+  messages: {
+    messageId: string;
+    type: "user" | "bot";
+    text: string;
+    createdAt: string;
+  }[];
 }
 
 export interface IHistoryStateContext {

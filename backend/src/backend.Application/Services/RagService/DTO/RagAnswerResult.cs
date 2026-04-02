@@ -38,13 +38,13 @@ public class RagAnswerResult
 
     /// <summary>
     /// ID of the persisted <see cref="backend.Domains.QA.Answer"/> entity created for this Q&amp;A exchange.
-    /// <c>null</c> when no grounded answer record was created.
+    /// <c>null</c> when no answer record was created, such as an anonymous exchange.
     /// </summary>
     public Guid? AnswerId { get; set; }
 
     /// <summary>
     /// ID of the persisted <see cref="backend.Domains.QA.Conversation"/> linked to this exchange.
-    /// <c>null</c> when no conversation was persisted or surfaced to the client.
+    /// <c>null</c> when no conversation was persisted or surfaced to the client, such as an anonymous exchange.
     /// </summary>
     public Guid? ConversationId { get; set; }
 
@@ -54,6 +54,32 @@ public class RagAnswerResult
     /// </summary>
     [JsonProperty("detectedLanguageCode")]
     public string DetectedLanguageCode { get; set; } = "en";
+
+    /// <summary>
+    /// Preferred title of the controlling source selected for the response posture.
+    /// Null when the system could not safely settle on a governing source.
+    /// </summary>
+    [JsonProperty("primarySourceTitle")]
+    public string PrimarySourceTitle { get; set; }
+
+    /// <summary>
+    /// Preferred locator of the controlling source such as a section number or heading.
+    /// Null when the system could not safely settle on a governing source.
+    /// </summary>
+    [JsonProperty("primarySourceLocator")]
+    public string PrimarySourceLocator { get; set; }
+
+    /// <summary>
+    /// Distinguishes whether the controlling source is binding law or official guidance.
+    /// </summary>
+    [JsonProperty("primaryAuthorityType")]
+    public string PrimaryAuthorityType { get; set; }
+
+    /// <summary>
+    /// True when the response includes one or more supporting sources beyond the controlling source.
+    /// </summary>
+    [JsonProperty("hasSupportingSources")]
+    public bool HasSupportingSources { get; set; }
 
     /// <summary>
     /// Structured response posture returned by the retrieval pipeline.

@@ -20,6 +20,7 @@ import {
   useContractsState,
 } from "@/providers/contracts-provider";
 import {
+  type ContractConversationMessage,
   formatContractDate,
   getContractTypeLabel,
   getContractVerdict,
@@ -41,6 +42,45 @@ type FollowUpMessage =
       text: string;
       answer: ContractFollowUpAnswer;
     };
+
+const CONTRACT_CHAT_STORAGE_PREFIX = "mzansi-legal-contract-chat:";
+
+function getContractChatStorageKey(id: string) {
+  return `${CONTRACT_CHAT_STORAGE_PREFIX}${id}`;
+}
+
+function toConversationHistory(messages: FollowUpMessage[]): ContractConversationMessage[] {
+  return messages.map((message) => ({
+    role: message.role,
+    text: message.text,
+  }));
+}
+
+function loadStoredConversation(id: string): FollowUpMessage[] {
+  if (typeof window === "undefined") {
+    return [];
+  }
+
+  try {
+    const raw = window.localStorage.getItem(getContractChatStorageKey(id));
+    if (!raw) {
+      return [];
+    }
+
+    const parsed = JSON.parse(raw) as FollowUpMessage[];
+    return Array.isArray(parsed)
+      ? parsed.filter(
+          (message) =>
+            message &&
+            (message.role === "user" || message.role === "assistant") &&
+            typeof message.text === "string",
+        )
+      : [];
+  } catch {
+    window.localStorage.removeItem(getContractChatStorageKey(id));
+    return [];
+  }
+}
 
 function getVerdictTone(verdict: "good" | "review" | "high-risk") {
   switch (verdict) {
@@ -158,6 +198,28 @@ function ContractDetailContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, locale]);
 
+  useEffect(() => {
+    if (!id) {
+      return;
+    }
+
+    setFollowUpMessages(loadStoredConversation(id));
+  }, [id]);
+
+  useEffect(() => {
+    if (!id || typeof window === "undefined") {
+      return;
+    }
+
+    const storageKey = getContractChatStorageKey(id);
+    if (followUpMessages.length === 0) {
+      window.localStorage.removeItem(storageKey);
+      return;
+    }
+
+    window.localStorage.setItem(storageKey, JSON.stringify(followUpMessages));
+  }, [followUpMessages, id]);
+
   if (isPending && !selected) {
     return (
       <main
@@ -237,16 +299,25 @@ function ContractDetailContent() {
       return;
     }
 
+    const userMessage: FollowUpMessage = {
+      id: `user-${Date.now()}`,
+      role: "user",
+      text: nextQuestion,
+    };
+
     setFollowUpQuestion("");
     setFollowUpError(null);
     setIsFollowUpPending(true);
-    setFollowUpMessages((current) => [
-      ...current,
-      { id: `user-${Date.now()}`, role: "user", text: nextQuestion },
-    ]);
+    const nextHistory = [...followUpMessages, userMessage];
+    setFollowUpMessages(nextHistory);
 
     try {
-      const answer = await askContractQuestion(id, nextQuestion, locale);
+      const answer = await askContractQuestion(
+        id,
+        nextQuestion,
+        locale,
+        toConversationHistory(nextHistory),
+      );
       setFollowUpMessages((current) => [
         ...current,
         {
@@ -257,6 +328,10 @@ function ContractDetailContent() {
         },
       ]);
     } catch (error) {
+      setFollowUpMessages((current) =>
+        current.filter((message) => message.id !== userMessage.id),
+      );
+      setFollowUpQuestion(nextQuestion);
       setFollowUpError(getUserFacingErrorMessage(error, t("followUpError")));
     } finally {
       setIsFollowUpPending(false);

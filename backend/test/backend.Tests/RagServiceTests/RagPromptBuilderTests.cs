@@ -46,6 +46,8 @@ public class RagPromptBuilderTests
 
         result.ShouldContain("binding law as controlling");
         result.ShouldContain("immediate-help note");
+        result.ShouldContain("official guidance and not binding law");
+        result.ShouldContain("point in different directions");
     }
 
     [Fact]
@@ -91,6 +93,30 @@ public class RagPromptBuilderTests
 
         result.ShouldContain("Return only the follow-up question.");
         result.ShouldContain("Can you share whether this is about a rented home?");
+    }
+
+    [Fact]
+    public void BuildUserPrompt_ForDirectMode_AsksModelToIdentifyControllingSource()
+    {
+        var result = RagPromptBuilder.BuildUserPrompt(
+            "Can my landlord evict me?",
+            "[Act - Section]\nContext",
+            RagAnswerMode.Direct);
+
+        result.ShouldContain("identify the controlling source first");
+    }
+
+    [Fact]
+    public void BuildUserPrompt_WithConversationHistory_IncludesContinuityBlock()
+    {
+        var result = RagPromptBuilder.BuildUserPrompt(
+            "What if they change the locks?",
+            "[Act - Section]\nContext",
+            RagAnswerMode.Cautious,
+            conversationHistoryBlock: "User: Can my landlord evict me?\nAssistant: A court order is required.");
+
+        result.ShouldContain("Conversation history for continuity only");
+        result.ShouldContain("A court order is required.");
     }
 
     [Fact]
