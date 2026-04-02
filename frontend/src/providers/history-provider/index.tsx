@@ -1,5 +1,5 @@
 "use client";
-import { useContext, useReducer } from "react";
+import { useContext, useEffect, useEffectEvent, useReducer } from "react";
 import { getConversations } from "@/services/qaService";
 import { useAuth } from "@/hooks/useAuth";
 import { HistoryReducer } from "./reducer";
@@ -7,7 +7,7 @@ import { INITIAL_STATE, HistoryStateContext, HistoryActionContext } from "./cont
 import { HistoryStateEnums } from "./actions";
 
 export const HistoryProvider = ({ children }: { children: React.ReactNode }) => {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const [state, dispatch] = useReducer(HistoryReducer, INITIAL_STATE);
 
   const fetchAll = async () => {
@@ -29,6 +29,17 @@ export const HistoryProvider = ({ children }: { children: React.ReactNode }) => 
       dispatch({ type: HistoryStateEnums.HISTORY_FETCH_ALL_ERROR });
     }
   };
+  const fetchAllOnReady = useEffectEvent(() => {
+    void fetchAll();
+  });
+
+  useEffect(() => {
+    if (isLoading || !user) {
+      return;
+    }
+
+    fetchAllOnReady();
+  }, [isLoading, user]);
 
   return (
     <HistoryStateContext.Provider value={state}>

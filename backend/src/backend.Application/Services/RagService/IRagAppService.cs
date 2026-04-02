@@ -21,8 +21,11 @@ public interface IRagAppService : IApplicationService
     /// on how strongly the indexed legislation supports the question, whether official guidance
     /// supplements the law, and whether urgent risk indicators require a safer posture.
     /// </summary>
-    /// <param name="request">The user's question. <see cref="AskQuestionRequest.QuestionText"/> must not be null or whitespace.</param>
-    /// <returns>A <see cref="RagAnswerResult"/> with the answer text, citations, and chunk IDs.</returns>
+    /// <param name="request">
+    /// The user's question. <see cref="AskQuestionRequest.QuestionText"/> must not be null or whitespace.
+    /// <see cref="AskQuestionRequest.ConversationId"/> may be supplied to continue an existing conversation owned by the current user.
+    /// </param>
+    /// <returns>A <see cref="RagAnswerResult"/> with the answer text, citations, and persistence identifiers.</returns>
     Task<RagAnswerResult> AskAsync(AskQuestionRequest request);
 
     /// <summary>

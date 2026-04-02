@@ -43,6 +43,12 @@ public class RagAnswerResult
     public Guid? AnswerId { get; set; }
 
     /// <summary>
+    /// ID of the persisted <see cref="backend.Domains.QA.Conversation"/> linked to this exchange.
+    /// <c>null</c> when no conversation was persisted or surfaced to the client.
+    /// </summary>
+    public Guid? ConversationId { get; set; }
+
+    /// <summary>
     /// ISO 639-1 code of the detected input language (e.g. "zu", "st", "af", "en").
     /// Defaults to "en" when language detection is unavailable.
     /// </summary>
