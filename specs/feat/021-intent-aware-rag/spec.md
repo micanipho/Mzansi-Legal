@@ -134,7 +134,7 @@ A user asks a broad, ambiguous, unsupported, or urgent legal question. The syste
 ## Assumptions
 
 - The feature remains focused on supported South African legal topics already covered by the product's curated source corpus, with legislation-first coverage as the current baseline.
-- English-first, plain-language user interactions remain the default for this refinement; broader language expansion may be planned separately.
+- Supported user interactions may be submitted in English, isiZulu, Sesotho, or Afrikaans, while retrieval continues to normalize non-English input to English internally.
 - The feature improves how legal sources are found, explained, and safety-routed, but it does not replace professional legal representation.
 - Human escalation in this milestone means clear referral or recommendation messaging to appropriate legal or official help channels, not full lawyer booking or case management.
 - Official forms, regulator guidance, and public procedure pages may be used as supporting sources where they help users act, but they do not replace controlling legal authority.
