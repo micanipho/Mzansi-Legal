@@ -22,15 +22,18 @@ public class ContractAppService : ApplicationService, IContractAppService
     private readonly IRepository<ContractAnalysis, Guid> _contractAnalysisRepository;
     private readonly IRepository<ContractFlag, Guid> _contractFlagRepository;
     private readonly ContractAnalysisService _contractAnalysisService;
+    private readonly ContractFollowUpService _contractFollowUpService;
 
     public ContractAppService(
         IRepository<ContractAnalysis, Guid> contractAnalysisRepository,
         IRepository<ContractFlag, Guid> contractFlagRepository,
-        ContractAnalysisService contractAnalysisService)
+        ContractAnalysisService contractAnalysisService,
+        ContractFollowUpService contractFollowUpService)
     {
         _contractAnalysisRepository = contractAnalysisRepository;
         _contractFlagRepository = contractFlagRepository;
         _contractAnalysisService = contractAnalysisService;
+        _contractFollowUpService = contractFollowUpService;
     }
 
     public async Task<ContractAnalysisDto> AnalyseAsync(AnalyseContractRequest request)
@@ -114,6 +117,18 @@ public class ContractAppService : ApplicationService, IContractAppService
         return MapToDetailDto(analysis);
     }
 
+    public async Task<ContractFollowUpAnswerDto> AskAsync(Guid id, AskContractQuestionRequest request)
+    {
+        Guard.Against.Null(request, nameof(request));
+        Guard.Against.NullOrWhiteSpace(request.QuestionText, nameof(request.QuestionText));
+
+        var analysis = await GetOwnedAnalysisAsync(id);
+        return await _contractFollowUpService.AskAsync(
+            analysis,
+            request.QuestionText,
+            request.ResponseLanguageCode);
+    }
+
     protected virtual async Task<ContractAnalysis> GetOwnedAnalysisAsync(Guid id)
     {
         var userId = AbpSession.UserId
@@ -146,6 +161,9 @@ public class ContractAppService : ApplicationService, IContractAppService
             .OrderBy(flag => flag.SortOrder)
             .ThenBy(flag => flag.CreationTime)
             .ToList();
+        var mappedFlags = orderedFlags
+            .Select(MapFlagDto)
+            .ToList();
 
         return new ContractAnalysisDto
         {
@@ -156,19 +174,17 @@ public class ContractAppService : ApplicationService, IContractAppService
             Summary = analysis.Summary,
             Language = ContractPromptBuilder.ToLanguageCode(analysis.Language),
             AnalysedAt = analysis.AnalysedAt,
+            PageCount = EstimatePageCount(analysis.ExtractedText),
             RedFlagCount = orderedFlags.Count(flag => flag.Severity == FlagSeverity.Red),
             AmberFlagCount = orderedFlags.Count(flag => flag.Severity == FlagSeverity.Amber),
             GreenFlagCount = orderedFlags.Count(flag => flag.Severity == FlagSeverity.Green),
-            Flags = orderedFlags
-                .Select(flag => new ContractFlagDto
-                {
-                    Severity = ContractPromptBuilder.ToSeverityValue(flag.Severity),
-                    Title = flag.Title,
-                    Description = flag.Description,
-                    ClauseText = flag.ClauseText,
-                    LegislationCitation = flag.LegislationCitation
-                })
-                .ToList()
+            Strengths = mappedFlags
+                .Where(flag => string.Equals(flag.Severity, "green", StringComparison.Ordinal))
+                .ToList(),
+            Concerns = mappedFlags
+                .Where(flag => !string.Equals(flag.Severity, "green", StringComparison.Ordinal))
+                .ToList(),
+            Flags = mappedFlags
         };
     }
 
@@ -189,6 +205,29 @@ public class ContractAppService : ApplicationService, IContractAppService
             RedFlagCount = flags.Count(flag => flag.Severity == FlagSeverity.Red),
             AmberFlagCount = flags.Count(flag => flag.Severity == FlagSeverity.Amber),
             GreenFlagCount = flags.Count(flag => flag.Severity == FlagSeverity.Green)
+        };
+    }
+
+    private static int? EstimatePageCount(string extractedText)
+    {
+        if (string.IsNullOrWhiteSpace(extractedText))
+        {
+            return null;
+        }
+
+        var formFeedCount = extractedText.Count(character => character == '\f');
+        return formFeedCount > 0 ? formFeedCount + 1 : null;
+    }
+
+    private static ContractFlagDto MapFlagDto(ContractFlag flag)
+    {
+        return new ContractFlagDto
+        {
+            Severity = ContractPromptBuilder.ToSeverityValue(flag.Severity),
+            Title = flag.Title,
+            Description = flag.Description,
+            ClauseText = flag.ClauseText,
+            LegislationCitation = flag.LegislationCitation
         };
     }
 }

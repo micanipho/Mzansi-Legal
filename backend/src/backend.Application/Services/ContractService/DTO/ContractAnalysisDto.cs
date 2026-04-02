@@ -22,11 +22,17 @@ public class ContractAnalysisDto
 
     public DateTime AnalysedAt { get; set; }
 
+    public int? PageCount { get; set; }
+
     public int RedFlagCount { get; set; }
 
     public int AmberFlagCount { get; set; }
 
     public int GreenFlagCount { get; set; }
+
+    public List<ContractFlagDto> Strengths { get; set; } = new();
+
+    public List<ContractFlagDto> Concerns { get; set; } = new();
 
     public List<ContractFlagDto> Flags { get; set; } = new();
 }

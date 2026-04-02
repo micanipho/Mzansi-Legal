@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { useEffect, useRef } from "react";
-import { ArrowRight, FileSearch, ShieldCheck, TriangleAlert, UploadCloud } from "lucide-react";
+import { DragEvent, useEffect, useRef, useState } from "react";
+import { ArrowRight, ShieldCheck, TriangleAlert, UploadCloud } from "lucide-react";
 import {
   formatContractDate,
   getContractTypeLabel,
@@ -31,6 +31,7 @@ function ContractsContent() {
   const router = useRouter();
   const t = useTranslations("contracts");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isDragActive, setIsDragActive] = useState(false);
   const { items: contracts, isPending, isError, errorMessage } = useContractsState();
   const { fetchAll, analyse } = useContractsAction();
 
@@ -39,7 +40,26 @@ function ContractsContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locale]);
 
-  const featuredContractId = contracts[0]?.id;
+  const handleSelectedFile = async (file: File) => {
+    const result = await analyse(file, locale);
+    router.push(createLocalizedPath(locale, `${appRoutes.contracts}/${result.id}`));
+  };
+
+  const handleDrop = async (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setIsDragActive(false);
+
+    const file = event.dataTransfer.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    try {
+      await handleSelectedFile(file);
+    } catch {
+      // Provider state already captures the upload error for the UI.
+    }
+  };
 
   return (
     <AuthGuard>
@@ -75,69 +95,63 @@ function ContractsContent() {
               {t("uploadTitle")}
             </h1>
             <p style={{ margin: 0, color: C.mutedFg, fontSize: 17, lineHeight: 1.7 }}>{t("uploadHint")}</p>
-            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-              {featuredContractId ? (
-                <Link
-                  href={createLocalizedPath(locale, `${appRoutes.contracts}/${featuredContractId}`)}
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 8,
-                    padding: "12px 20px",
-                    borderRadius: 9999,
-                    background: C.primary,
-                    color: C.primaryFg,
-                    textDecoration: "none",
-                    fontWeight: 700,
-                  }}
-                >
-                  <FileSearch size={16} />
-                  {t("viewFeatured")}
-                </Link>
-              ) : null}
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                disabled={isPending}
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 8,
-                  padding: "12px 18px",
-                  borderRadius: 9999,
-                  border: `1px solid ${C.border}`,
-                  color: C.mutedFg,
-                  background: "rgba(255,255,255,0.62)",
-                  fontWeight: 700,
-                  cursor: isPending ? "progress" : "pointer",
-                  opacity: isPending ? 0.75 : 1,
-                }}
-                aria-label={t("uploadButton")}
-              >
-                <UploadCloud size={16} />
-                {isPending ? t("loading") : t("uploadButton")}
-              </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".pdf,application/pdf"
-                aria-label={t("uploadButton")}
-                style={{ display: "none" }}
-                onChange={async (event) => {
-                  const file = event.target.files?.[0];
-                  if (!file) {
-                    return;
-                  }
-
-                  try {
-                    const result = await analyse(file, locale);
-                    router.push(createLocalizedPath(locale, `${appRoutes.contracts}/${result.id}`));
-                  } finally {
-                    event.target.value = "";
-                  }
-                }}
-              />
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={() => fileInputRef.current?.click()}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  fileInputRef.current?.click();
+                }
+              }}
+              onDragOver={(event) => {
+                event.preventDefault();
+                setIsDragActive(true);
+              }}
+              onDragLeave={() => setIsDragActive(false)}
+              onDrop={(event) => void handleDrop(event)}
+              style={{
+                borderRadius: 28,
+                border: `2px dashed ${isDragActive ? C.primary : "rgba(126, 107, 86, 0.28)"}`,
+                background: isDragActive ? "rgba(93, 112, 82, 0.08)" : "rgba(255,255,255,0.55)",
+                padding: 28,
+                display: "grid",
+                gap: 10,
+                cursor: isPending ? "progress" : "pointer",
+                transition: "all 160ms ease",
+              }}
+              aria-label={t("uploadButton")}
+            >
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 10, color: C.primary, fontWeight: 800 }}>
+                <UploadCloud size={18} />
+                {isPending ? t("loading") : t("dragDropTitle")}
+              </div>
+              <p style={{ margin: 0, color: C.mutedFg, lineHeight: 1.7 }}>{t("dragDropHint")}</p>
+              <p style={{ margin: 0, fontSize: 13, color: C.mutedFg }}>{t("pdfLimit")}</p>
+              <p style={{ margin: 0, fontSize: 13, color: C.mutedFg }}>{t("mobileScanHint")}</p>
             </div>
-            <p style={{ margin: 0, fontSize: 13, color: C.mutedFg }}>{t("pdfLimit")}</p>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".pdf,application/pdf"
+              aria-label={t("uploadButton")}
+              style={{ display: "none" }}
+              onChange={async (event) => {
+                const file = event.target.files?.[0];
+                if (!file) {
+                  return;
+                }
+
+                try {
+                  await handleSelectedFile(file);
+                } catch {
+                  // Provider state already captures the upload error for the UI.
+                } finally {
+                  event.target.value = "";
+                }
+              }}
+            />
             {isError && errorMessage ? (
               <p style={{ margin: 0, color: C.destructive, fontWeight: 600 }}>{errorMessage}</p>
             ) : null}

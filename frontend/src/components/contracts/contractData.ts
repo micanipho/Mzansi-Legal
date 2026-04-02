@@ -18,10 +18,34 @@ export interface ContractRecord {
   summary: string;
   language: string;
   analysedAt: string;
+  pageCount?: number | null;
   redFlagCount: number;
   amberFlagCount: number;
   greenFlagCount: number;
+  strengths: ContractFlag[];
+  concerns: ContractFlag[];
   flags: ContractFlag[];
+}
+
+export type ContractAnswerMode = "direct" | "cautious" | "insufficient";
+export type ContractConfidenceBand = "high" | "medium" | "low";
+
+export interface ContractFollowUpCitation {
+  sourceTitle: string;
+  sourceLocator: string;
+  authorityType: string;
+  sourceRole: string;
+  excerpt: string;
+}
+
+export interface ContractFollowUpAnswer {
+  answerText: string;
+  answerMode: ContractAnswerMode;
+  confidenceBand: ContractConfidenceBand;
+  requiresUrgentAttention: boolean;
+  detectedLanguageCode: string;
+  contractExcerpts: string[];
+  citations: ContractFollowUpCitation[];
 }
 
 export interface ContractListItem {

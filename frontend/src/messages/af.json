@@ -149,7 +149,7 @@
   "contracts": {
     "title": "Kontrak Gesondheidstoets",
     "uploadTitle": "Laai op of hersien 'n kontrak",
-    "uploadHint": "Kies 'n onlangse kontrakanalise of maak die uitgestalde demo oop om te wys hoe MzansiLegal risiko merk en die volgende stap verduidelik.",
+    "uploadHint": "Laai 'n kontrak op vir ontleding of maak een van jou gestoorde resultate oop om voort te gaan met terme, risiko's en volgende stappe.",
     "uploadButton": "Laai Op & Ontleed",
     "loading": "Besig om te ontleed\u2026",
     "pdfLimit": "PDF tot 10 MB \u00b7 Huur-, diens-, krediet- of dienslewerooreenkoms",
@@ -161,17 +161,40 @@
     "standardClauses": "Standaard klousules",
     "allStandard": "Die meeste standaard klousules is in orde",
     "plainSummary": "Aanbeveling in gewone taal",
+    "whatGreat": "Wat goed is aan hierdie kontrak",
+    "noGreatPoints": "Geen uitstaande sterk punte is in hierdie gestoorde analise gevind nie.",
+    "needsAttention": "Onder standaard of werd om te hersien",
+    "noConcernPoints": "Geen onder-standaard of versigtigheidspunte is in hierdie gestoorde analise gevind nie.",
     "summary": "Opsomming",
     "followUp": "Stel 'n opvolgvraag oor hierdie kontrak",
-    "viewFeatured": "Open uitgestalde analise",
-    "whyItMattersTitle": "Hoekom hierdie demo saak maak",
-    "whyItMattersBody": "Wys 'n MD dat die platform 'n rou kontrak in 'n besluitsgereed verduideliking kan omskep, nie net 'n chatbot-antwoord nie.",
+    "followUpEmpty": "Vra oor 'n klousule, kansellasietermyn, fooi, kennisperiode of enigiets anders binne hierdie kontrak.",
+    "followUpPlaceholder": "Vra oor 'n klousule of risiko in hierdie kontrak...",
+    "followUpHint": "Jou vraag sal hierdie gestoorde kontrak plus gegronde wetgewing as konteks gebruik.",
+    "followUpLoading": "Dink\u2026",
+    "followUpSend": "Vra oor hierdie kontrak",
+    "followUpError": "Ons kon nie daardie kontrakvraag beantwoord nie. Probeer asseblief weer.",
+    "followUpSources": "Bronne vir grondering",
+    "followUpContractExcerpts": "Relevante kontrakuittreksels",
+    "followUpDirect": "Gegronde antwoord",
+    "followUpCautious": "Gegrond maar versigtig",
+    "followUpInsufficient": "Nie genoeg grondering nie",
+    "viewFeatured": "Open jongste analise",
+    "dragDropTitle": "Sleep en los 'n kontrak-PDF hier",
+    "dragDropHint": "Laat val 'n huur-, diensverhouding-, krediet- of dienskontrak hier, of klik om 'n lêer te kies.",
+    "mobileScanHint": "Foonkamera word ondersteun as jy die dokument eers na PDF skandeer.",
+    "whyItMattersTitle": "Wat jy kry",
+    "whyItMattersBody": "Verander 'n rou kontrak in 'n duidelike, besluitsgereed verduideliking met gegronde regs-konteks en praktiese volgende stappe.",
     "recentAnalyses": "Onlangse ontledings",
     "recentAnalysesHint": "Maak 'n gestoorde analise oop om die telling, opsomming en gegronde waarskuwings te hersien.",
     "openAnalysis": "Open analise",
     "scoreSuffix": "uit 100",
     "cardMeta": "Ontleed {date} \u00b7 {red} rooi \u00b7 {amber} versigtigheid \u00b7 {green} standaard",
     "detailMeta": "{type} kontrak \u00b7 Ontleed {date} \u00b7 Antwoordtaal {language}",
+    "uploadedOn": "Opgelaai op",
+    "analysedAt": "Analise-tyd",
+    "pageCountValue": "{count} bladsye",
+    "pageCountUnknown": "Bladsytelling nie beskikbaar nie",
+    "languageTag": "Taal:",
     "askAboutContract": "Vra oor hierdie kontrak",
     "followUpPrompt": "Help my om die risiko in te verstaan",
     "standardSummary": "{count} klousules pas by die verwagte definisie-, jurisdiksie- en skeibaarheidspatrone vir hierdie kontraktipe.",
@@ -187,9 +210,9 @@
       "high-risk": "Hoë-risiko bepalings opgespoor"
     },
     "benefits": {
-      "fairness": "Lig billikheidskwessies vinnig uit",
-      "risk": "Wys klousules uit wat risiko onregverdig verskuif",
-      "nextStep": "Wys die gebruiker na die volgende stap"
+      "fairness": "Merk onbillike bepalings vroeg uit",
+      "risk": "Wys waar die risiko in die kontrak lê",
+      "nextStep": "Beveel die volgende stap aan"
     }
   },
   "history": {
@@ -231,12 +254,12 @@
   "admin": {
     "dashboardTitle": "Admin-kontroleskerm",
     "shellEyebrow": "Platformsein",
-    "shellDescription": "'n Hoëvlak-aansig van wat die platform verwerk, waar risiko's ontstaan, en hoeveel waarde die demo skep.",
+    "shellDescription": "'n Hoëvlak-aansig van wat die platform verwerk, waar risiko's ontstaan, en hoeveel waarde die produk skep.",
     "insightTitle": "Maandelikse rooi-vlag patrone",
     "insightDescription": "Gebruik hierdie aansig om te wys dat die platform patrone oor opgelaaide dokumente kan uitlig, nie net een vraag op 'n slag beantwoord nie.",
     "insightChartTitle": "Rooi-vlag koers per dokumentkategorie",
     "coverageTitle": "Dekkingsmomentopname",
-    "coverageDescription": "'n Vinnige lees van bereik, vertroue en platformgereedheid vir die volgende demo-gesprek.",
+    "coverageDescription": "'n Vinnige lees van bereik, vertroue en platformgereedheid oor huidige gebruikersaktiwiteit.",
     "activityTitle": "Onlangse platformaktiwiteit",
     "activityDescription": "Verteenwoordigende admin-opdaterings wat die dashboard soos 'n lewende produk laat voel.",
     "emptyState": {
@@ -247,7 +270,7 @@
       "documents": "Wette geindekseer",
       "documentsDescription": "Wetgewingsbronne wat tans beskikbaar is vir aanhalings en gegronde antwoorde.",
       "analyses": "Kontrakontledings",
-      "analysesDescription": "Ontledings wat hierdie maand oor die demo-korpus voltooi is.",
+      "analysesDescription": "Ontledings wat hierdie maand oor opgelaaide gebruikerskontrakte voltooi is.",
       "alerts": "Hoë-risiko waarskuwings",
       "alertsDescription": "Dokumente wat ernstige kwessies uitgelig het wat eskalasie of opvolg nodig het."
     },
@@ -255,20 +278,20 @@
       "languages": "Ondersteunde tale",
       "languagesDetail": "Gebruikers kan tussen vier gelokaliseerde skille wissel sonder om hul huidige reis te verlaat.",
       "sources": "Aanhalingsgereedheid",
-      "sourcesDetail": "Gegronde antwoorddekking oor die ingevoerde wette en kontrakdemo's.",
+      "sourcesDetail": "Gegronde antwoorddekking oor die tans ingevoerde wetgewing en kontrakontledingsvloei.",
       "risk": "Vlagkoers",
       "riskDetail": "Aandeel van onlangse voorbeeldontledings wat ten minste een groot rooi vlag opgelewer het."
     },
     "activity": {
       "items": {
         "0": {
-          "title": "Behuisingshuurkontrak na die demo-kluis opgelaai",
+          "title": "Behuisingshuurkontrak vir hersiening opgelaai",
           "description": "'n Nuwe huurooreenkoms-ontleding is gegenereer en aan die kontrakdetailroete gekoppel vir opvolgvrae.",
           "meta": "7 minute gelede"
         },
         "1": {
-          "title": "Werksvoorbeeld met bygewerkte leiding verfris",
-          "description": "Die demo-korpus beklemtoon nou oortyd- en betaalstrokie-kwessies duideliker in die detailvloei.",
+          "title": "Indiensnemingsleiding verfris",
+          "description": "Die kontrakdetailvloei lig nou oortyd- en salarisstrokiekwessies duideliker uit vir hersiene ooreenkomste.",
           "meta": "21 minute gelede"
         },
         "2": {

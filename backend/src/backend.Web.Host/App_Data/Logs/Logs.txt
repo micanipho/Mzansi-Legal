@@ -6370,3 +6370,420 @@ INFO  2026-04-02 10:32:59,281 [16   ] .Mvc.Infrastructure.ObjectResultExecutor -
 INFO  2026-04-02 10:32:59,282 [16   ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host) in 2616.2278ms
 INFO  2026-04-02 10:32:59,282 [16   ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host)'
 INFO  2026-04-02 10:32:59,282 [16   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 GET http://localhost:21021/api/app/contract/my - 200 - application/json;+charset=utf-8 2635.9521ms
+INFO  2026-04-02 11:05:32,424 [16   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/my - - -
+INFO  2026-04-02 11:05:32,424 [3    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/my - - -
+INFO  2026-04-02 11:05:32,443 [3    ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:05:32,443 [16   ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:05:32,465 [16   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/my - 204 - - 40.9450ms
+INFO  2026-04-02 11:05:32,466 [3    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/my - 204 - - 40.9891ms
+INFO  2026-04-02 11:05:32,470 [10   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 GET http://localhost:21021/api/app/contract/my - - -
+INFO  2026-04-02 11:05:32,473 [10   ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:05:33,274 [10   ] ft.AspNetCore.Routing.EndpointMiddleware - Executing endpoint 'backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host)'
+INFO  2026-04-02 11:05:33,310 [10   ] c.Infrastructure.ControllerActionInvoker - Route matched with {action = "GetMy", controller = "Contract", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[backend.Services.ContractService.DTO.ContractAnalysisListDto] GetMy() on controller backend.Web.Host.Controllers.ContractController (backend.Web.Host).
+INFO  2026-04-02 11:05:36,123 [10   ] .Mvc.Infrastructure.ObjectResultExecutor - Executing ObjectResult, writing value of type 'Abp.Web.Models.AjaxResponse'.
+INFO  2026-04-02 11:05:36,173 [10   ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host) in 2861.7928ms
+INFO  2026-04-02 11:05:36,173 [10   ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host)'
+INFO  2026-04-02 11:05:36,180 [10   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 GET http://localhost:21021/api/app/contract/my - 200 - application/json;+charset=utf-8 3711.3796ms
+INFO  2026-04-02 11:05:36,184 [8    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 GET http://localhost:21021/api/app/contract/my - - -
+INFO  2026-04-02 11:05:36,184 [8    ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:05:36,191 [8    ] ft.AspNetCore.Routing.EndpointMiddleware - Executing endpoint 'backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host)'
+INFO  2026-04-02 11:05:36,211 [8    ] c.Infrastructure.ControllerActionInvoker - Route matched with {action = "GetMy", controller = "Contract", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[backend.Services.ContractService.DTO.ContractAnalysisListDto] GetMy() on controller backend.Web.Host.Controllers.ContractController (backend.Web.Host).
+INFO  2026-04-02 11:05:38,708 [3    ] .Mvc.Infrastructure.ObjectResultExecutor - Executing ObjectResult, writing value of type 'Abp.Web.Models.AjaxResponse'.
+INFO  2026-04-02 11:05:38,709 [3    ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host) in 2497.9355ms
+INFO  2026-04-02 11:05:38,709 [3    ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host)'
+INFO  2026-04-02 11:05:38,709 [3    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 GET http://localhost:21021/api/app/contract/my - 200 - application/json;+charset=utf-8 2525.4809ms
+INFO  2026-04-02 11:05:58,967 [8    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/my - - -
+INFO  2026-04-02 11:05:58,967 [8    ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:05:58,967 [8    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/my - 204 - - 0.3987ms
+INFO  2026-04-02 11:05:58,969 [10   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 GET http://localhost:21021/api/app/contract/my - - -
+INFO  2026-04-02 11:05:58,969 [10   ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:05:58,972 [10   ] ft.AspNetCore.Routing.EndpointMiddleware - Executing endpoint 'backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host)'
+INFO  2026-04-02 11:05:58,981 [10   ] c.Infrastructure.ControllerActionInvoker - Route matched with {action = "GetMy", controller = "Contract", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[backend.Services.ContractService.DTO.ContractAnalysisListDto] GetMy() on controller backend.Web.Host.Controllers.ContractController (backend.Web.Host).
+INFO  2026-04-02 11:06:01,843 [8    ] .Mvc.Infrastructure.ObjectResultExecutor - Executing ObjectResult, writing value of type 'Abp.Web.Models.AjaxResponse'.
+INFO  2026-04-02 11:06:01,843 [8    ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host) in 2862.8451ms
+INFO  2026-04-02 11:06:01,844 [8    ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host)'
+INFO  2026-04-02 11:06:01,844 [8    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 GET http://localhost:21021/api/app/contract/my - 200 - application/json;+charset=utf-8 2874.9220ms
+INFO  2026-04-02 11:17:53,848 [3    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/my - - -
+INFO  2026-04-02 11:17:53,868 [3    ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:17:53,884 [3    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/my - 204 - - 35.2218ms
+INFO  2026-04-02 11:17:53,889 [3    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 GET http://localhost:21021/api/app/contract/my - - -
+INFO  2026-04-02 11:17:53,891 [3    ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:17:53,941 [3    ] ft.AspNetCore.Routing.EndpointMiddleware - Executing endpoint 'backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host)'
+INFO  2026-04-02 11:17:53,973 [3    ] c.Infrastructure.ControllerActionInvoker - Route matched with {action = "GetMy", controller = "Contract", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[backend.Services.ContractService.DTO.ContractAnalysisListDto] GetMy() on controller backend.Web.Host.Controllers.ContractController (backend.Web.Host).
+INFO  2026-04-02 11:17:56,813 [10   ] .Mvc.Infrastructure.ObjectResultExecutor - Executing ObjectResult, writing value of type 'Abp.Web.Models.AjaxResponse'.
+INFO  2026-04-02 11:17:56,819 [10   ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host) in 2844.365ms
+INFO  2026-04-02 11:17:56,819 [10   ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host)'
+INFO  2026-04-02 11:17:56,821 [10   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 GET http://localhost:21021/api/app/contract/my - 200 - application/json;+charset=utf-8 2930.1991ms
+INFO  2026-04-02 11:18:01,815 [8    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/019d4d51-8476-75b5-9389-333636b15e51 - - -
+INFO  2026-04-02 11:18:01,815 [8    ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:18:01,815 [8    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/019d4d51-8476-75b5-9389-333636b15e51 - 204 - - 0.5627ms
+INFO  2026-04-02 11:18:01,816 [3    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/019d4d51-8476-75b5-9389-333636b15e51 - - -
+INFO  2026-04-02 11:18:01,816 [3    ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:18:01,816 [3    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/019d4d51-8476-75b5-9389-333636b15e51 - 204 - - 0.5122ms
+INFO  2026-04-02 11:18:01,835 [10   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 GET http://localhost:21021/api/app/contract/019d4d51-8476-75b5-9389-333636b15e51 - - -
+INFO  2026-04-02 11:18:01,835 [10   ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:18:01,842 [10   ] ft.AspNetCore.Routing.EndpointMiddleware - Executing endpoint 'backend.Web.Host.Controllers.ContractController.Get (backend.Web.Host)'
+INFO  2026-04-02 11:18:01,847 [10   ] c.Infrastructure.ControllerActionInvoker - Route matched with {action = "Get", controller = "Contract", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[backend.Services.ContractService.DTO.ContractAnalysisDto] Get(System.Guid) on controller backend.Web.Host.Controllers.ContractController (backend.Web.Host).
+INFO  2026-04-02 11:18:04,862 [10   ] .Mvc.Infrastructure.ObjectResultExecutor - Executing ObjectResult, writing value of type 'Abp.Web.Models.AjaxResponse'.
+INFO  2026-04-02 11:18:04,863 [10   ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.ContractController.Get (backend.Web.Host) in 3015.6735ms
+INFO  2026-04-02 11:18:04,863 [10   ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.ContractController.Get (backend.Web.Host)'
+INFO  2026-04-02 11:18:04,864 [10   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 GET http://localhost:21021/api/app/contract/019d4d51-8476-75b5-9389-333636b15e51 - 200 - application/json;+charset=utf-8 3028.6528ms
+INFO  2026-04-02 11:18:04,867 [8    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 GET http://localhost:21021/api/app/contract/019d4d51-8476-75b5-9389-333636b15e51 - - -
+INFO  2026-04-02 11:18:04,867 [8    ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:18:04,869 [8    ] ft.AspNetCore.Routing.EndpointMiddleware - Executing endpoint 'backend.Web.Host.Controllers.ContractController.Get (backend.Web.Host)'
+INFO  2026-04-02 11:18:04,872 [8    ] c.Infrastructure.ControllerActionInvoker - Route matched with {action = "Get", controller = "Contract", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[backend.Services.ContractService.DTO.ContractAnalysisDto] Get(System.Guid) on controller backend.Web.Host.Controllers.ContractController (backend.Web.Host).
+INFO  2026-04-02 11:18:07,344 [8    ] .Mvc.Infrastructure.ObjectResultExecutor - Executing ObjectResult, writing value of type 'Abp.Web.Models.AjaxResponse'.
+INFO  2026-04-02 11:18:07,345 [8    ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.ContractController.Get (backend.Web.Host) in 2472.8108ms
+INFO  2026-04-02 11:18:07,345 [8    ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.ContractController.Get (backend.Web.Host)'
+INFO  2026-04-02 11:18:07,345 [8    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 GET http://localhost:21021/api/app/contract/019d4d51-8476-75b5-9389-333636b15e51 - 200 - application/json;+charset=utf-8 2478.4405ms
+INFO  2026-04-02 11:18:30,847 [8    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/my - - -
+INFO  2026-04-02 11:18:30,847 [8    ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:18:30,848 [8    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/my - 204 - - 0.4846ms
+INFO  2026-04-02 11:18:30,848 [8    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/my - - -
+INFO  2026-04-02 11:18:30,848 [8    ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:18:30,849 [8    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/my - 204 - - 0.5007ms
+INFO  2026-04-02 11:18:30,853 [17   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 GET http://localhost:21021/api/app/contract/my - - -
+INFO  2026-04-02 11:18:30,853 [17   ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:18:30,854 [17   ] ft.AspNetCore.Routing.EndpointMiddleware - Executing endpoint 'backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host)'
+INFO  2026-04-02 11:18:30,858 [17   ] c.Infrastructure.ControllerActionInvoker - Route matched with {action = "GetMy", controller = "Contract", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[backend.Services.ContractService.DTO.ContractAnalysisListDto] GetMy() on controller backend.Web.Host.Controllers.ContractController (backend.Web.Host).
+INFO  2026-04-02 11:18:33,463 [19   ] .Mvc.Infrastructure.ObjectResultExecutor - Executing ObjectResult, writing value of type 'Abp.Web.Models.AjaxResponse'.
+INFO  2026-04-02 11:18:33,464 [19   ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host) in 2605.9287ms
+INFO  2026-04-02 11:18:33,464 [19   ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host)'
+INFO  2026-04-02 11:18:33,464 [19   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 GET http://localhost:21021/api/app/contract/my - 200 - application/json;+charset=utf-8 2611.7988ms
+INFO  2026-04-02 11:18:33,466 [17   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 GET http://localhost:21021/api/app/contract/my - - -
+INFO  2026-04-02 11:18:33,467 [17   ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:18:33,468 [17   ] ft.AspNetCore.Routing.EndpointMiddleware - Executing endpoint 'backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host)'
+INFO  2026-04-02 11:18:33,472 [17   ] c.Infrastructure.ControllerActionInvoker - Route matched with {action = "GetMy", controller = "Contract", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[backend.Services.ContractService.DTO.ContractAnalysisListDto] GetMy() on controller backend.Web.Host.Controllers.ContractController (backend.Web.Host).
+INFO  2026-04-02 11:18:35,462 [19   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/analyse - - -
+INFO  2026-04-02 11:18:35,462 [19   ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:18:35,462 [19   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/analyse - 204 - - 0.3987ms
+INFO  2026-04-02 11:18:35,466 [17   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 POST http://localhost:21021/api/app/contract/analyse - multipart/form-data;+boundary=----WebKitFormBoundarycXt7KjX1nzotSOFo 662608
+INFO  2026-04-02 11:18:35,467 [17   ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:18:35,471 [17   ] ft.AspNetCore.Routing.EndpointMiddleware - Executing endpoint 'backend.Web.Host.Controllers.ContractController.Analyse (backend.Web.Host)'
+INFO  2026-04-02 11:18:35,474 [17   ] c.Infrastructure.ControllerActionInvoker - Route matched with {action = "Analyse", controller = "Contract", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[backend.Services.ContractService.DTO.ContractAnalysisDto] Analyse(AnalyseContractForm) on controller backend.Web.Host.Controllers.ContractController (backend.Web.Host).
+INFO  2026-04-02 11:18:35,924 [17   ] et.Http.HttpClient.OpenAI.LogicalHandler - Start processing HTTP request POST https://api.openai.com/v1/chat/completions
+INFO  2026-04-02 11:18:35,924 [17   ] Net.Http.HttpClient.OpenAI.ClientHandler - Sending HTTP request POST https://api.openai.com/v1/chat/completions
+INFO  2026-04-02 11:18:36,062 [8    ] .Mvc.Infrastructure.ObjectResultExecutor - Executing ObjectResult, writing value of type 'Abp.Web.Models.AjaxResponse'.
+INFO  2026-04-02 11:18:36,063 [8    ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host) in 2590.9839ms
+INFO  2026-04-02 11:18:36,063 [8    ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host)'
+INFO  2026-04-02 11:18:36,063 [8    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 GET http://localhost:21021/api/app/contract/my - 200 - application/json;+charset=utf-8 2596.7178ms
+INFO  2026-04-02 11:18:37,278 [10   ] Net.Http.HttpClient.OpenAI.ClientHandler - Received HTTP response headers after 1354.0219ms - 200
+INFO  2026-04-02 11:18:37,278 [10   ] et.Http.HttpClient.OpenAI.LogicalHandler - End processing HTTP request after 1354.6156ms - 200
+INFO  2026-04-02 11:18:37,287 [10   ] et.Http.HttpClient.OpenAI.LogicalHandler - Start processing HTTP request POST https://api.openai.com/v1/embeddings
+INFO  2026-04-02 11:18:37,287 [10   ] Net.Http.HttpClient.OpenAI.ClientHandler - Sending HTTP request POST https://api.openai.com/v1/embeddings
+INFO  2026-04-02 11:18:38,650 [8    ] Net.Http.HttpClient.OpenAI.ClientHandler - Received HTTP response headers after 1362.2941ms - 200
+INFO  2026-04-02 11:18:38,650 [8    ] et.Http.HttpClient.OpenAI.LogicalHandler - End processing HTTP request after 1363.029ms - 200
+INFO  2026-04-02 11:18:38,666 [8    ] et.Http.HttpClient.OpenAI.LogicalHandler - Start processing HTTP request POST https://api.openai.com/v1/embeddings
+INFO  2026-04-02 11:18:38,666 [8    ] Net.Http.HttpClient.OpenAI.ClientHandler - Sending HTTP request POST https://api.openai.com/v1/embeddings
+INFO  2026-04-02 11:18:38,982 [8    ] Net.Http.HttpClient.OpenAI.ClientHandler - Received HTTP response headers after 315.5282ms - 200
+INFO  2026-04-02 11:18:38,982 [8    ] et.Http.HttpClient.OpenAI.LogicalHandler - End processing HTTP request after 315.9738ms - 200
+INFO  2026-04-02 11:18:40,830 [8    ] et.Http.HttpClient.OpenAI.LogicalHandler - Start processing HTTP request POST https://api.openai.com/v1/chat/completions
+INFO  2026-04-02 11:18:40,830 [8    ] Net.Http.HttpClient.OpenAI.ClientHandler - Sending HTTP request POST https://api.openai.com/v1/chat/completions
+INFO  2026-04-02 11:18:49,028 [17   ] Net.Http.HttpClient.OpenAI.ClientHandler - Received HTTP response headers after 8198.7868ms - 200
+INFO  2026-04-02 11:18:49,032 [17   ] et.Http.HttpClient.OpenAI.LogicalHandler - End processing HTTP request after 8202.7775ms - 200
+INFO  2026-04-02 11:18:52,340 [17   ] .Mvc.Infrastructure.ObjectResultExecutor - Executing ObjectResult, writing value of type 'Abp.Web.Models.AjaxResponse'.
+INFO  2026-04-02 11:18:52,341 [17   ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.ContractController.Analyse (backend.Web.Host) in 16867.3656ms
+INFO  2026-04-02 11:18:52,341 [17   ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.ContractController.Analyse (backend.Web.Host)'
+INFO  2026-04-02 11:18:52,343 [17   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 POST http://localhost:21021/api/app/contract/analyse - 200 - application/json;+charset=utf-8 16877.2001ms
+INFO  2026-04-02 11:18:52,519 [19   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/019d4d7c-f8e0-7130-95ee-b9c8042e5412 - - -
+INFO  2026-04-02 11:18:52,519 [19   ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:18:52,520 [19   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/019d4d7c-f8e0-7130-95ee-b9c8042e5412 - 204 - - 1.2323ms
+INFO  2026-04-02 11:18:52,520 [19   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/019d4d7c-f8e0-7130-95ee-b9c8042e5412 - - -
+INFO  2026-04-02 11:18:52,520 [19   ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:18:52,523 [19   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/019d4d7c-f8e0-7130-95ee-b9c8042e5412 - 204 - - 2.5222ms
+INFO  2026-04-02 11:18:52,524 [19   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 GET http://localhost:21021/api/app/contract/019d4d7c-f8e0-7130-95ee-b9c8042e5412 - - -
+INFO  2026-04-02 11:18:52,524 [19   ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:18:52,525 [19   ] ft.AspNetCore.Routing.EndpointMiddleware - Executing endpoint 'backend.Web.Host.Controllers.ContractController.Get (backend.Web.Host)'
+INFO  2026-04-02 11:18:52,530 [19   ] c.Infrastructure.ControllerActionInvoker - Route matched with {action = "Get", controller = "Contract", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[backend.Services.ContractService.DTO.ContractAnalysisDto] Get(System.Guid) on controller backend.Web.Host.Controllers.ContractController (backend.Web.Host).
+INFO  2026-04-02 11:18:55,113 [19   ] .Mvc.Infrastructure.ObjectResultExecutor - Executing ObjectResult, writing value of type 'Abp.Web.Models.AjaxResponse'.
+INFO  2026-04-02 11:18:55,114 [19   ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.ContractController.Get (backend.Web.Host) in 2583.077ms
+INFO  2026-04-02 11:18:55,114 [19   ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.ContractController.Get (backend.Web.Host)'
+INFO  2026-04-02 11:18:55,116 [19   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 GET http://localhost:21021/api/app/contract/019d4d7c-f8e0-7130-95ee-b9c8042e5412 - 200 - application/json;+charset=utf-8 2591.6886ms
+INFO  2026-04-02 11:18:55,123 [8    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 GET http://localhost:21021/api/app/contract/019d4d7c-f8e0-7130-95ee-b9c8042e5412 - - -
+INFO  2026-04-02 11:18:55,130 [8    ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:18:55,133 [8    ] ft.AspNetCore.Routing.EndpointMiddleware - Executing endpoint 'backend.Web.Host.Controllers.ContractController.Get (backend.Web.Host)'
+INFO  2026-04-02 11:18:55,149 [8    ] c.Infrastructure.ControllerActionInvoker - Route matched with {action = "Get", controller = "Contract", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[backend.Services.ContractService.DTO.ContractAnalysisDto] Get(System.Guid) on controller backend.Web.Host.Controllers.ContractController (backend.Web.Host).
+INFO  2026-04-02 11:18:57,735 [17   ] .Mvc.Infrastructure.ObjectResultExecutor - Executing ObjectResult, writing value of type 'Abp.Web.Models.AjaxResponse'.
+INFO  2026-04-02 11:18:57,735 [17   ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.ContractController.Get (backend.Web.Host) in 2586.3521ms
+INFO  2026-04-02 11:18:57,736 [17   ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.ContractController.Get (backend.Web.Host)'
+INFO  2026-04-02 11:18:57,736 [17   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 GET http://localhost:21021/api/app/contract/019d4d7c-f8e0-7130-95ee-b9c8042e5412 - 200 - application/json;+charset=utf-8 2613.0265ms
+INFO  2026-04-02 11:19:50,689 [19   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/my - - -
+INFO  2026-04-02 11:19:50,689 [9    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/my - - -
+INFO  2026-04-02 11:19:50,690 [9    ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:19:50,690 [19   ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:19:50,690 [9    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/my - 204 - - 0.6069ms
+INFO  2026-04-02 11:19:50,690 [19   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/my - 204 - - 0.5365ms
+INFO  2026-04-02 11:19:50,695 [9    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 GET http://localhost:21021/api/app/contract/my - - -
+INFO  2026-04-02 11:19:50,695 [9    ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:19:50,696 [9    ] ft.AspNetCore.Routing.EndpointMiddleware - Executing endpoint 'backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host)'
+INFO  2026-04-02 11:19:50,702 [9    ] c.Infrastructure.ControllerActionInvoker - Route matched with {action = "GetMy", controller = "Contract", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[backend.Services.ContractService.DTO.ContractAnalysisListDto] GetMy() on controller backend.Web.Host.Controllers.ContractController (backend.Web.Host).
+INFO  2026-04-02 11:19:54,596 [9    ] .Mvc.Infrastructure.ObjectResultExecutor - Executing ObjectResult, writing value of type 'Abp.Web.Models.AjaxResponse'.
+INFO  2026-04-02 11:19:54,597 [9    ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host) in 3894.5629ms
+INFO  2026-04-02 11:19:54,597 [9    ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host)'
+INFO  2026-04-02 11:19:54,597 [9    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 GET http://localhost:21021/api/app/contract/my - 200 - application/json;+charset=utf-8 3901.9440ms
+INFO  2026-04-02 11:19:54,600 [9    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 GET http://localhost:21021/api/app/contract/my - - -
+INFO  2026-04-02 11:19:54,600 [9    ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:19:54,600 [9    ] ft.AspNetCore.Routing.EndpointMiddleware - Executing endpoint 'backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host)'
+INFO  2026-04-02 11:19:54,604 [9    ] c.Infrastructure.ControllerActionInvoker - Route matched with {action = "GetMy", controller = "Contract", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[backend.Services.ContractService.DTO.ContractAnalysisListDto] GetMy() on controller backend.Web.Host.Controllers.ContractController (backend.Web.Host).
+INFO  2026-04-02 11:19:54,684 [8    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/analyse - - -
+INFO  2026-04-02 11:19:54,685 [8    ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:19:54,685 [8    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/analyse - 204 - - 0.4405ms
+INFO  2026-04-02 11:19:54,688 [8    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 POST http://localhost:21021/api/app/contract/analyse - multipart/form-data;+boundary=----WebKitFormBoundaryltoHHAhTRnvJOxU2 662608
+INFO  2026-04-02 11:19:54,688 [8    ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:19:54,689 [8    ] ft.AspNetCore.Routing.EndpointMiddleware - Executing endpoint 'backend.Web.Host.Controllers.ContractController.Analyse (backend.Web.Host)'
+INFO  2026-04-02 11:19:54,691 [8    ] c.Infrastructure.ControllerActionInvoker - Route matched with {action = "Analyse", controller = "Contract", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[backend.Services.ContractService.DTO.ContractAnalysisDto] Analyse(AnalyseContractForm) on controller backend.Web.Host.Controllers.ContractController (backend.Web.Host).
+INFO  2026-04-02 11:19:54,860 [9    ] et.Http.HttpClient.OpenAI.LogicalHandler - Start processing HTTP request POST https://api.openai.com/v1/chat/completions
+INFO  2026-04-02 11:19:54,860 [9    ] Net.Http.HttpClient.OpenAI.ClientHandler - Sending HTTP request POST https://api.openai.com/v1/chat/completions
+INFO  2026-04-02 11:19:56,333 [19   ] Net.Http.HttpClient.OpenAI.ClientHandler - Received HTTP response headers after 1472.9675ms - 200
+INFO  2026-04-02 11:19:56,333 [19   ] et.Http.HttpClient.OpenAI.LogicalHandler - End processing HTTP request after 1473.3169ms - 200
+INFO  2026-04-02 11:19:56,334 [19   ] et.Http.HttpClient.OpenAI.LogicalHandler - Start processing HTTP request POST https://api.openai.com/v1/embeddings
+INFO  2026-04-02 11:19:56,334 [19   ] Net.Http.HttpClient.OpenAI.ClientHandler - Sending HTTP request POST https://api.openai.com/v1/embeddings
+INFO  2026-04-02 11:19:57,351 [8    ] .Mvc.Infrastructure.ObjectResultExecutor - Executing ObjectResult, writing value of type 'Abp.Web.Models.AjaxResponse'.
+INFO  2026-04-02 11:19:57,353 [8    ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host) in 2748.6064ms
+INFO  2026-04-02 11:19:57,353 [8    ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host)'
+INFO  2026-04-02 11:19:57,354 [8    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 GET http://localhost:21021/api/app/contract/my - 200 - application/json;+charset=utf-8 2754.8082ms
+INFO  2026-04-02 11:19:57,500 [8    ] Net.Http.HttpClient.OpenAI.ClientHandler - Received HTTP response headers after 1166.4767ms - 200
+INFO  2026-04-02 11:19:57,500 [8    ] et.Http.HttpClient.OpenAI.LogicalHandler - End processing HTTP request after 1166.7754ms - 200
+INFO  2026-04-02 11:19:57,686 [8    ] et.Http.HttpClient.OpenAI.LogicalHandler - Start processing HTTP request POST https://api.openai.com/v1/embeddings
+INFO  2026-04-02 11:19:57,686 [8    ] Net.Http.HttpClient.OpenAI.ClientHandler - Sending HTTP request POST https://api.openai.com/v1/embeddings
+INFO  2026-04-02 11:19:58,179 [9    ] Net.Http.HttpClient.OpenAI.ClientHandler - Received HTTP response headers after 492.9791ms - 200
+INFO  2026-04-02 11:19:58,179 [9    ] et.Http.HttpClient.OpenAI.LogicalHandler - End processing HTTP request after 493.5387ms - 200
+INFO  2026-04-02 11:19:59,338 [9    ] et.Http.HttpClient.OpenAI.LogicalHandler - Start processing HTTP request POST https://api.openai.com/v1/chat/completions
+INFO  2026-04-02 11:19:59,338 [9    ] Net.Http.HttpClient.OpenAI.ClientHandler - Sending HTTP request POST https://api.openai.com/v1/chat/completions
+INFO  2026-04-02 11:20:05,048 [8    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/019d4d7c-f8e0-7130-95ee-b9c8042e5412 - - -
+INFO  2026-04-02 11:20:05,048 [8    ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:20:05,048 [8    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/019d4d7c-f8e0-7130-95ee-b9c8042e5412 - 204 - - 0.3727ms
+INFO  2026-04-02 11:20:05,048 [17   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/019d4d7c-f8e0-7130-95ee-b9c8042e5412 - - -
+INFO  2026-04-02 11:20:05,048 [17   ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:20:05,048 [17   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/019d4d7c-f8e0-7130-95ee-b9c8042e5412 - 204 - - 0.2143ms
+INFO  2026-04-02 11:20:05,065 [9    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 GET http://localhost:21021/api/app/contract/019d4d7c-f8e0-7130-95ee-b9c8042e5412 - - -
+INFO  2026-04-02 11:20:05,066 [9    ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:20:05,066 [9    ] ft.AspNetCore.Routing.EndpointMiddleware - Executing endpoint 'backend.Web.Host.Controllers.ContractController.Get (backend.Web.Host)'
+INFO  2026-04-02 11:20:05,069 [9    ] c.Infrastructure.ControllerActionInvoker - Route matched with {action = "Get", controller = "Contract", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[backend.Services.ContractService.DTO.ContractAnalysisDto] Get(System.Guid) on controller backend.Web.Host.Controllers.ContractController (backend.Web.Host).
+INFO  2026-04-02 11:20:06,984 [9    ] Net.Http.HttpClient.OpenAI.ClientHandler - Received HTTP response headers after 7645.073ms - 200
+INFO  2026-04-02 11:20:06,984 [9    ] et.Http.HttpClient.OpenAI.LogicalHandler - End processing HTTP request after 7645.6948ms - 200
+INFO  2026-04-02 11:20:07,650 [9    ] .Mvc.Infrastructure.ObjectResultExecutor - Executing ObjectResult, writing value of type 'Abp.Web.Models.AjaxResponse'.
+INFO  2026-04-02 11:20:07,650 [9    ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.ContractController.Get (backend.Web.Host) in 2581.4873ms
+INFO  2026-04-02 11:20:07,650 [9    ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.ContractController.Get (backend.Web.Host)'
+INFO  2026-04-02 11:20:07,651 [9    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 GET http://localhost:21021/api/app/contract/019d4d7c-f8e0-7130-95ee-b9c8042e5412 - 200 - application/json;+charset=utf-8 2585.0944ms
+INFO  2026-04-02 11:20:07,656 [9    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 GET http://localhost:21021/api/app/contract/019d4d7c-f8e0-7130-95ee-b9c8042e5412 - - -
+INFO  2026-04-02 11:20:07,656 [9    ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:20:07,657 [9    ] ft.AspNetCore.Routing.EndpointMiddleware - Executing endpoint 'backend.Web.Host.Controllers.ContractController.Get (backend.Web.Host)'
+INFO  2026-04-02 11:20:07,660 [9    ] c.Infrastructure.ControllerActionInvoker - Route matched with {action = "Get", controller = "Contract", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[backend.Services.ContractService.DTO.ContractAnalysisDto] Get(System.Guid) on controller backend.Web.Host.Controllers.ContractController (backend.Web.Host).
+INFO  2026-04-02 11:20:09,925 [9    ] .Mvc.Infrastructure.ObjectResultExecutor - Executing ObjectResult, writing value of type 'Abp.Web.Models.AjaxResponse'.
+INFO  2026-04-02 11:20:09,926 [9    ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.ContractController.Get (backend.Web.Host) in 2265.8798ms
+INFO  2026-04-02 11:20:09,926 [9    ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.ContractController.Get (backend.Web.Host)'
+INFO  2026-04-02 11:20:09,927 [9    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 GET http://localhost:21021/api/app/contract/019d4d7c-f8e0-7130-95ee-b9c8042e5412 - 200 - application/json;+charset=utf-8 2271.2354ms
+INFO  2026-04-02 11:20:10,123 [17   ] .Mvc.Infrastructure.ObjectResultExecutor - Executing ObjectResult, writing value of type 'Abp.Web.Models.AjaxResponse'.
+INFO  2026-04-02 11:20:10,126 [17   ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.ContractController.Analyse (backend.Web.Host) in 15434.5601ms
+INFO  2026-04-02 11:20:10,126 [17   ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.ContractController.Analyse (backend.Web.Host)'
+INFO  2026-04-02 11:20:10,127 [17   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 POST http://localhost:21021/api/app/contract/analyse - 200 - application/json;+charset=utf-8 15439.1721ms
+INFO  2026-04-02 11:20:10,279 [8    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/019d4d7e-294f-7c29-9887-a4619acd4b28 - - -
+INFO  2026-04-02 11:20:10,279 [8    ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:20:10,280 [8    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/019d4d7e-294f-7c29-9887-a4619acd4b28 - 204 - - 0.7015ms
+INFO  2026-04-02 11:20:10,280 [8    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/019d4d7e-294f-7c29-9887-a4619acd4b28 - - -
+INFO  2026-04-02 11:20:10,280 [8    ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:20:10,280 [8    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/019d4d7e-294f-7c29-9887-a4619acd4b28 - 204 - - 0.6516ms
+INFO  2026-04-02 11:20:10,284 [8    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 GET http://localhost:21021/api/app/contract/019d4d7e-294f-7c29-9887-a4619acd4b28 - - -
+INFO  2026-04-02 11:20:10,284 [8    ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:20:10,287 [8    ] ft.AspNetCore.Routing.EndpointMiddleware - Executing endpoint 'backend.Web.Host.Controllers.ContractController.Get (backend.Web.Host)'
+INFO  2026-04-02 11:20:10,292 [8    ] c.Infrastructure.ControllerActionInvoker - Route matched with {action = "Get", controller = "Contract", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[backend.Services.ContractService.DTO.ContractAnalysisDto] Get(System.Guid) on controller backend.Web.Host.Controllers.ContractController (backend.Web.Host).
+INFO  2026-04-02 11:20:12,539 [6    ] .Mvc.Infrastructure.ObjectResultExecutor - Executing ObjectResult, writing value of type 'Abp.Web.Models.AjaxResponse'.
+INFO  2026-04-02 11:20:12,539 [6    ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.ContractController.Get (backend.Web.Host) in 2246.9511ms
+INFO  2026-04-02 11:20:12,539 [6    ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.ContractController.Get (backend.Web.Host)'
+INFO  2026-04-02 11:20:12,540 [6    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 GET http://localhost:21021/api/app/contract/019d4d7e-294f-7c29-9887-a4619acd4b28 - 200 - application/json;+charset=utf-8 2255.7932ms
+INFO  2026-04-02 11:20:12,544 [8    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 GET http://localhost:21021/api/app/contract/019d4d7e-294f-7c29-9887-a4619acd4b28 - - -
+INFO  2026-04-02 11:20:12,545 [8    ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:20:12,545 [8    ] ft.AspNetCore.Routing.EndpointMiddleware - Executing endpoint 'backend.Web.Host.Controllers.ContractController.Get (backend.Web.Host)'
+INFO  2026-04-02 11:20:12,548 [8    ] c.Infrastructure.ControllerActionInvoker - Route matched with {action = "Get", controller = "Contract", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[backend.Services.ContractService.DTO.ContractAnalysisDto] Get(System.Guid) on controller backend.Web.Host.Controllers.ContractController (backend.Web.Host).
+INFO  2026-04-02 11:20:14,751 [17   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/my - - -
+INFO  2026-04-02 11:20:14,751 [17   ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:20:14,751 [9    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/my - - -
+INFO  2026-04-02 11:20:14,751 [17   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/my - 204 - - 0.2890ms
+INFO  2026-04-02 11:20:14,751 [9    ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:20:14,751 [9    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/my - 204 - - 0.5018ms
+INFO  2026-04-02 11:20:14,753 [8    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 GET http://localhost:21021/api/app/contract/my - - -
+INFO  2026-04-02 11:20:14,754 [8    ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:20:14,757 [8    ] ft.AspNetCore.Routing.EndpointMiddleware - Executing endpoint 'backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host)'
+INFO  2026-04-02 11:20:14,761 [8    ] c.Infrastructure.ControllerActionInvoker - Route matched with {action = "GetMy", controller = "Contract", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[backend.Services.ContractService.DTO.ContractAnalysisListDto] GetMy() on controller backend.Web.Host.Controllers.ContractController (backend.Web.Host).
+INFO  2026-04-02 11:20:15,104 [9    ] .Mvc.Infrastructure.ObjectResultExecutor - Executing ObjectResult, writing value of type 'Abp.Web.Models.AjaxResponse'.
+INFO  2026-04-02 11:20:15,104 [9    ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.ContractController.Get (backend.Web.Host) in 2556.2754ms
+INFO  2026-04-02 11:20:15,104 [9    ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.ContractController.Get (backend.Web.Host)'
+INFO  2026-04-02 11:20:15,104 [9    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 GET http://localhost:21021/api/app/contract/019d4d7e-294f-7c29-9887-a4619acd4b28 - 200 - application/json;+charset=utf-8 2559.8009ms
+INFO  2026-04-02 11:20:17,514 [9    ] .Mvc.Infrastructure.ObjectResultExecutor - Executing ObjectResult, writing value of type 'Abp.Web.Models.AjaxResponse'.
+INFO  2026-04-02 11:20:17,515 [9    ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host) in 2749.9741ms
+INFO  2026-04-02 11:20:17,515 [9    ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host)'
+INFO  2026-04-02 11:20:17,516 [9    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 GET http://localhost:21021/api/app/contract/my - 200 - application/json;+charset=utf-8 2762.3349ms
+INFO  2026-04-02 11:20:17,522 [9    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 GET http://localhost:21021/api/app/contract/my - - -
+INFO  2026-04-02 11:20:17,523 [9    ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:20:17,524 [9    ] ft.AspNetCore.Routing.EndpointMiddleware - Executing endpoint 'backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host)'
+INFO  2026-04-02 11:20:17,529 [9    ] c.Infrastructure.ControllerActionInvoker - Route matched with {action = "GetMy", controller = "Contract", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[backend.Services.ContractService.DTO.ContractAnalysisListDto] GetMy() on controller backend.Web.Host.Controllers.ContractController (backend.Web.Host).
+INFO  2026-04-02 11:20:20,289 [17   ] .Mvc.Infrastructure.ObjectResultExecutor - Executing ObjectResult, writing value of type 'Abp.Web.Models.AjaxResponse'.
+INFO  2026-04-02 11:20:20,290 [17   ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host) in 2760.3564ms
+INFO  2026-04-02 11:20:20,291 [17   ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host)'
+INFO  2026-04-02 11:20:20,293 [17   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 GET http://localhost:21021/api/app/contract/my - 200 - application/json;+charset=utf-8 2770.8823ms
+INFO  2026-04-02 11:20:22,361 [17   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/019d4d51-8476-75b5-9389-333636b15e51 - - -
+INFO  2026-04-02 11:20:22,361 [8    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/019d4d51-8476-75b5-9389-333636b15e51 - - -
+INFO  2026-04-02 11:20:22,361 [8    ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:20:22,361 [17   ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:20:22,361 [17   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/019d4d51-8476-75b5-9389-333636b15e51 - 204 - - 0.5483ms
+INFO  2026-04-02 11:20:22,363 [8    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/019d4d51-8476-75b5-9389-333636b15e51 - 204 - - 2.4530ms
+INFO  2026-04-02 11:20:22,363 [8    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 GET http://localhost:21021/api/app/contract/019d4d51-8476-75b5-9389-333636b15e51 - - -
+INFO  2026-04-02 11:20:22,363 [8    ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:20:22,365 [8    ] ft.AspNetCore.Routing.EndpointMiddleware - Executing endpoint 'backend.Web.Host.Controllers.ContractController.Get (backend.Web.Host)'
+INFO  2026-04-02 11:20:22,373 [8    ] c.Infrastructure.ControllerActionInvoker - Route matched with {action = "Get", controller = "Contract", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[backend.Services.ContractService.DTO.ContractAnalysisDto] Get(System.Guid) on controller backend.Web.Host.Controllers.ContractController (backend.Web.Host).
+INFO  2026-04-02 11:20:24,964 [9    ] .Mvc.Infrastructure.ObjectResultExecutor - Executing ObjectResult, writing value of type 'Abp.Web.Models.AjaxResponse'.
+INFO  2026-04-02 11:20:24,966 [9    ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.ContractController.Get (backend.Web.Host) in 2593.0754ms
+INFO  2026-04-02 11:20:24,966 [9    ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.ContractController.Get (backend.Web.Host)'
+INFO  2026-04-02 11:20:24,967 [9    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 GET http://localhost:21021/api/app/contract/019d4d51-8476-75b5-9389-333636b15e51 - 200 - application/json;+charset=utf-8 2603.3277ms
+INFO  2026-04-02 11:20:24,969 [9    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 GET http://localhost:21021/api/app/contract/019d4d51-8476-75b5-9389-333636b15e51 - - -
+INFO  2026-04-02 11:20:24,969 [9    ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:20:24,970 [9    ] ft.AspNetCore.Routing.EndpointMiddleware - Executing endpoint 'backend.Web.Host.Controllers.ContractController.Get (backend.Web.Host)'
+INFO  2026-04-02 11:20:24,975 [9    ] c.Infrastructure.ControllerActionInvoker - Route matched with {action = "Get", controller = "Contract", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[backend.Services.ContractService.DTO.ContractAnalysisDto] Get(System.Guid) on controller backend.Web.Host.Controllers.ContractController (backend.Web.Host).
+INFO  2026-04-02 11:20:27,551 [17   ] .Mvc.Infrastructure.ObjectResultExecutor - Executing ObjectResult, writing value of type 'Abp.Web.Models.AjaxResponse'.
+INFO  2026-04-02 11:20:27,551 [17   ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.ContractController.Get (backend.Web.Host) in 2575.7865ms
+INFO  2026-04-02 11:20:27,551 [17   ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.ContractController.Get (backend.Web.Host)'
+INFO  2026-04-02 11:20:27,551 [17   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 GET http://localhost:21021/api/app/contract/019d4d51-8476-75b5-9389-333636b15e51 - 200 - application/json;+charset=utf-8 2582.3439ms
+INFO  2026-04-02 11:20:32,794 [9    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/my - - -
+INFO  2026-04-02 11:20:32,795 [9    ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:20:32,797 [9    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/my - 204 - - 2.4049ms
+INFO  2026-04-02 11:20:32,799 [9    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/my - - -
+INFO  2026-04-02 11:20:32,800 [9    ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:20:32,803 [17   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 GET http://localhost:21021/api/app/contract/my - - -
+INFO  2026-04-02 11:20:32,804 [9    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/my - 204 - - 4.2144ms
+INFO  2026-04-02 11:20:32,804 [17   ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:20:32,805 [17   ] ft.AspNetCore.Routing.EndpointMiddleware - Executing endpoint 'backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host)'
+INFO  2026-04-02 11:20:32,809 [17   ] c.Infrastructure.ControllerActionInvoker - Route matched with {action = "GetMy", controller = "Contract", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[backend.Services.ContractService.DTO.ContractAnalysisListDto] GetMy() on controller backend.Web.Host.Controllers.ContractController (backend.Web.Host).
+INFO  2026-04-02 11:20:35,723 [17   ] .Mvc.Infrastructure.ObjectResultExecutor - Executing ObjectResult, writing value of type 'Abp.Web.Models.AjaxResponse'.
+INFO  2026-04-02 11:20:35,723 [17   ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host) in 2913.4919ms
+INFO  2026-04-02 11:20:35,723 [17   ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host)'
+INFO  2026-04-02 11:20:35,723 [17   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 GET http://localhost:21021/api/app/contract/my - 200 - application/json;+charset=utf-8 2920.2919ms
+INFO  2026-04-02 11:20:35,733 [17   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 GET http://localhost:21021/api/app/contract/my - - -
+INFO  2026-04-02 11:20:35,734 [17   ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:20:35,736 [17   ] ft.AspNetCore.Routing.EndpointMiddleware - Executing endpoint 'backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host)'
+INFO  2026-04-02 11:20:35,748 [17   ] c.Infrastructure.ControllerActionInvoker - Route matched with {action = "GetMy", controller = "Contract", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[backend.Services.ContractService.DTO.ContractAnalysisListDto] GetMy() on controller backend.Web.Host.Controllers.ContractController (backend.Web.Host).
+INFO  2026-04-02 11:20:38,171 [8    ] .Mvc.Infrastructure.ObjectResultExecutor - Executing ObjectResult, writing value of type 'Abp.Web.Models.AjaxResponse'.
+INFO  2026-04-02 11:20:38,171 [8    ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host) in 2423.2435ms
+INFO  2026-04-02 11:20:38,171 [8    ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host)'
+INFO  2026-04-02 11:20:38,171 [8    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 GET http://localhost:21021/api/app/contract/my - 200 - application/json;+charset=utf-8 2438.2621ms
+INFO  2026-04-02 11:20:49,983 [8    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/019d4d51-8476-75b5-9389-333636b15e51 - - -
+INFO  2026-04-02 11:20:49,983 [8    ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:20:49,983 [17   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/019d4d51-8476-75b5-9389-333636b15e51 - - -
+INFO  2026-04-02 11:20:49,983 [8    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/019d4d51-8476-75b5-9389-333636b15e51 - 204 - - 0.2963ms
+INFO  2026-04-02 11:20:49,984 [17   ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:20:49,984 [17   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/019d4d51-8476-75b5-9389-333636b15e51 - 204 - - 0.2312ms
+INFO  2026-04-02 11:20:49,987 [8    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 GET http://localhost:21021/api/app/contract/019d4d51-8476-75b5-9389-333636b15e51 - - -
+INFO  2026-04-02 11:20:49,987 [8    ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:20:49,990 [8    ] ft.AspNetCore.Routing.EndpointMiddleware - Executing endpoint 'backend.Web.Host.Controllers.ContractController.Get (backend.Web.Host)'
+INFO  2026-04-02 11:20:50,000 [8    ] c.Infrastructure.ControllerActionInvoker - Route matched with {action = "Get", controller = "Contract", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[backend.Services.ContractService.DTO.ContractAnalysisDto] Get(System.Guid) on controller backend.Web.Host.Controllers.ContractController (backend.Web.Host).
+INFO  2026-04-02 11:20:52,569 [9    ] .Mvc.Infrastructure.ObjectResultExecutor - Executing ObjectResult, writing value of type 'Abp.Web.Models.AjaxResponse'.
+INFO  2026-04-02 11:20:52,570 [9    ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.ContractController.Get (backend.Web.Host) in 2569.1544ms
+INFO  2026-04-02 11:20:52,570 [9    ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.ContractController.Get (backend.Web.Host)'
+INFO  2026-04-02 11:20:52,570 [9    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 GET http://localhost:21021/api/app/contract/019d4d51-8476-75b5-9389-333636b15e51 - 200 - application/json;+charset=utf-8 2584.6170ms
+INFO  2026-04-02 11:20:52,577 [9    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 GET http://localhost:21021/api/app/contract/019d4d51-8476-75b5-9389-333636b15e51 - - -
+INFO  2026-04-02 11:20:52,578 [9    ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:20:52,578 [9    ] ft.AspNetCore.Routing.EndpointMiddleware - Executing endpoint 'backend.Web.Host.Controllers.ContractController.Get (backend.Web.Host)'
+INFO  2026-04-02 11:20:52,580 [9    ] c.Infrastructure.ControllerActionInvoker - Route matched with {action = "Get", controller = "Contract", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[backend.Services.ContractService.DTO.ContractAnalysisDto] Get(System.Guid) on controller backend.Web.Host.Controllers.ContractController (backend.Web.Host).
+INFO  2026-04-02 11:20:55,135 [9    ] .Mvc.Infrastructure.ObjectResultExecutor - Executing ObjectResult, writing value of type 'Abp.Web.Models.AjaxResponse'.
+INFO  2026-04-02 11:20:55,136 [9    ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.ContractController.Get (backend.Web.Host) in 2555.0186ms
+INFO  2026-04-02 11:20:55,136 [9    ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.ContractController.Get (backend.Web.Host)'
+INFO  2026-04-02 11:20:55,136 [9    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 GET http://localhost:21021/api/app/contract/019d4d51-8476-75b5-9389-333636b15e51 - 200 - application/json;+charset=utf-8 2558.3262ms
+INFO  2026-04-02 11:21:27,543 [6    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/my - - -
+INFO  2026-04-02 11:21:27,544 [6    ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:21:27,544 [6    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/my - 204 - - 0.4828ms
+INFO  2026-04-02 11:21:27,544 [6    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/my - - -
+INFO  2026-04-02 11:21:27,544 [6    ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:21:27,544 [6    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/my - 204 - - 0.2449ms
+INFO  2026-04-02 11:21:27,548 [9    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 GET http://localhost:21021/api/app/contract/my - - -
+INFO  2026-04-02 11:21:27,548 [9    ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:21:27,552 [9    ] ft.AspNetCore.Routing.EndpointMiddleware - Executing endpoint 'backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host)'
+INFO  2026-04-02 11:21:27,560 [9    ] c.Infrastructure.ControllerActionInvoker - Route matched with {action = "GetMy", controller = "Contract", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[backend.Services.ContractService.DTO.ContractAnalysisListDto] GetMy() on controller backend.Web.Host.Controllers.ContractController (backend.Web.Host).
+INFO  2026-04-02 11:21:30,486 [9    ] .Mvc.Infrastructure.ObjectResultExecutor - Executing ObjectResult, writing value of type 'Abp.Web.Models.AjaxResponse'.
+INFO  2026-04-02 11:21:30,486 [9    ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host) in 2925.8372ms
+INFO  2026-04-02 11:21:30,486 [9    ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host)'
+INFO  2026-04-02 11:21:30,486 [9    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 GET http://localhost:21021/api/app/contract/my - 200 - application/json;+charset=utf-8 2938.6145ms
+INFO  2026-04-02 11:21:30,491 [9    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 GET http://localhost:21021/api/app/contract/my - - -
+INFO  2026-04-02 11:21:30,492 [9    ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:21:30,492 [9    ] ft.AspNetCore.Routing.EndpointMiddleware - Executing endpoint 'backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host)'
+INFO  2026-04-02 11:21:30,495 [9    ] c.Infrastructure.ControllerActionInvoker - Route matched with {action = "GetMy", controller = "Contract", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[backend.Services.ContractService.DTO.ContractAnalysisListDto] GetMy() on controller backend.Web.Host.Controllers.ContractController (backend.Web.Host).
+INFO  2026-04-02 11:21:33,254 [8    ] .Mvc.Infrastructure.ObjectResultExecutor - Executing ObjectResult, writing value of type 'Abp.Web.Models.AjaxResponse'.
+INFO  2026-04-02 11:21:33,255 [8    ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host) in 2759.8259ms
+INFO  2026-04-02 11:21:33,255 [8    ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host)'
+INFO  2026-04-02 11:21:33,255 [8    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 GET http://localhost:21021/api/app/contract/my - 200 - application/json;+charset=utf-8 2763.4755ms
+INFO  2026-04-02 11:25:07,985 [16   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/my - - -
+INFO  2026-04-02 11:25:07,985 [16   ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:25:07,985 [16   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/my - 204 - - 0.4336ms
+INFO  2026-04-02 11:25:07,987 [16   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 GET http://localhost:21021/api/app/contract/my - - -
+INFO  2026-04-02 11:25:07,987 [16   ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:25:07,988 [16   ] ft.AspNetCore.Routing.EndpointMiddleware - Executing endpoint 'backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host)'
+INFO  2026-04-02 11:25:07,990 [16   ] c.Infrastructure.ControllerActionInvoker - Route matched with {action = "GetMy", controller = "Contract", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[backend.Services.ContractService.DTO.ContractAnalysisListDto] GetMy() on controller backend.Web.Host.Controllers.ContractController (backend.Web.Host).
+INFO  2026-04-02 11:25:10,932 [16   ] .Mvc.Infrastructure.ObjectResultExecutor - Executing ObjectResult, writing value of type 'Abp.Web.Models.AjaxResponse'.
+INFO  2026-04-02 11:25:10,932 [16   ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host) in 2941.9782ms
+INFO  2026-04-02 11:25:10,932 [16   ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host)'
+INFO  2026-04-02 11:25:10,933 [16   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 GET http://localhost:21021/api/app/contract/my - 200 - application/json;+charset=utf-8 2945.6141ms
+INFO  2026-04-02 11:28:36,957 [10   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/my - - -
+INFO  2026-04-02 11:28:36,958 [10   ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:28:36,958 [10   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/my - 204 - - 0.7139ms
+INFO  2026-04-02 11:28:36,960 [10   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 GET http://localhost:21021/api/app/contract/my - - -
+INFO  2026-04-02 11:28:36,960 [10   ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:28:36,962 [10   ] ft.AspNetCore.Routing.EndpointMiddleware - Executing endpoint 'backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host)'
+INFO  2026-04-02 11:28:36,966 [10   ] c.Infrastructure.ControllerActionInvoker - Route matched with {action = "GetMy", controller = "Contract", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[backend.Services.ContractService.DTO.ContractAnalysisListDto] GetMy() on controller backend.Web.Host.Controllers.ContractController (backend.Web.Host).
+INFO  2026-04-02 11:28:40,569 [6    ] .Mvc.Infrastructure.ObjectResultExecutor - Executing ObjectResult, writing value of type 'Abp.Web.Models.AjaxResponse'.
+INFO  2026-04-02 11:28:40,570 [6    ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host) in 3603.4889ms
+INFO  2026-04-02 11:28:40,570 [6    ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host)'
+INFO  2026-04-02 11:28:40,570 [6    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 GET http://localhost:21021/api/app/contract/my - 200 - application/json;+charset=utf-8 3609.8986ms
+INFO  2026-04-02 11:29:05,879 [10   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/my - - -
+INFO  2026-04-02 11:29:05,879 [10   ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:29:05,879 [10   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/my - 204 - - 0.5163ms
+INFO  2026-04-02 11:29:05,885 [20   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 GET http://localhost:21021/api/app/contract/my - - -
+INFO  2026-04-02 11:29:05,885 [20   ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:29:05,886 [20   ] ft.AspNetCore.Routing.EndpointMiddleware - Executing endpoint 'backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host)'
+INFO  2026-04-02 11:29:05,889 [20   ] c.Infrastructure.ControllerActionInvoker - Route matched with {action = "GetMy", controller = "Contract", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[backend.Services.ContractService.DTO.ContractAnalysisListDto] GetMy() on controller backend.Web.Host.Controllers.ContractController (backend.Web.Host).
+INFO  2026-04-02 11:29:09,739 [10   ] .Mvc.Infrastructure.ObjectResultExecutor - Executing ObjectResult, writing value of type 'Abp.Web.Models.AjaxResponse'.
+INFO  2026-04-02 11:29:09,740 [10   ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host) in 3850.2498ms
+INFO  2026-04-02 11:29:09,740 [10   ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host)'
+INFO  2026-04-02 11:29:09,741 [10   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 GET http://localhost:21021/api/app/contract/my - 200 - application/json;+charset=utf-8 3856.3921ms
+INFO  2026-04-02 11:31:30,786 [20   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/my - - -
+INFO  2026-04-02 11:31:30,786 [20   ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:31:30,786 [20   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/my - 204 - - 0.3238ms
+INFO  2026-04-02 11:31:30,789 [16   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 GET http://localhost:21021/api/app/contract/my - - -
+INFO  2026-04-02 11:31:30,789 [16   ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:31:30,790 [16   ] ft.AspNetCore.Routing.EndpointMiddleware - Executing endpoint 'backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host)'
+INFO  2026-04-02 11:31:30,792 [16   ] c.Infrastructure.ControllerActionInvoker - Route matched with {action = "GetMy", controller = "Contract", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[backend.Services.ContractService.DTO.ContractAnalysisListDto] GetMy() on controller backend.Web.Host.Controllers.ContractController (backend.Web.Host).
+INFO  2026-04-02 11:31:34,129 [16   ] .Mvc.Infrastructure.ObjectResultExecutor - Executing ObjectResult, writing value of type 'Abp.Web.Models.AjaxResponse'.
+INFO  2026-04-02 11:31:34,130 [16   ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host) in 3337.8046ms
+INFO  2026-04-02 11:31:34,130 [16   ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host)'
+INFO  2026-04-02 11:31:34,130 [16   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 GET http://localhost:21021/api/app/contract/my - 200 - application/json;+charset=utf-8 3341.5520ms
+INFO  2026-04-02 11:32:23,442 [20   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/my - - -
+INFO  2026-04-02 11:32:23,443 [20   ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:32:23,443 [20   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/my - 204 - - 0.3562ms
+INFO  2026-04-02 11:32:23,444 [16   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 GET http://localhost:21021/api/app/contract/my - - -
+INFO  2026-04-02 11:32:23,444 [16   ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:32:23,445 [16   ] ft.AspNetCore.Routing.EndpointMiddleware - Executing endpoint 'backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host)'
+INFO  2026-04-02 11:32:23,447 [16   ] c.Infrastructure.ControllerActionInvoker - Route matched with {action = "GetMy", controller = "Contract", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[backend.Services.ContractService.DTO.ContractAnalysisListDto] GetMy() on controller backend.Web.Host.Controllers.ContractController (backend.Web.Host).
+INFO  2026-04-02 11:32:26,830 [16   ] .Mvc.Infrastructure.ObjectResultExecutor - Executing ObjectResult, writing value of type 'Abp.Web.Models.AjaxResponse'.
+INFO  2026-04-02 11:32:26,833 [16   ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host) in 3385.9021ms
+INFO  2026-04-02 11:32:26,834 [16   ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.ContractController.GetMy (backend.Web.Host)'
+INFO  2026-04-02 11:32:26,834 [16   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 GET http://localhost:21021/api/app/contract/my - 200 - application/json;+charset=utf-8 3389.6193ms
+INFO  2026-04-02 11:43:52,701 [10   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/019d4d7e-294f-7c29-9887-a4619acd4b28 - - -
+INFO  2026-04-02 11:43:52,703 [16   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/019d4d7e-294f-7c29-9887-a4619acd4b28 - - -
+INFO  2026-04-02 11:43:52,707 [10   ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:43:52,707 [10   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/019d4d7e-294f-7c29-9887-a4619acd4b28 - 204 - - 6.3354ms
+INFO  2026-04-02 11:43:52,710 [16   ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:43:52,711 [16   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 OPTIONS http://localhost:21021/api/app/contract/019d4d7e-294f-7c29-9887-a4619acd4b28 - 204 - - 7.5675ms
+INFO  2026-04-02 11:43:52,729 [10   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 GET http://localhost:21021/api/app/contract/019d4d7e-294f-7c29-9887-a4619acd4b28 - - -
+INFO  2026-04-02 11:43:52,730 [10   ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:43:52,735 [10   ] ft.AspNetCore.Routing.EndpointMiddleware - Executing endpoint 'backend.Web.Host.Controllers.ContractController.Get (backend.Web.Host)'
+INFO  2026-04-02 11:43:52,754 [10   ] c.Infrastructure.ControllerActionInvoker - Route matched with {action = "Get", controller = "Contract", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[backend.Services.ContractService.DTO.ContractAnalysisDto] Get(System.Guid) on controller backend.Web.Host.Controllers.ContractController (backend.Web.Host).
+INFO  2026-04-02 11:43:55,532 [3    ] .Mvc.Infrastructure.ObjectResultExecutor - Executing ObjectResult, writing value of type 'Abp.Web.Models.AjaxResponse'.
+INFO  2026-04-02 11:43:55,534 [3    ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.ContractController.Get (backend.Web.Host) in 2779.1466ms
+INFO  2026-04-02 11:43:55,534 [3    ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.ContractController.Get (backend.Web.Host)'
+INFO  2026-04-02 11:43:55,534 [3    ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 GET http://localhost:21021/api/app/contract/019d4d7e-294f-7c29-9887-a4619acd4b28 - 200 - application/json;+charset=utf-8 2804.5749ms
+INFO  2026-04-02 11:43:55,538 [24   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request starting HTTP/1.1 GET http://localhost:21021/api/app/contract/019d4d7e-294f-7c29-9887-a4619acd4b28 - - -
+INFO  2026-04-02 11:43:55,539 [24   ] pNetCore.Cors.Infrastructure.CorsService - CORS policy execution successful.
+INFO  2026-04-02 11:43:55,541 [24   ] ft.AspNetCore.Routing.EndpointMiddleware - Executing endpoint 'backend.Web.Host.Controllers.ContractController.Get (backend.Web.Host)'
+INFO  2026-04-02 11:43:55,557 [24   ] c.Infrastructure.ControllerActionInvoker - Route matched with {action = "Get", controller = "Contract", area = ""}. Executing controller action with signature System.Threading.Tasks.Task`1[backend.Services.ContractService.DTO.ContractAnalysisDto] Get(System.Guid) on controller backend.Web.Host.Controllers.ContractController (backend.Web.Host).
+INFO  2026-04-02 11:43:57,813 [16   ] .Mvc.Infrastructure.ObjectResultExecutor - Executing ObjectResult, writing value of type 'Abp.Web.Models.AjaxResponse'.
+INFO  2026-04-02 11:43:57,818 [16   ] c.Infrastructure.ControllerActionInvoker - Executed action backend.Web.Host.Controllers.ContractController.Get (backend.Web.Host) in 2261.1317ms
+INFO  2026-04-02 11:43:57,819 [16   ] ft.AspNetCore.Routing.EndpointMiddleware - Executed endpoint 'backend.Web.Host.Controllers.ContractController.Get (backend.Web.Host)'
+INFO  2026-04-02 11:43:57,820 [16   ] Microsoft.AspNetCore.Hosting.Diagnostics - Request finished HTTP/1.1 GET http://localhost:21021/api/app/contract/019d4d7e-294f-7c29-9887-a4619acd4b28 - 200 - application/json;+charset=utf-8 2282.0782ms

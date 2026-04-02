@@ -23,8 +23,8 @@ namespace backend.Web.Host.Controllers
         }
 
         /// <summary>
-        /// This is a demo code to demonstrate sending notification to default tenant admin and host admin uers.
-        /// Don't use this code in production !!!
+        /// Sends a notification to the default tenant admin and host admin users.
+        /// This endpoint is intended for development and verification scenarios.
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>

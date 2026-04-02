@@ -76,6 +76,15 @@ namespace backend.Web.Host.Controllers
             return _contractAppService.GetAsync(id);
         }
 
+        /// <summary>
+        /// Asks a follow-up question about a saved contract analysis owned by the current user.
+        /// </summary>
+        [HttpPost("{id}/ask")]
+        public Task<ContractFollowUpAnswerDto> Ask(Guid id, [FromBody] AskContractQuestionRequest request)
+        {
+            return _contractAppService.AskAsync(id, request);
+        }
+
         private string GetLanguageCodeFromRequest()
         {
             var raw = Request.Headers["Accept-Language"].ToString();

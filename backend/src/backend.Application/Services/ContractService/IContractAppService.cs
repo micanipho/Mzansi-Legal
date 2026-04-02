@@ -15,4 +15,6 @@ public interface IContractAppService : IApplicationService
     Task<ContractAnalysisListDto> GetMyAsync();
 
     Task<ContractAnalysisDto> GetAsync(Guid id);
+
+    Task<ContractFollowUpAnswerDto> AskAsync(Guid id, AskContractQuestionRequest request);
 }

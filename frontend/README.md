@@ -1,4 +1,4 @@
-This is the Next.js frontend for MzansiLegal. It uses the App Router, `next-intl`, Ant Design, and an organic shell design system tuned for demo storytelling.
+This is the Next.js frontend for MzansiLegal. It uses the App Router, `next-intl`, Ant Design, and an organic shell design system tuned for the production product experience.
 
 ## Getting Started
 
@@ -17,7 +17,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - `/en/ask` canonical question-and-answer flow
 - `/en/chat` legacy compatibility route that redirects into `/ask`
 - `/en/contracts` contract analysis list
-- `/en/contracts/maple-street-lease` contract detail demo route
+- `/en/contracts/[id]` contract detail route
 - `/en/rights` rights explorer
 - `/en/admin/dashboard` admin storytelling dashboard
 
@@ -30,7 +30,7 @@ npm run lint
 npm run build
 ```
 
-Manual demo checks should confirm:
+Manual UI checks should confirm:
 
 - locale switching preserves the current route family
 - `/chat` redirects into the ask journey
