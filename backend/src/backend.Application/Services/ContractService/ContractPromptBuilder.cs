@@ -23,15 +23,17 @@ public static class ContractPromptBuilder
             "Rules:\n" +
             "1. Base every legal claim on the supplied legislation context only.\n" +
             "2. Keep the summary and flag descriptions plain-language and practical.\n" +
-            "3. Use severity red only for serious grounded concerns.\n" +
-            "4. If grounding is limited, use amber wording and explain the limit instead of overstating certainty.\n" +
-            "5. Keep Act names, section numbers, and clause excerpts in English.\n" +
-            "6. Do not include markdown fences or commentary.";
+            "3. Include green flags for clauses that are notably user-friendly, protective, or above the usual baseline for this contract type.\n" +
+            "4. Use amber or red flags for clauses that are below standard, risky, one-sided, or need human review.\n" +
+            "5. Use severity red only for serious grounded concerns.\n" +
+            "6. If grounding is limited, use amber wording and explain the limit instead of overstating certainty.\n" +
+            "7. Keep Act names, section numbers, and clause excerpts in English.\n" +
+            "8. Do not include markdown fences or commentary.";
 
         var languageDirective = BuildLanguageDirective(language);
         if (!string.IsNullOrWhiteSpace(languageDirective))
         {
-            prompt += $"\n7. {languageDirective}";
+            prompt += $"\n9. {languageDirective}";
         }
 
         return prompt;

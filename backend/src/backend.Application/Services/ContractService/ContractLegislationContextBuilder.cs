@@ -41,7 +41,54 @@ public class ContractLegislationContextBuilder : ApplicationService
 
         await EnsureIndexLoadedAsync();
 
-        var queryText = BuildQueryText(contractType, extractedText);
+        var queryText = BuildQueryText(contractType, extractedText, null);
+        var embedding = await _embeddingAppService.GenerateEmbeddingAsync(queryText);
+        var focusQueryText = RagQueryFocusBuilder.Build(queryText);
+        float[] focusVector = null;
+
+        if (!string.IsNullOrWhiteSpace(focusQueryText) &&
+            !string.Equals(focusQueryText, queryText, StringComparison.OrdinalIgnoreCase))
+        {
+            focusVector = (await _embeddingAppService.GenerateEmbeddingAsync(focusQueryText)).Vector;
+        }
+
+        var loadedChunks = _ragIndexStore.LoadedChunks;
+        var documentProfiles = _ragIndexStore.DocumentProfiles;
+        var semanticMatches = _retrievalPlanner.BuildSemanticMatches(
+            embedding.Vector,
+            loadedChunks,
+            focusVector);
+        var sourceHints = _sourceHintExtractor.Extract(queryText, loadedChunks);
+        var plan = _retrievalPlanner.BuildPlan(
+            queryText,
+            embedding.Vector,
+            semanticMatches,
+            sourceHints,
+            documentProfiles);
+
+        var selectedChunks = ApplyContractFilters(contractType, plan.SelectedChunks, queryText);
+        var primaryChunks = selectedChunks
+            .Where(chunk => string.Equals(chunk.SourceRole, RagSourceMetadata.Primary, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+        var supportingChunks = selectedChunks
+            .Where(chunk => !string.Equals(chunk.SourceRole, RagSourceMetadata.Primary, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+        var (coverageState, coverageNotes) = DetermineCoverage(contractType, queryText, selectedChunks.Count);
+
+        return new ContractLegislationContext(primaryChunks, supportingChunks, coverageState, coverageNotes);
+    }
+
+    public virtual async Task<ContractLegislationContext> BuildForFollowUpAsync(
+        ContractType contractType,
+        string extractedText,
+        string followUpQuestion)
+    {
+        Guard.Against.NullOrWhiteSpace(extractedText, nameof(extractedText));
+        Guard.Against.NullOrWhiteSpace(followUpQuestion, nameof(followUpQuestion));
+
+        await EnsureIndexLoadedAsync();
+
+        var queryText = BuildQueryText(contractType, extractedText, followUpQuestion);
         var embedding = await _embeddingAppService.GenerateEmbeddingAsync(queryText);
         var focusQueryText = RagQueryFocusBuilder.Build(queryText);
         float[] focusVector = null;
@@ -185,14 +232,18 @@ public class ContractLegislationContextBuilder : ApplicationService
             "The current legislation corpus contains grounded baseline authority for this contract type.");
     }
 
-    private static string BuildQueryText(ContractType contractType, string extractedText)
+    private static string BuildQueryText(ContractType contractType, string extractedText, string followUpQuestion)
     {
         var contractLead = ContractPromptBuilder.ToContractTypeValue(contractType);
         var lines = extractedText
             .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .Take(20);
 
-        return $"{contractLead} contract {string.Join(' ', lines)}";
+        var questionLead = string.IsNullOrWhiteSpace(followUpQuestion)
+            ? string.Empty
+            : $" follow up question {followUpQuestion}";
+
+        return $"{contractLead} contract{questionLead} {string.Join(' ', lines)}".Trim();
     }
 
     private static List<string> ParseKeywords(string rawKeywords)

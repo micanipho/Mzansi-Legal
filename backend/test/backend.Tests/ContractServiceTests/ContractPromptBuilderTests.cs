@@ -17,6 +17,8 @@ public class ContractPromptBuilderTests
         var prompt = ContractPromptBuilder.BuildSystemPrompt(Language.Zulu);
 
         prompt.ShouldContain("Return ONLY valid JSON");
+        prompt.ShouldContain("Include green flags for clauses that are notably user-friendly");
+        prompt.ShouldContain("Use amber or red flags for clauses that are below standard");
         prompt.ShouldContain("Respond in isiZulu");
         prompt.ShouldContain("Keep Act names, section numbers, and clause excerpts in English");
     }

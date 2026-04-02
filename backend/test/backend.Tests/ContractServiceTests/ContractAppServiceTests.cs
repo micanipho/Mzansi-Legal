@@ -7,6 +7,7 @@ using backend.Domains.QA;
 using backend.Services.ContractService;
 using backend.Services.ContractService.DTO;
 using backend.Services.RagService;
+using backend.Services.RagService.DTO;
 using Microsoft.Extensions.Configuration;
 using NSubstitute;
 using Shouldly;
@@ -92,12 +93,92 @@ public class ContractAppServiceTests
         await Should.ThrowAsync<UserFriendlyException>(() => harness.Service.GetAsync(targetId));
     }
 
+    [Fact]
+    public async Task GetAsync_SplitsStrengthsAndConcernsFromFlags()
+    {
+        var harness = new ContractAppServiceHarness();
+        harness.Service.UseSession(42);
+        var targetId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        harness.Analyses.Add(new ContractAnalysis
+        {
+            Id = targetId,
+            UserId = 42,
+            ExtractedText = "Lease agreement text",
+            ContractType = ContractType.Lease,
+            HealthScore = 78,
+            Summary = "Balanced lease summary",
+            Language = Language.English,
+            AnalysedAt = DateTime.UtcNow,
+            Flags = new List<ContractFlag>
+            {
+                new()
+                {
+                    Id = Guid.NewGuid(),
+                    ContractAnalysisId = targetId,
+                    Severity = FlagSeverity.Green,
+                    Title = "Clear maintenance split",
+                    Description = "The maintenance duties are allocated clearly.",
+                    ClauseText = "Routine repairs remain the landlord's duty.",
+                    LegislationCitation = null,
+                    SortOrder = 0
+                },
+                new()
+                {
+                    Id = Guid.NewGuid(),
+                    ContractAnalysisId = targetId,
+                    Severity = FlagSeverity.Red,
+                    Title = "Broad penalty fee",
+                    Description = "The penalty fee is unusually high.",
+                    ClauseText = "A penalty of R15 000 applies for early exit.",
+                    LegislationCitation = "Consumer Protection Act 68 of 2008 Section 14",
+                    SortOrder = 1
+                }
+            }
+        });
+
+        var result = await harness.Service.GetAsync(targetId);
+
+        result.Strengths.Count.ShouldBe(1);
+        result.Strengths[0].Title.ShouldBe("Clear maintenance split");
+        result.Concerns.Count.ShouldBe(1);
+        result.Concerns[0].Title.ShouldBe("Broad penalty fee");
+        result.Flags.Count.ShouldBe(2);
+    }
+
+    [Fact]
+    public async Task AskAsync_OwnerScopedContract_ReturnsFollowUpAnswer()
+    {
+        var harness = new ContractAppServiceHarness();
+        harness.Service.UseSession(42);
+        var targetId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+        harness.SeedAnalysis(targetId, 42, ContractType.Lease, 68, DateTime.UtcNow, FlagSeverity.Amber);
+        harness.FollowUpService.Result = new ContractFollowUpAnswerDto
+        {
+            AnswerText = "This clause needs review before you rely on it.",
+            AnswerMode = RagAnswerMode.Cautious,
+            ConfidenceBand = RagConfidenceBand.Medium,
+            DetectedLanguageCode = "en",
+            ContractExcerpts = new List<string> { "The tenant must give three months notice." },
+            Citations = new List<RagCitationDto>()
+        };
+
+        var result = await harness.Service.AskAsync(targetId, new AskContractQuestionRequest
+        {
+            QuestionText = "Can they really require three months notice?",
+            ResponseLanguageCode = "en"
+        });
+
+        result.AnswerMode.ShouldBe(RagAnswerMode.Cautious);
+        result.ContractExcerpts.Count.ShouldBe(1);
+    }
+
     private sealed class ContractAppServiceHarness
     {
         public Guid NextAnalysisId { get; } = Guid.Parse("11111111-1111-1111-1111-111111111111");
         public List<ContractAnalysis> Analyses { get; } = new();
         public List<ContractFlag> Flags { get; } = new();
         public StubContractAnalysisService AnalysisService { get; }
+        public StubContractFollowUpService FollowUpService { get; }
         public TestableContractAppService Service { get; }
 
         public ContractAppServiceHarness()
@@ -124,10 +205,12 @@ public class ContractAppServiceTests
                 });
 
             AnalysisService = new StubContractAnalysisService();
+            FollowUpService = new StubContractFollowUpService();
             Service = new TestableContractAppService(
                 contractAnalysisRepository,
                 contractFlagRepository,
                 AnalysisService,
+                FollowUpService,
                 Analyses);
         }
 
@@ -209,8 +292,9 @@ public class ContractAppServiceTests
             IRepository<ContractAnalysis, Guid> contractAnalysisRepository,
             IRepository<ContractFlag, Guid> contractFlagRepository,
             ContractAnalysisService contractAnalysisService,
+            ContractFollowUpService contractFollowUpService,
             List<ContractAnalysis> analyses)
-            : base(contractAnalysisRepository, contractFlagRepository, contractAnalysisService)
+            : base(contractAnalysisRepository, contractFlagRepository, contractAnalysisService, contractFollowUpService)
         {
             _ = analyses;
         }
@@ -230,6 +314,28 @@ public class ContractAppServiceTests
         protected override Task<ContractAnalysis?> FirstOrDefaultOwnedAnalysisAsync(IQueryable<ContractAnalysis> query)
         {
             return Task.FromResult(query.FirstOrDefault());
+        }
+    }
+
+    private sealed class StubContractFollowUpService : ContractFollowUpService
+    {
+        public StubContractFollowUpService()
+            : base(
+                new StubContextBuilder(),
+                Substitute.For<backend.Services.LanguageService.ILanguageAppService>(),
+                Substitute.For<IHttpClientFactory>(),
+                BuildConfig())
+        {
+        }
+
+        public ContractFollowUpAnswerDto Result { get; set; } = new();
+
+        public override Task<ContractFollowUpAnswerDto> AskAsync(
+            ContractAnalysis analysis,
+            string questionText,
+            string responseLanguageCode = null)
+        {
+            return Task.FromResult(Result);
         }
     }
 

@@ -1,5 +1,6 @@
 import type {
   ContractFlag,
+  ContractFollowUpAnswer,
   ContractListItem,
   ContractListResponse,
   ContractRecord,
@@ -109,6 +110,9 @@ function normalizeFlag(flag: ContractFlag): ContractFlag {
 function normalizeContractRecord(record: ContractRecord): ContractRecord {
   return {
     ...record,
+    pageCount: record.pageCount ?? null,
+    strengths: Array.isArray(record.strengths) ? record.strengths.map(normalizeFlag) : [],
+    concerns: Array.isArray(record.concerns) ? record.concerns.map(normalizeFlag) : [],
     flags: Array.isArray(record.flags) ? record.flags.map(normalizeFlag) : [],
   };
 }
@@ -180,4 +184,24 @@ export async function getContractAnalysis(
 
   const result = await parseJsonResponse<ContractRecord>(response);
   return normalizeContractRecord(result);
+}
+
+export async function askContractQuestion(
+  id: string,
+  questionText: string,
+  locale?: string
+): Promise<ContractFollowUpAnswer> {
+  const response = await fetchWithFallback(`/api/app/contract/${id}/ask`, {
+    method: "POST",
+    headers: {
+      ...getBaseHeaders(locale),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      questionText,
+      responseLanguageCode: locale,
+    }),
+  });
+
+  return parseJsonResponse<ContractFollowUpAnswer>(response);
 }
