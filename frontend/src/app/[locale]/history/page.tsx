@@ -6,9 +6,8 @@ import Link from "next/link";
 import { appRoutes, createLocalizedPath } from "@/i18n/routing";
 import { C, R, fontSans, fontSerif, shadowOrganic } from "@/styles/theme";
 import AuthGuard from "@/components/guards/AuthGuard";
-import { HistoryProvider, useHistoryState, useHistoryAction } from "@/providers/history-provider";
+import { HistoryProvider, useHistoryState } from "@/providers/history-provider";
 import { Spin } from "antd";
-import { useEffect } from "react";
 
 const LOCALE_NAMES: Record<string, string> = {
   en: "English",
@@ -33,9 +32,6 @@ function HistoryContent() {
   const t = useTranslations("history");
   const locale = useLocale();
   const { items, isPending: isLoading, isError } = useHistoryState();
-  const { fetchAll } = useHistoryAction();
-
-  useEffect(() => { void fetchAll(); }, []);
 
   if (isLoading) {
     return (
