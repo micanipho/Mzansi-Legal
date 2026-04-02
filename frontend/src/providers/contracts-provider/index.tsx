@@ -1,45 +1,96 @@
 "use client";
+
 import { useContext, useReducer } from "react";
-import { demoContracts, getContractById } from "@/components/contracts/contractData";
+import type { ContractListItem } from "@/components/contracts/contractData";
+import { analyseContract, getContractAnalysis, getMyContracts } from "@/services/contract.service";
 import { ContractsReducer } from "./reducer";
 import { INITIAL_STATE, ContractsStateContext, ContractsActionContext } from "./context";
 import { ContractsStateEnums } from "./actions";
 
-// TODO: replace demoContracts calls with real API once contract analysis endpoint is available:
-// GET /api/app/contracts  →  fetchAll
-// GET /api/app/contracts/{id}  →  fetchById
+function toListItem(selected: {
+  id: string;
+  displayTitle: string;
+  contractType: string;
+  healthScore: number;
+  summary: string;
+  language: string;
+  analysedAt: string;
+  redFlagCount: number;
+  amberFlagCount: number;
+  greenFlagCount: number;
+}): ContractListItem {
+  return {
+    id: selected.id,
+    displayTitle: selected.displayTitle,
+    contractType: selected.contractType,
+    healthScore: selected.healthScore,
+    summary: selected.summary,
+    language: selected.language,
+    analysedAt: selected.analysedAt,
+    redFlagCount: selected.redFlagCount,
+    amberFlagCount: selected.amberFlagCount,
+    greenFlagCount: selected.greenFlagCount,
+  };
+}
 
 export const ContractsProvider = ({ children }: { children: React.ReactNode }) => {
   const [state, dispatch] = useReducer(ContractsReducer, INITIAL_STATE);
 
-  const fetchAll = async () => {
+  const fetchAll = async (locale?: string) => {
     dispatch({ type: ContractsStateEnums.CONTRACTS_FETCH_ALL_PENDING });
     try {
-      await Promise.resolve(); // placeholder for real API call
+      const result = await getMyContracts(locale);
       dispatch({
         type: ContractsStateEnums.CONTRACTS_FETCH_ALL_SUCCESS,
-        items: demoContracts,
-        totalCount: demoContracts.length,
+        items: result.items,
+        totalCount: result.totalCount,
       });
-    } catch {
-      dispatch({ type: ContractsStateEnums.CONTRACTS_FETCH_ALL_ERROR });
+    } catch (error) {
+      dispatch({
+        type: ContractsStateEnums.CONTRACTS_FETCH_ALL_ERROR,
+        errorMessage: error instanceof Error ? error.message : "Failed to load contract analyses",
+      });
     }
   };
 
-  const fetchById = async (id: string) => {
+  const fetchById = async (id: string, locale?: string) => {
     dispatch({ type: ContractsStateEnums.CONTRACTS_FETCH_ONE_PENDING });
     try {
-      const selected = getContractById(id);
-      if (!selected) throw new Error("Contract not found");
+      const selected = await getContractAnalysis(id, locale);
       dispatch({ type: ContractsStateEnums.CONTRACTS_FETCH_ONE_SUCCESS, selected });
-    } catch {
-      dispatch({ type: ContractsStateEnums.CONTRACTS_FETCH_ONE_ERROR });
+    } catch (error) {
+      dispatch({
+        type: ContractsStateEnums.CONTRACTS_FETCH_ONE_ERROR,
+        errorMessage: error instanceof Error ? error.message : "Failed to load contract analysis",
+      });
+    }
+  };
+
+  const analyse = async (file: File, locale?: string) => {
+    dispatch({ type: ContractsStateEnums.CONTRACTS_ANALYSE_PENDING });
+    try {
+      const selected = await analyseContract(file, locale);
+      const nextItems = [toListItem(selected), ...state.items.filter((item) => item.id !== selected.id)];
+      dispatch({
+        type: ContractsStateEnums.CONTRACTS_ANALYSE_SUCCESS,
+        selected,
+        items: nextItems,
+        totalCount: nextItems.length,
+      });
+      return selected;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to analyse contract";
+      dispatch({
+        type: ContractsStateEnums.CONTRACTS_ANALYSE_ERROR,
+        errorMessage,
+      });
+      throw error;
     }
   };
 
   return (
     <ContractsStateContext.Provider value={state}>
-      <ContractsActionContext.Provider value={{ fetchAll, fetchById }}>
+      <ContractsActionContext.Provider value={{ fetchAll, fetchById, analyse }}>
         {children}
       </ContractsActionContext.Provider>
     </ContractsStateContext.Provider>

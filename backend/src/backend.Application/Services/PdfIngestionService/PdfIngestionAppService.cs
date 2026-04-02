@@ -158,7 +158,7 @@ public class PdfIngestionAppService : ApplicationService, IPdfIngestionAppServic
     /// Government gazette PDFs often concatenate glyphs without spaces in page.Text,
     /// so word-level extraction with spatial line grouping is required.
     /// </summary>
-    private static string ExtractText(Stream pdfStream)
+    public static string ExtractTextFromStream(Stream pdfStream)
     {
         var sb = new StringBuilder();
         using var document = PdfDocument.Open(pdfStream);
@@ -185,4 +185,6 @@ public class PdfIngestionAppService : ApplicationService, IPdfIngestionAppServic
 
         return sb.ToString();
     }
+
+    private static string ExtractText(Stream pdfStream) => ExtractTextFromStream(pdfStream);
 }
