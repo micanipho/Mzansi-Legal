@@ -53,7 +53,7 @@ public static class RagPromptBuilder
             "3. If the context does not contain sufficient information to answer the question, " +
             "you MUST say that the available legislation is not enough.\n" +
             "4. Do NOT speculate, infer, or draw on general knowledge outside the provided context.\n" +
-            "5. Write in plain, accessible English. Avoid legal jargon where a simpler word exists.\n" +
+            "5. Write in plain, accessible language for the user. Avoid legal jargon where a simpler word exists.\n" +
             "6. When both binding law and official guidance appear, present the binding law as controlling and the guidance as supporting context only.";
 
         if (answerMode == RagAnswerMode.Cautious)

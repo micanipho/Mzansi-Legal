@@ -70,10 +70,18 @@
 <!--
   ACTION REQUIRED: The content in this section represents placeholders.
   Fill them out with the right edge cases.
+  For legal-AI or corpus features, include source-authority conflicts,
+  missing-authority fallback, high-risk escalation, and guidance-vs-law cases.
+  For data-handling features, include retention, deletion, and vendor-boundary
+  cases.
 -->
 
-- What happens when [boundary condition]?
-- How does system handle [error scenario]?
+- What happens when authoritative support is missing, ambiguous, or weaker than
+  the available guidance?
+- How does the system handle urgent or high-risk situations that require
+  clarification or human escalation?
+- How does the system handle privacy, retention, deletion, or cross-border
+  constraints when personal information is collected?
 
 ## Requirements *(mandatory)*
 
@@ -84,6 +92,14 @@
 
 ### Functional Requirements
 
+<!--
+  For legal-AI, corpus, or data-handling features, requirements MUST spell out:
+  1. source authority and guidance-vs-law labeling,
+  2. fallback or escalation behavior when authority is weak,
+  3. POPIA handling for stored personal information,
+  4. provenance, freshness, and licensing rules for new sources.
+-->
+
 - **FR-001**: System MUST [specific capability, e.g., "allow users to create accounts"]
 - **FR-002**: System MUST [specific capability, e.g., "validate email addresses"]  
 - **FR-003**: Users MUST be able to [key interaction, e.g., "reset their password"]
@@ -92,8 +108,12 @@
 
 *Example of marking unclear requirements:*
 
-- **FR-006**: System MUST authenticate users via [NEEDS CLARIFICATION: auth method not specified - email/password, SSO, OAuth?]
-- **FR-007**: System MUST retain user data for [NEEDS CLARIFICATION: retention period not specified]
+- **FR-006**: If the feature produces legal content, the system MUST define
+  [NEEDS CLARIFICATION: which outputs require binding-law citations, whether
+  official guidance is allowed, and what happens when authority is missing]
+- **FR-007**: If the feature stores personal information, the system MUST define
+  [NEEDS CLARIFICATION: retention period, deletion/de-identification path,
+  security safeguards, and cross-border/vendor constraints]
 
 ### Key Entities *(include if feature involves data)*
 
@@ -105,6 +125,8 @@
 <!--
   ACTION REQUIRED: Define measurable success criteria.
   These must be technology-agnostic and measurable.
+  For legal-AI features, include groundedness/citation accuracy, source-role
+  clarity, and escalation correctness where applicable.
 -->
 
 ### Measurable Outcomes
@@ -120,6 +142,8 @@
   ACTION REQUIRED: The content in this section represents placeholders.
   Fill them out with the right assumptions based on reasonable defaults
   chosen when the feature description did not specify certain details.
+  Include any assumptions about source availability, licensing, freshness
+  ownership, human-review boundaries, or privacy posture when relevant.
 -->
 
 - [Assumption about target users, e.g., "Users have stable internet connectivity"]
