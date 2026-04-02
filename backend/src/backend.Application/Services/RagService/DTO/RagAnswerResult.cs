@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 
@@ -6,7 +7,7 @@ namespace backend.Services.RagService.DTO;
 /// <summary>
 /// Output DTO returned by <see cref="IRagAppService.AskAsync"/>.
 /// Contains the generated answer, structured citations, and traceability identifiers.
-/// When <see cref="IsInsufficientInformation"/> is <c>true</c>, all other fields are null or empty.
+/// When no grounded answer is returned, citations and chunk IDs are empty and the answer ID is null.
 /// </summary>
 public class RagAnswerResult
 {
@@ -40,4 +41,38 @@ public class RagAnswerResult
     /// <c>null</c> when <see cref="IsInsufficientInformation"/> is <c>true</c>.
     /// </summary>
     public Guid? AnswerId { get; set; }
+
+    /// <summary>
+    /// ISO 639-1 code of the detected input language (e.g. "zu", "st", "af", "en").
+    /// Defaults to "en" when language detection is unavailable.
+    /// </summary>
+    [JsonProperty("detectedLanguageCode")]
+    public string DetectedLanguageCode { get; set; } = "en";
+
+    /// <summary>
+    /// Structured response posture returned by the retrieval pipeline.
+    /// </summary>
+    [JsonProperty("answerMode")]
+    [JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
+    public RagAnswerMode AnswerMode { get; set; } = RagAnswerMode.Insufficient;
+
+    /// <summary>
+    /// Retrieval-derived confidence band for the returned response mode.
+    /// </summary>
+    [JsonProperty("confidenceBand")]
+    [JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
+    public RagConfidenceBand ConfidenceBand { get; set; } = RagConfidenceBand.Low;
+
+    /// <summary>
+    /// Follow-up question to ask the user when the answer mode is clarification.
+    /// </summary>
+    [JsonProperty("clarificationQuestion")]
+    public string ClarificationQuestion { get; set; }
+
+    /// <summary>
+    /// <c>true</c> when the system detected urgent risk or deadline indicators and wants the client
+    /// to surface immediate-help language even if some legal grounding is available.
+    /// </summary>
+    [JsonProperty("requiresUrgentAttention")]
+    public bool RequiresUrgentAttention { get; set; }
 }

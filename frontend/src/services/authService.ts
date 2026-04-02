@@ -1,4 +1,7 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:21021";
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE ??
+  process.env.NEXT_PUBLIC_BASE_URL ??
+  "http://localhost:21021";
 
 // ABP Zero multi-tenant header — ID 1 is the default tenant seeded on first run
 const ABP_HEADERS = {

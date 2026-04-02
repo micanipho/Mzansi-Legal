@@ -39,6 +39,8 @@ namespace backend.Web.Host.Startup
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddHealthChecks();
+
             //MVC
             services.AddControllersWithViews(options =>
             {
@@ -50,8 +52,9 @@ namespace backend.Web.Host.Startup
 
             services.AddSignalR();
 
-            // Named HttpClient for OpenAI APIs (embeddings + chat completions).
-            // EmbeddingAppService and RagAppService both resolve this client by name via IHttpClientFactory.
+            // Named HttpClient for OpenAI APIs (embeddings + chat completions + language detection/translation).
+            // EmbeddingAppService, RagAppService, and LanguageAppService all resolve this client by name
+            // via IHttpClientFactory. LanguageAppService is auto-registered by ABP as an ApplicationService.
             services.AddHttpClient("OpenAI", client =>
             {
                 client.BaseAddress = new Uri(_appConfiguration["OpenAI:BaseUrl"]);
@@ -115,6 +118,7 @@ namespace backend.Web.Host.Startup
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapHealthChecks("/api/health");
                 endpoints.MapHub<AbpCommonHub>("/signalr");
                 endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapControllerRoute("defaultWithArea", "{area}/{controller=Home}/{action=Index}/{id?}");

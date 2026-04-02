@@ -1,7 +1,12 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { askRagQuestion, type RagCitationDto } from "@/services/qa.service";
+import {
+  askRagQuestion,
+  type RagAnswerMode,
+  type RagCitationDto,
+  type RagConfidenceBand,
+} from "@/services/qa.service";
 
 export interface ChatMessage {
   id: string;
@@ -10,6 +15,10 @@ export interface ChatMessage {
   status: "sending" | "sent" | "error";
   citations?: RagCitationDto[];
   isInsufficientInformation?: boolean;
+  answerMode?: RagAnswerMode;
+  confidenceBand?: RagConfidenceBand;
+  clarificationQuestion?: string | null;
+  requiresUrgentAttention?: boolean;
 }
 
 export interface UseChatReturn {
@@ -49,6 +58,10 @@ export function useChat(): UseChatReturn {
         status: "sent",
         citations: result.citations,
         isInsufficientInformation: result.isInsufficientInformation,
+        answerMode: result.answerMode,
+        confidenceBand: result.confidenceBand,
+        clarificationQuestion: result.clarificationQuestion,
+        requiresUrgentAttention: result.requiresUrgentAttention,
       };
 
       setMessages((prev) => [...prev, botMessage]);

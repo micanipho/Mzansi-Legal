@@ -11,10 +11,24 @@
       "Bash(dotnet add:*)",
       "Bash(dotnet build:*)",
       "Bash(dotnet ef:*)",
-      "Bash(node -e \":*)"
+      "Bash(node -e \":*)",
+      "Bash(docker start:*)",
+      "Bash(psql \"Host=hopper.proxy.rlwy.net;Port=12449;Database=railway;Username=postgres;Password=OsOcVxwAJhGVTiweeLZAdYIDrDwiwlng;SSL Mode=Require;Trust Server Certificate=true\" -c \"SELECT COUNT\\(*\\) FROM \\\\\"ChunkEmbeddings\\\\\";\")",
+      "Bash(psql \"postgresql://postgres:OsOcVxwAJhGVTiweeLZAdYIDrDwiwlng@hopper.proxy.rlwy.net:12449/railway?sslmode=require\" -c \"SELECT COUNT\\(*\\) FROM \\\\\"ChunkEmbeddings\\\\\";\")",
+      "Bash(docker run:*)",
+      "Bash(dotnet script:*)",
+      "Bash(powershell -Command ':*)",
+      "Bash(taskkill /PID 17936 /F)",
+      "Bash(taskkill /PID 50984 /F)",
+      "Bash(cmd /c \"taskkill /PID 17936 /F & taskkill /PID 50984 /F\")",
+      "Bash(cmd /c \"taskkill /F /IM backend.Migrator.exe 2>&1 & taskkill /F /IM backend.Web.Host.exe 2>&1\")",
+      "Bash(cmd /c \"wmic process where \\\\\"name='backend.Migrator.exe' or name='backend.Web.Host.exe'\\\\\" get ProcessId,Name 2>&1\")",
+      "Bash(cmd /c \"wmic process where \\\\\"CommandLine like '%backend%'\\\\\" get ProcessId,Name,CommandLine 2>&1 | findstr /i backend\")",
+      "Bash(cmd /c \"wmic process where \\\\\"CommandLine like '%backend.Web.Host%' or CommandLine like '%backend.Migrator%'\\\\\" get ProcessId,Name 2>&1\")"
     ],
     "additionalDirectories": [
-      "c:\\Users\\Nhlakanipho\\Documents\\Projects\\Mzansi-legal\\frontend\\src\\app"
+      "c:\\Users\\Nhlakanipho\\Documents\\Projects\\Mzansi-legal\\frontend\\src\\app",
+      "C:\\Users\\Nhlakanipho\\AppData\\Local\\Temp\\dbcheck"
     ]
   }
 }

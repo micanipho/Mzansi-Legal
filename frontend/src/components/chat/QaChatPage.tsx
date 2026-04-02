@@ -2,7 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useEffectEvent, useRef } from "react";
 import { C, fontSans } from "@/styles/theme";
 import { useChatState, useChatAction } from "@/providers/chat-provider";
 import ChatInput from "./ChatInput";
@@ -13,16 +13,28 @@ export default function QaChatPage() {
   const t = useTranslations("chat");
   const searchParams = useSearchParams();
   const initialQuestion = searchParams.get("q") ?? "";
+  const lastAutoSentQuestionRef = useRef<string | null>(null);
 
   const { messages, isPending: isLoading, error } = useChatState();
   const { sendMessage } = useChatAction();
+  const autoSendQuestion = useEffectEvent((question: string) => {
+    void sendMessage(question, locale);
+  });
 
   useEffect(() => {
-    if (initialQuestion) {
-      void sendMessage(initialQuestion, locale);
+    const trimmedQuestion = initialQuestion.trim();
+
+    if (!trimmedQuestion) {
+      return;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+
+    if (lastAutoSentQuestionRef.current === trimmedQuestion) {
+      return;
+    }
+
+    lastAutoSentQuestionRef.current = trimmedQuestion;
+    autoSendQuestion(trimmedQuestion);
+  }, [initialQuestion]);
 
   const handleSend = (text: string) => {
     // Allow guests to chat, no redirect

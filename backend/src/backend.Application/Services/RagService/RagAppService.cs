@@ -4,6 +4,7 @@ using Ardalis.GuardClauses;
 using backend.Domains.LegalDocuments;
 using backend.Domains.QA;
 using backend.Services.EmbeddingService;
+using backend.Services.LanguageService;
 using backend.Services.RagService.DTO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -21,97 +22,113 @@ namespace backend.Services.RagService;
 
 /// <summary>
 /// Core RAG orchestration service for South African legal Q&amp;A.
-/// Loads all chunk embeddings into memory at startup, scores them per question
-/// via cosine similarity, calls GPT-4o with a grounded prompt, and persists
-/// the full Conversation → Question → Answer → AnswerCitation chain.
+/// Loads chunk embeddings and source metadata into memory, plans document-aware retrieval,
+/// calls the chat model only when grounding is adequate, and persists grounded answers.
 /// </summary>
 public class RagAppService : ApplicationService, IRagAppService
 {
     private readonly IEmbeddingAppService _embeddingService;
+    private readonly ILanguageAppService _languageService;
     private readonly IRepository<DocumentChunk, Guid> _chunkRepository;
     private readonly IRepository<Conversation, Guid> _conversationRepository;
     private readonly IRepository<Question, Guid> _questionRepository;
     private readonly IRepository<Answer, Guid> _answerRepository;
     private readonly IRepository<AnswerCitation, Guid> _citationRepository;
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly RagIndexStore _ragIndexStore;
+    private readonly RagSourceHintExtractor _sourceHintExtractor = new();
+    private readonly RagDocumentProfileBuilder _documentProfileBuilder = new();
+    private readonly RagRetrievalPlanner _retrievalPlanner = new();
+    private readonly RagConfidenceEvaluator _confidenceEvaluator = new();
     private readonly string _apiKey;
     private readonly string _chatModel;
-    private readonly string _baseUrl;
 
-    // In-memory store populated by InitialiseAsync; read-only during AskAsync.
-    private List<RagPromptBuilder.ScoredChunk> _loadedChunks = new();
-
-    /// <summary>
-    /// Initialises the service and validates required OpenAI configuration keys.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">Thrown when any required OpenAI config key is missing.</exception>
     public RagAppService(
         IEmbeddingAppService embeddingService,
+        ILanguageAppService languageService,
         IRepository<DocumentChunk, Guid> chunkRepository,
         IRepository<Conversation, Guid> conversationRepository,
         IRepository<Question, Guid> questionRepository,
         IRepository<Answer, Guid> answerRepository,
         IRepository<AnswerCitation, Guid> citationRepository,
+        RagIndexStore ragIndexStore,
         IHttpClientFactory httpClientFactory,
         IConfiguration configuration)
     {
         Guard.Against.Null(configuration, nameof(configuration));
+        Guard.Against.Null(ragIndexStore, nameof(ragIndexStore));
 
         _embeddingService = embeddingService;
+        _languageService = languageService;
         _chunkRepository = chunkRepository;
         _conversationRepository = conversationRepository;
         _questionRepository = questionRepository;
         _answerRepository = answerRepository;
         _citationRepository = citationRepository;
+        _ragIndexStore = ragIndexStore;
         _httpClientFactory = httpClientFactory;
 
         _apiKey = configuration["OpenAI:ApiKey"];
         if (string.IsNullOrWhiteSpace(_apiKey))
+        {
             throw new InvalidOperationException(
                 "OpenAI:ApiKey must be set in appsettings.json. " +
                 "Store your real key in appsettings.Development.json (gitignored).");
+        }
 
         _chatModel = configuration["OpenAI:ChatModel"];
         if (string.IsNullOrWhiteSpace(_chatModel))
+        {
             throw new InvalidOperationException(
                 "OpenAI:ChatModel must be set in appsettings.json (e.g., \"gpt-4o\").");
+        }
 
-        _baseUrl = configuration["OpenAI:BaseUrl"];
-        if (string.IsNullOrWhiteSpace(_baseUrl))
-            throw new InvalidOperationException(
-                "OpenAI:BaseUrl must be set in appsettings.json.");
+        var baseUrl = configuration["OpenAI:BaseUrl"];
+        if (string.IsNullOrWhiteSpace(baseUrl))
+        {
+            throw new InvalidOperationException("OpenAI:BaseUrl must be set in appsettings.json.");
+        }
     }
 
-    /// <summary>
-    /// Loads all DocumentChunk embeddings from the database into the in-memory store.
-    /// Only chunks with a populated embedding vector are loaded. Existing in-memory
-    /// data is replaced atomically on each call.
-    /// </summary>
     public async Task InitialiseAsync(CancellationToken cancellationToken = default)
     {
-        // Load all chunks that have an embedding, including the parent document for the Act name.
+        using var uow = UnitOfWorkManager.Begin();
+
         var chunks = await _chunkRepository
             .GetAll()
             .Include(c => c.Embedding)
             .Include(c => c.Document)
+            .ThenInclude(d => d.Category)
             .Where(c => c.Embedding != null)
             .ToListAsync(cancellationToken);
 
-        _loadedChunks = chunks
-            .Select(c => new RagPromptBuilder.ScoredChunk(
-                ChunkId: c.Id,
-                ActName: c.Document?.Title ?? "Unknown Act",
-                SectionNumber: c.SectionNumber ?? string.Empty,
-                Excerpt: c.Content ?? string.Empty,
-                Score: 0f,    // score is assigned per-query, not at load time
-                Vector: c.Embedding.Vector))
+        var loadedChunks = chunks
+            .Select(chunk => new IndexedChunk(
+                ChunkId: chunk.Id,
+                DocumentId: chunk.DocumentId,
+                ActName: chunk.Document?.Title ?? "Unknown Act",
+                ActShortName: chunk.Document?.ShortName ?? string.Empty,
+                ActNumber: chunk.Document?.ActNumber ?? string.Empty,
+                Year: chunk.Document?.Year ?? 0,
+                CategoryName: chunk.Document?.Category?.Name ?? string.Empty,
+                SectionNumber: chunk.SectionNumber ?? string.Empty,
+                SectionTitle: chunk.SectionTitle ?? string.Empty,
+                Excerpt: chunk.Content ?? string.Empty,
+                Keywords: ParseKeywords(chunk.Keywords),
+                TopicClassification: chunk.TopicClassification ?? string.Empty,
+                TokenCount: chunk.TokenCount,
+                Vector: chunk.Embedding.Vector))
             .ToList();
+
+        var documentProfiles = _documentProfileBuilder
+            .Build(loadedChunks)
+            .ToList();
+
+        _ragIndexStore.Replace(loadedChunks, documentProfiles);
+
+        await uow.CompleteAsync();
     }
 
-    /// <summary>
-    /// Returns conversations for the current user ordered newest-first,
-    /// each decorated with the first question text and total question count.
-    /// </summary>
     public async Task<ConversationsListDto> GetConversationsAsync()
     {
         var userId = AbpSession.UserId
@@ -124,106 +141,217 @@ public class RagAppService : ApplicationService, IRagAppService
             .OrderByDescending(c => c.StartedAt)
             .ToListAsync();
 
-        var items = conversations.Select(c => new ConversationSummaryDto
+        var items = conversations.Select(conversation => new ConversationSummaryDto
         {
-            ConversationId = c.Id,
-            FirstQuestion = c.Questions
-                .OrderBy(q => q.CreationTime)
-                .Select(q => q.OriginalText)
+            ConversationId = conversation.Id,
+            FirstQuestion = conversation.Questions
+                .OrderBy(question => question.CreationTime)
+                .Select(question => question.OriginalText)
                 .FirstOrDefault() ?? string.Empty,
-            QuestionCount = c.Questions.Count,
-            StartedAt = c.StartedAt,
-            Language = c.Language.ToString().ToLowerInvariant()
+            QuestionCount = conversation.Questions.Count,
+            StartedAt = conversation.StartedAt,
+            Language = conversation.Language.ToString().ToLowerInvariant()
         }).ToList();
 
         return new ConversationsListDto { Items = items, TotalCount = items.Count };
     }
 
-    /// <summary>
-    /// Embeds the user's question, scores all loaded chunks via cosine similarity,
-    /// and — when relevant chunks exist — calls GPT-4o and persists the Q&amp;A chain.
-    /// Returns <see cref="RagAnswerResult.IsInsufficientInformation"/> = <c>true</c>
-    /// when no chunk scores ≥ <see cref="RagPromptBuilder.SimilarityThreshold"/>.
-    /// </summary>
     public async Task<RagAnswerResult> AskAsync(AskQuestionRequest request)
     {
         Guard.Against.Null(request, nameof(request));
         Guard.Against.NullOrWhiteSpace(request.QuestionText, nameof(request.QuestionText));
 
-        // Embed the question.
-        var embeddingResult = await _embeddingService.GenerateEmbeddingAsync(request.QuestionText);
-        var questionVector = embeddingResult.Vector;
+        await EnsureIndexLoadedAsync();
 
-        // Score all loaded chunks and filter to those above the similarity threshold.
-        var topChunks = _loadedChunks
-            .Select(c => c with { Score = EmbeddingHelper.CosineSimilarity(questionVector, c.Vector) })
-            .Where(c => c.Score >= RagPromptBuilder.SimilarityThreshold)
-            .OrderByDescending(c => c.Score)
-            .Take(RagPromptBuilder.MaxContextChunks)
-            .ToList();
-
-        const string disclaimer =
-            "⚠️ *No matching legislation was found in the database for this question. " +
-            "The following answer is based on general AI knowledge and is not legally authoritative. " +
-            "Please consult a qualified South African attorney for advice specific to your situation.*\n\n";
-
-        string answerText;
-
-        // Fallback: no chunks met the threshold — query the AI without legislation context.
-        if (topChunks.Count == 0)
+        var detectedLanguage = await _languageService.DetectLanguageAsync(request.QuestionText);
+        var translatedText = await _languageService.TranslateToEnglishAsync(request.QuestionText, detectedLanguage);
+        var detectedLanguageCode = RagPromptBuilder.ToIsoCode(detectedLanguage);
+        var embeddingResult = await _embeddingService.GenerateEmbeddingAsync(translatedText);
+        var focusQueryText = RagQueryFocusBuilder.Build(translatedText);
+        float[] focusVector = null;
+        if (!string.IsNullOrWhiteSpace(focusQueryText) &&
+            !string.Equals(focusQueryText, translatedText, StringComparison.OrdinalIgnoreCase))
         {
-            var fallbackAnswer = await CallChatCompletionsAsync(
-                RagPromptBuilder.BuildFallbackSystemPrompt(),
-                request.QuestionText);
-
-            return new RagAnswerResult
-            {
-                AnswerText = disclaimer + fallbackAnswer,
-                IsInsufficientInformation = true,
-                Citations = new List<RagCitationDto>(),
-                ChunkIds = new List<Guid>(),
-                AnswerId = null
-            };
+            focusVector = (await _embeddingService.GenerateEmbeddingAsync(focusQueryText)).Vector;
         }
 
-        // Build prompt and call GPT-4o with legislation context.
-        var systemPrompt = RagPromptBuilder.BuildSystemPrompt();
-        var contextBlock = RagPromptBuilder.BuildContextBlock(topChunks);
-        var userPrompt = RagPromptBuilder.BuildUserPrompt(request.QuestionText, contextBlock);
-        answerText = await CallChatCompletionsAsync(systemPrompt, userPrompt);
+        var loadedChunks = _ragIndexStore.LoadedChunks;
+        var documentProfiles = _ragIndexStore.DocumentProfiles;
 
-        // Persist the Q&A chain only when a user session exists (auth is deferred in this phase).
+        var semanticMatches = _retrievalPlanner.BuildSemanticMatches(
+            embeddingResult.Vector,
+            loadedChunks,
+            focusVector);
+        var sourceHints = _sourceHintExtractor.Extract(translatedText, loadedChunks);
+        var retrievalPlan = _retrievalPlanner.BuildPlan(
+            translatedText,
+            embeddingResult.Vector,
+            semanticMatches,
+            sourceHints,
+            documentProfiles);
+        var retrievalDecision = _confidenceEvaluator.Evaluate(translatedText, retrievalPlan);
+
+        if (retrievalDecision.AnswerMode == RagAnswerMode.Insufficient)
+        {
+            return BuildNonGroundedResult(
+                detectedLanguage,
+                detectedLanguageCode,
+                RagAnswerMode.Insufficient,
+                retrievalDecision.ConfidenceBand,
+                null,
+                retrievalDecision.RequiresUrgentAttention);
+        }
+
+        if (retrievalDecision.AnswerMode == RagAnswerMode.Clarification)
+        {
+            var clarificationQuestion = await BuildClarificationQuestionAsync(
+                request.QuestionText,
+                detectedLanguage,
+                retrievalDecision);
+
+            return BuildNonGroundedResult(
+                detectedLanguage,
+                detectedLanguageCode,
+                RagAnswerMode.Clarification,
+                retrievalDecision.ConfidenceBand,
+                clarificationQuestion,
+                retrievalDecision.RequiresUrgentAttention);
+        }
+
+        var answerText = await BuildGroundedAnswerAsync(
+            request.QuestionText,
+            detectedLanguage,
+            retrievalDecision);
+
         Guid? answerId = null;
-        if (AbpSession.UserId.HasValue)
+        if (AbpSession.UserId.HasValue && ShouldPersistAnswer(retrievalDecision.AnswerMode))
         {
-            answerId = await PersistQaAsync(AbpSession.UserId.Value, request.QuestionText, answerText, topChunks);
+            answerId = await PersistQaAsync(
+                AbpSession.UserId.Value,
+                request.QuestionText,
+                translatedText,
+                detectedLanguage,
+                answerText,
+                retrievalDecision.SelectedChunks);
         }
-
-        // Build and return the result.
-        var citations = topChunks.Select(c => new RagCitationDto
-        {
-            ChunkId = c.ChunkId,
-            ActName = c.ActName,
-            SectionNumber = c.SectionNumber,
-            Excerpt = c.Excerpt.Length > 500 ? c.Excerpt[..500] : c.Excerpt,
-            RelevanceScore = c.Score
-        }).ToList();
 
         return new RagAnswerResult
         {
             AnswerText = answerText,
             IsInsufficientInformation = false,
-            Citations = citations,
-            ChunkIds = topChunks.Select(c => c.ChunkId).ToList(),
-            AnswerId = answerId
+            Citations = CreateCitations(retrievalDecision.SelectedChunks),
+            ChunkIds = retrievalDecision.SelectedChunks.Select(chunk => chunk.ChunkId).ToList(),
+            AnswerId = answerId,
+            DetectedLanguageCode = detectedLanguageCode,
+            AnswerMode = retrievalDecision.AnswerMode,
+            ConfidenceBand = retrievalDecision.ConfidenceBand,
+            RequiresUrgentAttention = retrievalDecision.RequiresUrgentAttention
         };
     }
 
-    /// <summary>
-    /// Sends a chat completions request to the OpenAI API and returns the assistant's reply text.
-    /// Uses the named "OpenAI" HttpClient configured in Startup.cs.
-    /// </summary>
-    private async Task<string> CallChatCompletionsAsync(string systemPrompt, string userPrompt)
+    public static bool ShouldPersistAnswer(RagAnswerMode answerMode) =>
+        answerMode == RagAnswerMode.Direct || answerMode == RagAnswerMode.Cautious;
+
+    private async Task EnsureIndexLoadedAsync()
+    {
+        if (_ragIndexStore.IsReady)
+        {
+            return;
+        }
+
+        await InitialiseAsync();
+    }
+
+    public static RagAnswerResult BuildNonGroundedResult(
+        Language language,
+        string detectedLanguageCode,
+        RagAnswerMode answerMode,
+        RagConfidenceBand confidenceBand,
+        string clarificationQuestion,
+        bool requiresUrgentAttention = false)
+    {
+        var answerText = answerMode == RagAnswerMode.Clarification
+            ? RagPromptBuilder.BuildClarificationLead(language, requiresUrgentAttention)
+            : RagPromptBuilder.BuildInsufficientResponse(language, requiresUrgentAttention);
+
+        return new RagAnswerResult
+        {
+            AnswerText = answerText,
+            IsInsufficientInformation = true,
+            Citations = new List<RagCitationDto>(),
+            ChunkIds = new List<Guid>(),
+            AnswerId = null,
+            DetectedLanguageCode = detectedLanguageCode,
+            AnswerMode = answerMode,
+            ConfidenceBand = confidenceBand,
+            ClarificationQuestion = answerMode == RagAnswerMode.Clarification ? clarificationQuestion : null,
+            RequiresUrgentAttention = requiresUrgentAttention
+        };
+    }
+
+    private async Task<string> BuildGroundedAnswerAsync(
+        string originalQuestionText,
+        Language detectedLanguage,
+        RetrievalDecision retrievalDecision)
+    {
+        var systemPrompt = RagPromptBuilder.BuildSystemPrompt(
+            retrievalDecision.AnswerMode,
+            detectedLanguage,
+            retrievalDecision.RequiresUrgentAttention);
+        var contextBlock = RagPromptBuilder.BuildContextBlock(retrievalDecision.SelectedChunks);
+        var userPrompt = RagPromptBuilder.BuildUserPrompt(
+            originalQuestionText,
+            contextBlock,
+            retrievalDecision.AnswerMode,
+            requiresUrgentAttention: retrievalDecision.RequiresUrgentAttention);
+
+        return await CallChatCompletionsAsync(
+            systemPrompt,
+            userPrompt,
+            RagPromptBuilder.GetChatTemperature(retrievalDecision.AnswerMode));
+    }
+
+    private async Task<string> BuildClarificationQuestionAsync(
+        string originalQuestionText,
+        Language detectedLanguage,
+        RetrievalDecision retrievalDecision)
+    {
+        if (retrievalDecision.SelectedChunks.Count == 0)
+        {
+            return retrievalDecision.ClarificationQuestion;
+        }
+
+        try
+        {
+            var systemPrompt = RagPromptBuilder.BuildSystemPrompt(
+                RagAnswerMode.Clarification,
+                detectedLanguage,
+                retrievalDecision.RequiresUrgentAttention);
+            var contextBlock = RagPromptBuilder.BuildContextBlock(retrievalDecision.SelectedChunks);
+            var userPrompt = RagPromptBuilder.BuildUserPrompt(
+                originalQuestionText,
+                contextBlock,
+                RagAnswerMode.Clarification,
+                retrievalDecision.ClarificationQuestion,
+                retrievalDecision.RequiresUrgentAttention);
+
+            var response = await CallChatCompletionsAsync(
+                systemPrompt,
+                userPrompt,
+                RagPromptBuilder.GetChatTemperature(RagAnswerMode.Clarification));
+
+            return SanitizeClarificationQuestion(response, retrievalDecision.ClarificationQuestion);
+        }
+        catch
+        {
+            return retrievalDecision.ClarificationQuestion;
+        }
+    }
+
+    private async Task<string> CallChatCompletionsAsync(
+        string systemPrompt,
+        string userPrompt,
+        double temperature)
     {
         using var client = _httpClientFactory.CreateClient("OpenAI");
         using var requestMessage = new HttpRequestMessage(HttpMethod.Post, "v1/chat/completions")
@@ -231,7 +359,7 @@ public class RagAppService : ApplicationService, IRagAppService
             Headers = { Authorization = new AuthenticationHeaderValue("Bearer", _apiKey) },
             Content = JsonContent.Create(new OpenAiChatRequest(
                 Model: _chatModel,
-                Temperature: RagPromptBuilder.ChatTemperature,
+                Temperature: temperature,
                 Messages: new[]
                 {
                     new OpenAiChatMessage(Role: "system", Content: systemPrompt),
@@ -247,49 +375,42 @@ public class RagAppService : ApplicationService, IRagAppService
                ?? throw new InvalidOperationException("OpenAI chat response contained no content.");
     }
 
-    /// <summary>
-    /// Persists the full Q&amp;A chain: Conversation → Question → Answer → AnswerCitations.
-    /// Creates a new Conversation per call for MVP simplicity.
-    /// </summary>
-    /// <returns>The ID of the persisted <see cref="Answer"/> entity.</returns>
     private async Task<Guid> PersistQaAsync(
         long userId,
-        string questionText,
+        string originalText,
+        string translatedText,
+        Language language,
         string answerText,
-        IEnumerable<RagPromptBuilder.ScoredChunk> usedChunks)
+        IEnumerable<RetrievedChunk> usedChunks)
     {
-        // Create Conversation.
         var conversation = new Conversation
         {
             UserId = userId,
-            Language = Language.English,
+            Language = language,
             InputMethod = InputMethod.Text,
             StartedAt = DateTime.UtcNow,
             IsPublicFaq = false
         };
         var conversationId = await _conversationRepository.InsertAndGetIdAsync(conversation);
 
-        // Create Question.
         var question = new Question
         {
             ConversationId = conversationId,
-            OriginalText = questionText,
-            TranslatedText = questionText,
-            Language = Language.English,
+            OriginalText = originalText,
+            TranslatedText = translatedText,
+            Language = language,
             InputMethod = InputMethod.Text
         };
         var questionId = await _questionRepository.InsertAndGetIdAsync(question);
 
-        // Create Answer.
         var answer = new Answer
         {
             QuestionId = questionId,
             Text = answerText,
-            Language = Language.English
+            Language = language
         };
         var answerId = await _answerRepository.InsertAndGetIdAsync(answer);
 
-        // Create one AnswerCitation per retrieved chunk.
         foreach (var chunk in usedChunks)
         {
             await _citationRepository.InsertAsync(new AnswerCitation
@@ -298,31 +419,75 @@ public class RagAppService : ApplicationService, IRagAppService
                 ChunkId = chunk.ChunkId,
                 SectionNumber = chunk.SectionNumber,
                 Excerpt = chunk.Excerpt.Length > 500 ? chunk.Excerpt[..500] : chunk.Excerpt,
-                RelevanceScore = (decimal)chunk.Score
+                RelevanceScore = (decimal)chunk.RelevanceScore
             });
         }
 
         return answerId;
     }
 
-    // ── Private types for OpenAI chat REST serialisation ─────────────────────
+    private static string SanitizeClarificationQuestion(string generatedQuestion, string fallbackQuestion)
+    {
+        var candidate = string.IsNullOrWhiteSpace(generatedQuestion)
+            ? fallbackQuestion
+            : generatedQuestion.Trim();
 
-    /// <summary>Request body for POST /v1/chat/completions.</summary>
+        var firstLine = candidate
+            .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+            .FirstOrDefault()?
+            .Trim();
+
+        if (string.IsNullOrWhiteSpace(firstLine))
+        {
+            return fallbackQuestion;
+        }
+
+        return firstLine.EndsWith("?", StringComparison.Ordinal) ? firstLine : $"{firstLine}?";
+    }
+
+    public static List<RagCitationDto> CreateCitations(IEnumerable<RetrievedChunk> usedChunks) =>
+        usedChunks
+            .Select(chunk => new RagCitationDto
+            {
+                ChunkId = chunk.ChunkId,
+                ActName = chunk.ActName,
+                SectionNumber = chunk.SectionNumber,
+                SourceTitle = chunk.SourceTitle,
+                SourceLocator = chunk.SourceLocator,
+                AuthorityType = chunk.AuthorityType,
+                SourceRole = chunk.SourceRole,
+                Excerpt = chunk.Excerpt.Length > 500 ? chunk.Excerpt[..500] : chunk.Excerpt,
+                RelevanceScore = chunk.RelevanceScore
+            })
+            .ToList();
+
+    private static List<string> ParseKeywords(string rawKeywords)
+    {
+        if (string.IsNullOrWhiteSpace(rawKeywords))
+        {
+            return new List<string>();
+        }
+
+        return rawKeywords
+            .Split(new[] { ',', ';', '|' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(RagSourceHintExtractor.Normalize)
+            .Where(keyword => !string.IsNullOrWhiteSpace(keyword))
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+    }
+
     private sealed record OpenAiChatRequest(
         [property: JsonPropertyName("model")] string Model,
         [property: JsonPropertyName("temperature")] double Temperature,
         [property: JsonPropertyName("messages")] OpenAiChatMessage[] Messages);
 
-    /// <summary>A single message in the chat messages array.</summary>
     private sealed record OpenAiChatMessage(
         [property: JsonPropertyName("role")] string Role,
         [property: JsonPropertyName("content")] string Content);
 
-    /// <summary>Top-level response from POST /v1/chat/completions.</summary>
     private sealed record OpenAiChatResponse(
         [property: JsonPropertyName("choices")] OpenAiChatChoice[] Choices);
 
-    /// <summary>A single choice in the chat response.</summary>
     private sealed record OpenAiChatChoice(
         [property: JsonPropertyName("message")] OpenAiChatMessage Message);
 }

@@ -38,8 +38,6 @@ WORKDIR /app
 
 COPY --from=build /publish .
 
-# Default port for local docker run. Railway overrides this via its PORT variable
-# which is automatically mapped to ASPNETCORE_HTTP_PORTS in Railway's environment.
-ENV ASPNETCORE_HTTP_PORTS=8080
-
-ENTRYPOINT ["dotnet", "backend.Web.Host.dll"]
+# Railway injects PORT at runtime. Use shell-form CMD so $PORT expands correctly.
+# Fallback to 8080 for local docker run.
+CMD sh -c "ASPNETCORE_HTTP_PORTS=${PORT:-8080} dotnet backend.Web.Host.dll"
