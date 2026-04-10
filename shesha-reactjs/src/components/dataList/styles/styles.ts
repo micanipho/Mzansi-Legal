@@ -1,0 +1,210 @@
+import { createStyles } from '@/styles';
+
+export const useStyles = createStyles(({ css, cx, token, prefixCls }) => {
+  const shaDatalistComponentItemCheckbox = "sha-datalist-component-item-checkbox";
+  const shaDatalistComponentDivider = "sha-datalist-component-divider";
+  const shaDatalistComponentExtraSpace = "sha-datalist-component-extra-space";
+  const shaResponsiveButtonGroupContainer = "sha-responsive-button-group-container";
+  const shaResponsiveButtonGroupInlineContainer = "sha-responsive-button-group-inline-container";
+  const shaDatalistComponentBody = "sha-datalist-component-body";
+  const shaDatalistComponentAddItemBtn = "sha-datalist-component-add-item-btn";
+  const shaDatalistComponentItem = "sha-datalist-component-item";
+  const shaDatalistWrapParent = "sha-datalist-wrap-parent";
+  const shaDatalistCard = "sha-datalist-card";
+  const shaDatalistActions = "sha-datalist-actions";
+  const shaDatalistCell = "sha-datalist-cell";
+  const shaDatalistHorizontal = "sha-datalist-horizontal";
+
+
+  const shaDatalistComponent = cx("sha-datalist-component", css`
+        .${prefixCls}-collapse-extra {
+            margin: unset !important;
+        }
+
+        .ant-divider-horizontal{
+            min-width: unset !important;
+        }
+
+        .ant-alert {
+            margin: 5px !important;
+        }
+    
+        .${shaDatalistComponentItemCheckbox} {
+            display: flex;
+            align-items: baseline;
+            padding: unset;
+            margin: unset;
+            padding-left: 5px;
+            margin-left: unset;
+            cursor: unset;
+    
+            &.selected {
+                background-color: ${token.colorPrimaryBgHover};
+                padding-bottom: 8px;
+            }
+    
+            span {
+                &:last-child {
+                    flex-grow: 1;
+                }
+            }
+        }
+    
+        .${shaDatalistComponentDivider} {
+            &.selected {
+                margin-top: 0;
+            }
+        }
+    
+        .${shaDatalistComponentExtraSpace} {
+            display: flex;
+            align-content: space-between;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            justify-content: space-evenly;
+            align-items: flex-start;
+    
+            .${shaResponsiveButtonGroupContainer} {
+                line-height: unset;
+                max-width: 200px;
+                margin-left: 12px;
+            }
+    
+            .${shaResponsiveButtonGroupInlineContainer} {
+                button {
+                    padding: 4px 4px 28px 4px;
+                    margin-left: 6px;
+    
+                    &:hover {
+                        background-color: #91d5ff;
+                    }
+                }
+            }
+        }
+
+    
+        .${shaDatalistComponentBody} {
+            overflow-y: auto;
+            overflow-x: hidden;
+    
+            &.loading {
+                height: 300px;
+            }
+    
+            &.horizontal {
+                display: flex;
+                overflow-x: auto;
+    
+                .${prefixCls}-space {
+                    &.${prefixCls}-space-horizontal {
+                        display: inline-flex;
+                        flex-wrap: nowrap;
+                    }
+                }
+            }
+
+            .${shaDatalistComponentDivider} {
+                margin: 8px 0 0 0;
+            }
+        }
+    
+        .${shaDatalistComponentAddItemBtn} {
+            display: none;
+            position: absolute;
+            right: 5px;
+            top: 5px;
+        }
+    
+        .${shaDatalistActions} {
+            display: none;
+            position: absolute;
+            top: 5px;
+            left: 5px;
+        }
+
+        .${shaDatalistWrapParent} {
+            width: 100%;
+            display: grid;
+            overflow-wrap: break-word;
+        }
+
+        .${shaDatalistCard} {
+            padding: 16px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            position: relative;
+            max-width: 100%;
+            overflow: auto;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02);
+            transition: box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
+            cursor: pointer;
+
+            &:hover {
+                box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.08), 0 2px 8px -1px rgba(0, 0, 0, 0.05);
+                transform: translateY(-2px);
+            }
+        }
+
+        .${shaDatalistCard} > * {
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow-wrap: break-word;
+            max-width: 100%;
+        }
+
+        .${shaDatalistHorizontal} {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            overflow-x: scroll;
+        }
+
+        .${shaDatalistHorizontal} {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            overflow-x: scroll;
+        }
+
+        .${shaDatalistComponentItem} {
+            position: relative;
+            padding: 12px;
+            border-radius: 6px;
+            transition: background-color 0.2s ease-in-out;
+
+            &.selected {
+                background-color: ${token.colorPrimaryBgHover};
+            }
+
+            &:hover {
+                background-color: ${token.colorFillTertiary};
+
+                &>.${shaDatalistComponentAddItemBtn} {
+                    display: block;
+                }
+            }
+        }
+
+        .${shaDatalistCell}:hover {
+            &>.${shaDatalistActions} {
+                display: block;
+            }
+        }
+    `);
+  return {
+    shaDatalistComponent,
+    shaDatalistComponentItemCheckbox,
+    shaDatalistComponentDivider,
+    shaDatalistComponentExtraSpace,
+    shaResponsiveButtonGroupContainer,
+    shaResponsiveButtonGroupInlineContainer,
+    shaDatalistComponentBody,
+    shaDatalistComponentAddItemBtn,
+    shaDatalistComponentItem,
+    shaDatalistActions,
+    shaDatalistCell,
+    shaDatalistWrapParent,
+    shaDatalistCard,
+    shaDatalistHorizontal,
+  };
+});

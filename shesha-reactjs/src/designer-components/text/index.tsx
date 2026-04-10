@@ -1,0 +1,95 @@
+import ConfigurableFormItem from '@/components/formDesigner/components/formItem';
+import { legacyColor2Hex } from '@/designer-components/_common-migrations/migrateColor';
+import { migrateCustomFunctions, migratePropertyName } from '@/designer-components/_common-migrations/migrateSettings';
+import { validateConfigurableComponentSettings } from '@/formDesignerUtils';
+import { removeUndefinedProps } from '@/utils/object';
+import { LineHeightOutlined } from '@ant-design/icons';
+import React, { CSSProperties } from 'react';
+import { migrateFormApi } from '../_common-migrations/migrateFormApi1';
+import { migratePrevStyles } from '../_common-migrations/migrateStyles';
+import { FONT_SIZES, ITextTypographyProps, TextComponentDefinition } from './models';
+import { getSettings } from './settingsForm';
+import TypographyComponent from './typography';
+import { defaultStyles, remToPx } from './utils';
+
+
+const TextComponent: TextComponentDefinition = {
+  type: 'text',
+  name: 'Text',
+  icon: <LineHeightOutlined />,
+  isOutput: true,
+  isInput: false,
+  tooltip: 'Complete Typography component that combines Text, Paragraph and Title',
+  Factory: ({ model }) => {
+    const { allStyles } = model;
+    const shadow = model?.shadow;
+    const jsStyle = allStyles?.jsStyle;
+    const stylingBoxAsCSS = allStyles?.stylingBoxAsCSS;
+    const dimensionsStyles = allStyles?.dimensionsStyles;
+    const borderStyles = allStyles?.borderStyles;
+    const fontStyles = allStyles?.fontStyles;
+    const backgroundStyles = allStyles?.backgroundStyles;
+
+    const additionalStyles: CSSProperties = removeUndefinedProps({
+      ...stylingBoxAsCSS,
+      ...borderStyles,
+      ...fontStyles,
+      ...backgroundStyles,
+      textShadow: `${shadow?.offsetX}px ${shadow?.offsetY}px ${shadow?.blurRadius}px ${shadow?.color}`,
+      ...dimensionsStyles,
+      ...jsStyle,
+      width: '100%',
+      height: '100%',
+    });
+
+    return (
+      <ConfigurableFormItem model={{ ...model, hideLabel: true }}>
+        {(value) => (
+          <TypographyComponent
+            {...model}
+            styles={additionalStyles}
+            value={model?.contentDisplay === 'name' ? value : model?.content}
+          />
+        )}
+      </ConfigurableFormItem>
+    );
+  },
+  settingsFormMarkup: getSettings,
+  validateSettings: (model) => validateConfigurableComponentSettings(getSettings, model),
+  initModel: (model) => ({
+    code: false,
+    copyable: false,
+    delete: false,
+    ellipsis: false,
+    mark: false,
+    italic: false,
+    underline: false,
+    level: 1,
+    textType: 'span',
+    content: 'Your text here...',
+    contentDisplay: 'content',
+    ...model,
+  }),
+  migrator: (m) =>
+    m
+      .add<ITextTypographyProps>(0, (prev) => migratePropertyName(migrateCustomFunctions(prev)) as ITextTypographyProps)
+      .add<ITextTypographyProps>(1, (prev) => ({
+        ...prev,
+        color: legacyColor2Hex(prev.color),
+        backgroundColor: legacyColor2Hex(prev.backgroundColor),
+      }))
+      .add<ITextTypographyProps>(2, (prev) => ({ ...migrateFormApi.properties(prev) }))
+      .add<ITextTypographyProps>(3, (prev) => ({ ...migratePrevStyles(prev, defaultStyles(prev.textType)) }))
+      .add<ITextTypographyProps>(4, (prev) => ({ ...prev, contentType: prev.contentType }))
+      .add<ITextTypographyProps>(5, (prev) => {
+        const fontSizeEntry = FONT_SIZES[prev.fontSize as keyof typeof FONT_SIZES];
+        const rem = fontSizeEntry ? fontSizeEntry.fontSize : prev.fontSize;
+        const px = remToPx(rem);
+        return {
+          ...prev,
+          desktop: { ...prev?.desktop, font: { ...prev?.desktop?.font, size: px } },
+        };
+      }),
+};
+
+export default TextComponent;

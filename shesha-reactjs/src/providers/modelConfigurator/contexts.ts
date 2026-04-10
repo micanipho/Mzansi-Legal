@@ -1,0 +1,56 @@
+import { FormInstance } from 'antd';
+import { ModelConfigurationDto } from '@/apis/modelConfigurations';
+import { IModelItem } from '@/interfaces/modelConfigurator';
+import { createNamedContext } from '@/utils/react';
+
+export interface IUpdateItemSettingsPayload {
+  id: string;
+  settings: IModelItem;
+}
+
+export interface IPropertyErrors {
+  propertyName: string;
+  errors: string[];
+}
+
+export interface IModelConfiguratorStateContext {
+  id?: string;
+  initialConfiguration?: ModelConfigurationDto;
+  modelConfiguration?: ModelConfigurationDto;
+  form?: FormInstance;
+  isCreateNew?: boolean;
+  isModified: boolean;
+  isLoading: boolean;
+  isSaving: boolean;
+  errors?: (IPropertyErrors | string)[];
+  showErrors?: boolean;
+}
+
+export interface IModelConfiguratorActionsContext {
+  changeModelId: (id: string) => void;
+  createNew: (model: ModelConfigurationDto) => void;
+  load: () => void;
+  save: (value: ModelConfigurationDto) => Promise<ModelConfigurationDto>;
+  saveForm: () => Promise<ModelConfigurationDto>;
+  cancel: () => void;
+  delete: () => Promise<void>;
+  submit: () => void;
+  getModelSettings: () => ModelConfigurationDto;
+  setModified: (isModified?: boolean) => void;
+  validateModel: (model: ModelConfigurationDto) => IPropertyErrors[];
+
+  /* NEW_ACTION_ACTION_DECLARATIOS_GOES_HERE */
+}
+
+export const MODEL_CONFIGURATOR_CONTEXT_INITIAL_STATE: IModelConfiguratorStateContext = {
+  isModified: false,
+  isLoading: false,
+  isSaving: false,
+};
+
+export const ModelConfiguratorStateContext = createNamedContext<IModelConfiguratorStateContext>(
+  MODEL_CONFIGURATOR_CONTEXT_INITIAL_STATE,
+  "ModelConfiguratorStateContext",
+);
+
+export const ModelConfiguratorActionsContext = createNamedContext<IModelConfiguratorActionsContext>(undefined, "ModelConfiguratorActionsContext");

@@ -1,0 +1,143 @@
+{
+  "components": [
+    {
+      "id": "840aee56-42d2-40ed-a2c6-57abb255fb95",
+      "type": "dropdown",
+      "propertyName": "itemType",
+      "label": "Item Type",
+      "labelAlign": "right",
+      "parentId": "root",
+      "hidden": false,
+      "dataSourceType": "values",
+      "values": [
+        {
+          "id": "8400a8ec-577d-4468-9347-5601f952b44c",
+          "label": "Button",
+          "value": "button"
+        },
+        {
+          "id": "cc268f50-47ca-4e4e-966f-7f2abfec902f",
+          "label": "Divider",
+          "value": "divider"
+        }        
+      ],
+      "validate": {
+        "required": true
+      },
+      "version": 3,
+      "referenceListId": null
+    },
+    {
+      "id": "5d4d56fb-d7f8-4835-a529-c4fa93f3596d",
+      "type": "textField",
+      "propertyName": "title",
+      "label": "Title",
+      "labelAlign": "right",
+      "parentId": "root",
+      "hidden": {
+        "_code": "return getSettingValue(data?.itemType) !== 'button';",
+        "_mode": "code",
+        "_value": false
+      },
+      "autoSize": false,
+      "showCount": false,
+      "allowClear": false,
+      "validate": {
+        "required": true
+      },
+      "version": 2,
+      "textType": "text"      
+    },
+    {
+      "id": "345c2181-fb9f-48ed-9631-864ac357807b",
+      "type": "container",
+      "propertyName": "cntButton",
+      "label": "Container2",
+      "labelAlign": "right",
+      "parentId": "root",
+      "hidden": {
+        "_code": "return getSettingValue(data?.itemType) !== 'button';",
+        "_mode": "code",
+        "_value": false
+      },
+      "direction": "vertical",
+      "justifyContent": "left",
+      "components": [
+        {
+          "id": "9b671866-072e-4688-8b48-ddf5e12d70d4",
+          "type": "textArea",
+          "propertyName": "tooltip",
+          "label": "Tooltip",
+          "labelAlign": "right",
+          "parentId": "345c2181-fb9f-48ed-9631-864ac357807b",
+          "hidden": false,
+          "autoSize": false,
+          "showCount": false,
+          "allowClear": false,
+          "validate": {},
+          "version": 1
+        },
+        {
+          "id": "91b404a6-4021-4b0a-b9ef-007167a93075",
+          "type": "iconPicker",
+          "propertyName": "icon",
+          "label": "Icon",
+          "labelAlign": "right",
+          "parentId": "345c2181-fb9f-48ed-9631-864ac357807b",
+          "hidden": false,
+          "settingsValidationErrors": [],
+          "version": 1
+        },
+        {
+          "id": "_9wXGbhGQHTXyeHCB1USs",
+          "type": "configurableActionConfigurator",
+          "propertyName": "actionConfiguration",
+          "componentName": "configurableActionConfigurator1",
+          "label": "Action",
+          "labelAlign": "right",
+          "parentId": "345c2181-fb9f-48ed-9631-864ac357807b",
+          "hidden": false,
+          "isDynamic": false,
+          "version": 1,
+          "settingsValidationErrors": [],
+          "allowedActions": ["shesha.common"]
+        }
+      ],
+      "version": 2,
+      "flexWrap": "wrap"
+    },
+    {
+      "id": "123404a6-4021-4b0a-b9ef-007167a93075",
+      "type": "checkbox",
+      "propertyName": "hidden",
+      "label": "Hidden",
+      "labelAlign": "right",
+      "parentId": "root",
+      "hidden": false,
+      "settingsValidationErrors": [],
+      "version": 3
+    },    
+    {
+      "id": "26c68b22-3211-475d-91e1-0745a4447329",
+      "type": "permissionAutocomplete",
+      "propertyName": "requiredPermissions",
+      "label": "Permissions",
+      "labelAlign": "right",
+      "parentId": "root",
+      "hidden": false,
+      "validate": {},
+      "version": 1
+    }
+  ],
+  "formSettings": {
+    "layout": "horizontal",
+    "colon": true,
+    "labelCol": {
+      "span": 8
+    },
+    "wrapperCol": {
+      "span": 16
+    },
+    "isSettingsForm": true
+  }
+}

@@ -1,0 +1,587 @@
+{
+  "components": [
+    {
+      "id": "-X1emhZPx1rM7w22GOc11",
+      "type": "checkbox",
+      "propertyName": "suppress",
+      "label": "Suppress",
+      "labelAlign": "right",
+      "parentId": "root",
+      "customEnabled": "return !data.suppressHardcoded;",
+      "validate": {},
+      "settingsValidationErrors": []
+    },
+    {
+      "id": "UIUv_8sUeAdK_JQqdFm1e",
+      "type": "sectionSeparator",
+      "propertyName": "sectionSeparator1",
+      "label": "Display",
+      "parentId": "root",
+      "lineThickness": 2
+    },
+    {
+      "id": "aYeIfcjqrSZpmuKd6Fijn",
+      "type": "textField",
+      "propertyName": "name",
+      "label": "Name",
+      "labelAlign": "right",
+      "parentId": "root",
+      "validate": {
+        "required": true
+      },
+      "settingsValidationErrors": [],
+      "textType": "text"
+    },
+    {
+      "id": "0XFvEV-W_E2LzxEHjLiGm",
+      "type": "textField",
+      "propertyName": "label",
+      "label": "Label",
+      "labelAlign": "right",
+      "parentId": "root",
+      "validate": {
+        "required": true
+      },
+      "settingsValidationErrors": []
+    },
+    {
+      "id": "4SvCStsfdAUCwndFWVxi_",
+      "type": "textArea",
+      "propertyName": "description",
+      "label": "Description",
+      "labelAlign": "right",
+      "parentId": "root"
+    },
+    {
+      "id": "UIUv_8sUeAdK_JQqdFm11",
+      "type": "sectionSeparator",
+      "propertyName": "sectionSeparator1",
+      "label": "Data type and format",
+      "parentId": "root",
+      "lineThickness": 2
+    },
+    {
+      "id": "F7W3qRl8P_Jdv_R2Q-f3u",
+      "type": "dropdown",
+      "propertyName": "dataType",
+      "label": "Data Type",
+      "labelAlign": "right",
+      "parentId": "root",
+      "customEnabled": "return data.source != 1;",
+      "mode": ["single"],
+      "dataSourceType": "values",
+      "validate": {
+        "required": true
+      },
+      "settingsValidationErrors": [],
+      "values": [
+        {
+          "id": "R8Et3awUms5zQgj2ZlCT-",
+          "label": "string",
+          "value": "string"
+        },
+        {
+          "id": "1vazc9Yx6zJBMlfJxfZsM",
+          "label": "date",
+          "value": "date"
+        },
+        {
+          "id": "mqPLuVfEKgjMvaqqO_ouJ",
+          "label": "time",
+          "value": "time"
+        },
+        {
+          "id": "8skNr05iNJvcT8cftTsE9",
+          "label": "date time",
+          "value": "date-time"
+        },
+        {
+          "id": "Z3TqNTKkc1tjlw-j6PmAD",
+          "label": "entity",
+          "value": "entity"
+        },
+        {
+          "id": "Q0kAdFB4WlsU5Yml32khM",
+          "label": "file",
+          "value": "file"
+        },
+        {
+          "id": "ZGr5SDOzlttoGVm5LOgen",
+          "label": "number",
+          "value": "number"
+        },
+        {
+          "id": "qSKpsp4vwL4QRsfbs6k2Q",
+          "label": "reference list item",
+          "value": "reference-list-item"
+        },
+        {
+          "id": "EQ6Qc_8JnVBaLRsGJIqqQ",
+          "label": "boolean",
+          "value": "boolean"
+        },
+        {
+          "id": "ePVI2HM5PX0ntN1hgmMWJ",
+          "label": "array",
+          "value": "array"
+        },
+        {
+          "id": "Ylqiy3ABfkJvNndXAKB8A",
+          "label": "object",
+          "value": "object"
+        }
+      ]
+    },
+    {
+      "id": "7cYicDJe6G4QZySqcHoIN",
+      "type": "textField",
+      "propertyName": "dataFormat",
+      "label": {
+        "_code": "return getSettingValue(data?.dataType) === 'date' ? 'Date format' : getSettingValue(data?.dataType) === 'date-time' ? 'Date time format' : 'Time format';",
+        "_mode": "code",
+        "_value": "Date format"
+      },
+      "hidden": {
+        "_code": "return !(getSettingValue(data?.dataType) === 'date' || getSettingValue(data?.dataType) === 'date-time' || getSettingValue(data?.dataType) === 'time');",
+        "_mode": "code",
+        "_value": false
+      },
+      "description": "Enter the format for this property. Also, note that you can use moment display options. See https://momentjscom.readthedocs.io/en/latest/moment/04-displaying/01-format/"
+    },
+    {
+      "id": "7cYicDJe6G4QZySqcHoIM",
+      "type": "container",
+      "propertyName": "string-config",
+      "label": "Container1",
+      "labelAlign": "right",
+      "parentId": "root",
+      "hidden": {"_code": "return !(getSettingValue(data?.dataType) === 'string');", "_mode": "code", "_value": false},
+      "direction": "vertical",
+      "justifyContent": "left",
+      "settingsValidationErrors": [],
+      "components": [
+        {
+          "id": "2ZMc7dhCaBX00rMMK1H3n",
+          "type": "dropdown",
+          "propertyName": "dataFormat",
+          "label": "String format",
+          "labelAlign": "right",
+          "parentId": "7cYicDJe6G4QZySqcHoIM",
+          "mode": "single",
+          "dataSourceType": "values",
+          "validate": {},
+          "settingsValidationErrors": [],
+          "values": [
+            {
+              "id": "rwi4vhiLvAT9K23e_Ksgj",
+              "label": "single line",
+              "value": "singleline"
+            },
+            {
+              "id": "x-TvGzV2iRDO2i6YV9j3X",
+              "label": "multiline",
+              "value": "multiline"
+            },
+            {
+              "id": "--5BYr5Bdo5iypUL7CqIx",
+              "label": "html",
+              "value": "html"
+            },
+            {
+              "id": "D-c1l644RII3Lb3k3rQAt",
+              "label": "json",
+              "value": "json"
+            },
+            {
+              "id": "BOmZUc1tVLECruteER2lw",
+              "label": "javascript",
+              "value": "javascript"
+            },
+            {
+              "id": "6bdzeIQhcc81pDS2QJU4J",
+              "label": "password",
+              "value": "password"
+            },
+            {
+              "id": "xmJyjeobf5hRpr5uBDhJw",
+              "label": "email",
+              "value": "email"
+            },
+            {
+              "id": "5ksY0OlNdBo2jdlgWsbtD",
+              "label": "phone",
+              "value": "phone"
+            }
+          ]
+        },
+        {
+          "id": "XEyIWE4U614Ip_x0FqViL",
+          "type": "numberField",
+          "propertyName": "minLength",
+          "label": "Min Length",
+          "labelAlign": "right",
+          "parentId": "7cYicDJe6G4QZySqcHoIM",
+          "customEnabled": "return !data.sizeHardcoded;",
+          "stepNumeric": 1,
+          "stepString": "1",
+          "defaultValue": "",
+          "validate": {
+            "minValue": "",
+            "maxValue": ""
+          },
+          "settingsValidationErrors": []
+        },
+        {
+          "id": "XEyIWE4U614Ip_x0FqVi1",
+          "type": "numberField",
+          "propertyName": "maxLength",
+          "label": "Max Length",
+          "labelAlign": "right",
+          "parentId": "7cYicDJe6G4QZySqcHoIM",
+
+          "customEnabled": "return !data.sizeHardcoded;",
+          "placeholder": "",
+          "description": "",
+          "stepNumeric": 1,
+          "stepString": "1",
+          "defaultValue": "",
+          "validate": {
+            "minValue": "",
+            "maxValue": ""
+          },
+          "settingsValidationErrors": []
+        },
+        {
+          "id": "aYeIfcjqrSZpmuKd6Fij1",
+          "type": "textField",
+          "propertyName": "regExp",
+          "label": "Regular Expression",
+          "labelAlign": "right",
+          "customEnabled": "return !data.regExpHardcoded;",
+          "parentId": "7cYicDJe6G4QZySqcHoIM",
+          "validate": {
+            "required": false
+          },
+          "settingsValidationErrors": [],
+          "textType": "text"
+        }
+      ]
+    },
+    {
+      "id": "ipxZABhhFbnZBrO1iijxF",
+      "type": "container",
+      "propertyName": "container2",
+      "label": "Container2",
+      "labelAlign": "right",
+      "parentId": "root",
+      "hidden": {"_code": "return !(getSettingValue(data?.dataType) === 'number');", "_mode": "code", "_value": false},
+      "direction": "vertical",
+      "justifyContent": "left",
+      "settingsValidationErrors": [],
+      "components": [
+        {
+          "id": "V6PekH9pFf_Qu-vmaKxfz",
+          "type": "dropdown",
+          "propertyName": "dataFormat",
+          "label": "Number format",
+          "labelAlign": "right",
+          "parentId": "ipxZABhhFbnZBrO1iijxF",
+          "mode": ["single"],
+          "dataSourceType": "values",
+          "validate": {},
+          "settingsValidationErrors": [],
+          "values": [
+            {
+              "id": "h0LdMbbQrqIvARnQmeKGZ",
+              "label": "currency",
+              "value": "currency"
+            },
+            {
+              "id": "nUxe-TK4m6R9JVenT-v3m",
+              "label": "double",
+              "value": "double"
+            },
+            {
+              "id": "4GuxqgahDOQeGhCPcIMYV",
+              "label": "round",
+              "value": "round"
+            },
+            {
+              "id": "8voeOvZX7oxeb_sB0yb3K",
+              "label": "thousand separator",
+              "value": "thousandSeparator"
+            }
+          ]
+        },
+        {
+          "id": "XEyIWE4U614Ip_x0FqV11",
+          "type": "numberField",
+          "propertyName": "min",
+          "label": "Min",
+          "labelAlign": "right",
+          "parentId": "ipxZABhhFbnZBrO1iijxF",
+          "customEnabled": "return !data.sizeHardcoded;",
+          "placeholder": "",
+          "description": "",
+          "stepNumeric": 1,
+          "stepString": "0.1",
+          "defaultValue": "",
+          "validate": {
+            "minValue": "",
+            "maxValue": ""
+          },
+          "settingsValidationErrors": []
+        },
+        {
+          "id": "XEyIWE4U614Ip_x0FqV12",
+          "type": "numberField",
+          "propertyName": "max",
+          "label": "Max",
+          "labelAlign": "right",
+          "parentId": "ipxZABhhFbnZBrO1iijxF",
+          "customEnabled": "return !data.sizeHardcoded;",
+          "stepNumeric": 1,
+          "stepString": "0.1",
+          "defaultValue": "",
+          "validate": {
+            "minValue": "",
+            "maxValue": ""
+          },
+          "settingsValidationErrors": []
+        }
+      ]
+    },
+    {
+      "id": "gTpIAiV940w7puAHNwu5H",
+      "type": "container",
+      "propertyName": "container3",
+      "label": "Data Type",
+      "labelAlign": "right",
+      "parentId": "root",
+      "customEnabled": "return data.source != 1;",
+      "hidden": {"_code": "return !(getSettingValue(data?.dataType) === 'reference-list-item');", "_mode": "code", "_value": false},
+      "direction": "vertical",
+      "justifyContent": "left",
+      "settingsValidationErrors": [],
+      "mode": ["single"],
+      "dataSourceType": "values",
+      "validate": {
+        "required": false
+      },
+      "values": [
+        {
+          "id": "R8Et3awUms5zQgj2ZlCT-",
+          "label": "string",
+          "value": "string"
+        },
+        {
+          "id": "1vazc9Yx6zJBMlfJxfZsM",
+          "label": "date",
+          "value": "date"
+        },
+        {
+          "id": "mqPLuVfEKgjMvaqqO_ouJ",
+          "label": "time",
+          "value": "time"
+        },
+        {
+          "id": "8skNr05iNJvcT8cftTsE9",
+          "label": "date time",
+          "value": "date-time"
+        },
+        {
+          "id": "Z3TqNTKkc1tjlw-j6PmAD",
+          "label": "entity",
+          "value": "entity"
+        },
+        {
+          "id": "Q0kAdFB4WlsU5Yml32khM",
+          "label": "file",
+          "value": "file"
+        },
+        {
+          "id": "ZGr5SDOzlttoGVm5LOgen",
+          "label": "number",
+          "value": "number"
+        },
+        {
+          "id": "qSKpsp4vwL4QRsfbs6k2Q",
+          "label": "reference list item",
+          "value": "reference-list-item"
+        },
+        {
+          "id": "EQ6Qc_8JnVBaLRsGJIqqQ",
+          "label": "boolean",
+          "value": "boolean"
+        },
+        {
+          "id": "ePVI2HM5PX0ntN1hgmMWJ",
+          "label": "list",
+          "value": "list"
+        }
+      ],
+      "components": [
+        {
+          "id": "4bT3OMjJ9ssaBvfBkvNIl",
+          "type": "textField",
+          "propertyName": "referenceListName",
+          "label": "Reference List name",
+          "labelAlign": "right",
+          "customEnabled": "return data.source != 1;",
+          "parentId": "gTpIAiV940w7puAHNwu5H",
+          "validate": {},
+          "settingsValidationErrors": []
+        },
+        {
+          "id": "dsiSpDTinQZxtfTlJW4AE",
+          "type": "textField",
+          "propertyName": "referenceListNamespace",
+          "label": "Reference List namespace",
+          "labelAlign": "right",
+          "customEnabled": "return data.source != 1;",
+          "parentId": "gTpIAiV940w7puAHNwu5H",
+          "validate": {},
+          "settingsValidationErrors": []
+        }
+      ]
+    },
+    {
+      "id": "6b0bd9c6-6a53-4a05-9de0-ad1b17eb0018",
+      "type": "autocomplete",
+      "propertyName": "entityType",
+      "label": "Entity Type",
+      "labelAlign": "right",
+      "hidden": {"_code": "return !(getSettingValue(data?.dataType) === 'entity');", "_mode": "code", "_value": false},
+      "parentId": "root",
+      "customEnabled": "return data.source != 1;",
+      "dataSourceType": "url",
+      "validate": {},
+      "dataSourceUrl": "/api/services/app/Metadata/TypeAutocomplete",
+      "settingsValidationErrors": [],
+      "useRawValues": true,
+      "textType": "text"
+    },
+    {
+      "id": "aYeIfcjqrSZpmuKd6Fij2",
+      "type": "textField",
+      "propertyName": "validationMessage",
+      "label": "Validation Message",
+      "labelAlign": "right",
+      "parentId": "root",
+      "validate": {
+        "required": false
+      },
+      "settingsValidationErrors": [],
+      "textType": "text"
+    },
+    {
+      "id": "UIUv_8sUeAdK_JQqdFm12",
+      "type": "sectionSeparator",
+      "propertyName": "sectionSeparator1",
+      "label": "Attributes",
+      "parentId": "root",
+      "lineThickness": 2
+    },
+    {
+      "id": "-X1emhZPx1rM7w22GOc12",
+      "type": "checkbox",
+      "propertyName": "audited",
+      "label": "Audited",
+      "labelAlign": "right",
+      "parentId": "root",
+      "customEnabled": "return !data.auditedHardcoded;",
+      "validate": {},
+      "settingsValidationErrors": []
+    },
+    {
+      "id": "-X1emhZPx1rM7w22GOc13",
+      "type": "checkbox",
+      "propertyName": "required",
+      "label": "Required",
+      "labelAlign": "right",
+      "parentId": "root",
+      "customEnabled": "return !data.requiredHardcoded;",
+      "validate": {},
+      "settingsValidationErrors": []
+    },
+    {
+      "id": "-X1emhZPx1rM7w22GOc14",
+      "type": "checkbox",
+      "propertyName": "readOnly",
+      "label": "ReadOnly",
+      "labelAlign": "right",
+      "parentId": "root",
+      "customEnabled": "return !data.readOnlyHardcoded;",
+      "validate": {},
+      "settingsValidationErrors": []
+    },
+    {
+      "id": "MwjxidwaPufFS-PixP6_1",
+      "type": "container",
+      "propertyName": "container5",
+      "label": "Container5",
+      "labelAlign": "right",
+      "parentId": "root",
+      "hidden": {"_code": "return !(getSettingValue(data?.dataType) === 'entity');", "_mode": "code", "_value": false},
+      "direction": "vertical",
+      "justifyContent": "left",
+      "settingsValidationErrors": [],
+      "components": [
+        {
+          "id": "UIUv_8sUeAdK_JQqdF123",
+          "type": "sectionSeparator",
+          "propertyName": "sectionSeparatorCascade",
+          "label": "Cascade update rules",
+          "parentId": "root",
+          "lineThickness": 2
+        },
+        {
+          "id": "-X1emhZPx1rM7w22GO124",
+          "type": "checkbox",
+          "propertyName": "cascadeCreate",
+          "label": "Cascade create",
+          "description": "Allows to create child/nested entity",
+          "labelAlign": "right",
+          "parentId": "root",
+          "customEnabled": "return !data.cascadeCreateHardcoded;",
+          "validate": {},
+          "settingsValidationErrors": []
+        },
+        {
+          "id": "-X1emhZPx1rM7w22GO125",
+          "type": "checkbox",
+          "propertyName": "cascadeUpdate",
+          "label": "Cascade update",
+          "description": "Allows to update child/nested entity",
+          "labelAlign": "right",
+          "parentId": "root",
+          "customEnabled": "return !data.cascadeUpdateHardcoded;",
+          "validate": {},
+          "settingsValidationErrors": []
+        },
+        {
+          "id": "-X1emhZPx1rM7w22GO126",
+          "type": "checkbox",
+          "propertyName": "cascadeDeleteUnreferenced",
+          "label": "Cascade delete unreferenced",
+          "description": "Delete child/nested entity if reference was removed and the child/nested entity doesn't have nother references",
+          "labelAlign": "right",
+          "parentId": "root",
+          "customEnabled": "return !data.cascadeDeleteUnreferencedHardcoded;",
+          "validate": {},
+          "settingsValidationErrors": []
+        }
+      ]
+    }
+  ],
+  "formSettings": {
+    "layout": "horizontal",
+    "colon": true,
+    "labelCol": {
+      "span": 8
+    },
+    "wrapperCol": {
+      "span": 16
+    }
+  }
+}

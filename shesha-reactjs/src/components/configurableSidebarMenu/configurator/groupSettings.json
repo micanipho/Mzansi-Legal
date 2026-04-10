@@ -1,0 +1,79 @@
+{
+  "components": [
+    {
+      "id": "5d4d56fb-d7f8-4835-a529-c4fa93f3596d",
+      "type": "textField",
+      "propertyName": "title",
+      "label": "Title",
+      "labelAlign": "right",
+      "parentId": "root",
+      "hidden": false,
+      "autoSize": false,
+      "showCount": false,
+      "allowClear": false,
+      "validate": {
+        "required": true
+      },
+      "version": 2,
+      "textType": "text"
+    },
+    {
+      "id": "9b671866-072e-4688-8b48-ddf5e12d70d4",
+      "type": "textArea",
+      "propertyName": "tooltip",
+      "label": "Tooltip",
+      "labelAlign": "right",
+      "parentId": "root",
+      "hidden": false,
+      "autoSize": false,
+      "showCount": false,
+      "allowClear": false,
+      "validate": {},
+      "version": 1
+    },
+    {
+      "id": "91b404a6-4021-4b0a-b9ef-007167a93075",
+      "type": "iconPicker",
+      "propertyName": "icon",
+      "label": "Icon",
+      "labelAlign": "right",
+      "parentId": "root",
+      "hidden": false,
+      "settingsValidationErrors": [],
+      "version": 1
+    },
+    {
+      "id": "123404a6-4021-4b0a-b9ef-007167a93075",
+      "type": "checkbox",
+      "propertyName": "hidden",
+      "label": "Hidden",
+      "labelAlign": "right",
+      "parentId": "root",
+      "hidden": false,
+      "settingsValidationErrors": [],
+      "version": 3
+    },
+    {
+      "id": "26c68b22-3211-475d-91e1-0745a4447329",
+      "type": "permissionAutocomplete",
+      "propertyName": "requiredPermissions",
+      "label": "Permissions",
+      "labelAlign": "right",
+      "parentId": "root",
+      "hidden": false,
+      "validate": {},
+      "version": 1
+    }
+  ],
+  "formSettings": {
+    "layout": "horizontal",
+    "colon": true,
+    "labelCol": {
+      "span": 8
+    },
+    "wrapperCol": {
+      "span": 16
+    },
+    "isSettingsForm": true
+  }
+}

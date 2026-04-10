@@ -1,0 +1,61 @@
+import React, { FC } from 'react';
+import { Modal } from 'antd';
+import { ConfigurableForm } from '@/components';
+import { useFormDesigner, useFormDesignerSettings } from '@/providers/formDesigner';
+import { SourceFilesFolderProvider } from '@/providers/sourceFileManager/sourcesFolderProvider';
+import { useFormPersister } from '@/providers/formPersisterProvider';
+import { useShaFormRef } from '@/providers/form/providers/shaFormProvider';
+import { getSettings } from './formSettings';
+import { useFormViaFactory } from '@/form-factory/hooks';
+
+export interface IFormSettingsEditorProps {
+  isVisible: boolean;
+  close: () => void;
+  readOnly: boolean;
+}
+
+export const FormSettingsEditor: FC<IFormSettingsEditorProps> = ({ isVisible, close, readOnly }) => {
+  const formSettings = useFormDesignerSettings();
+  const { updateFormSettings } = useFormDesigner();
+  const { formProps } = useFormPersister();
+  const formRef = useShaFormRef();
+  const formSettingsMarkup = useFormViaFactory(getSettings);
+
+  const onSave = (values): void => {
+    if (!readOnly) {
+      updateFormSettings(values);
+      close();
+    }
+  };
+
+  const sourcesFolder = `/forms/${formProps.module}/${formProps.name}`;
+
+  return (
+    <Modal
+      open={isVisible}
+      title="Form Settings"
+      width="clamp(590px, 50vw, 800px)" // min 320px, preferred 50vw, max 700px
+      onOk={() => {
+        formRef.current?.submit();
+      }}
+      okButtonProps={{ hidden: readOnly }}
+
+      onCancel={close}
+      cancelText={readOnly ? 'Close' : undefined}
+    >
+      <SourceFilesFolderProvider folder={sourcesFolder}>
+        <ConfigurableForm
+          layout="vertical"
+          labelCol={{ span: 24 }}
+          wrapperCol={{ span: 24 }}
+          mode={readOnly ? 'readonly' : 'edit'}
+          className="sha-form-settings-editor"
+          shaFormRef={formRef}
+          onFinish={onSave}
+          markup={formSettingsMarkup}
+          initialValues={formSettings}
+        />
+      </SourceFilesFolderProvider>
+    </Modal>
+  );
+};

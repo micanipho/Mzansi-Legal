@@ -1,0 +1,92 @@
+{
+  "components": [
+    {
+      "id": "b8954bf6-f76d-4139-a850-c99bf06c8b69",
+      "type": "sectionSeparator",
+      "propertyName": "separator1",
+      "parentId": "root",
+      "label": "Display"
+    },
+    {
+      "id": "22d07439-4c18-468c-89e1-60c002ce96c5",
+      "type": "contextPropertyAutocomplete",
+      "propertyName": "propertyName",
+      "parentId": "root",
+      "label": "Property name"
+    },
+    {
+      "id": "46d07439-4c18-468c-89e1-60c002ce96c5",
+      "type": "textField",
+      "propertyName": "label",
+      "parentId": "root",
+      "label": "Label"
+    },
+    {
+      "id": "24a8ae33-98eb-40f7-99ea-ebb602693e9c",
+      "type": "dropdown",
+      "propertyName": "mode",
+      "parentId": "root",
+      "label": "Mode",
+      "values": [
+        {"label": "Edit", "value": "Edit"},
+        {"label": "Select", "value": "Select"},
+        {"label": "View", "value": "View"}
+      ]
+    },
+    {
+      "id": "F3B46A95-703F-4465-96CA-A58496A5F78C",
+      "type": "configurableActionConfigurator",
+      "propertyName": "onSelectAction",
+      "label": "On select action",
+      "hidden": false,
+      "validate": {},
+      "settingsValidationErrors": [],
+      "parentId": "root",
+      "version": 1
+    },
+    {
+      "id": "cfd7d45e-c7e3-4a27-987b-dc525c412448",
+      "type": "checkbox",
+      "propertyName": "hidden",
+      "parentId": "root",
+      "label": "Hidden"
+    },
+    {
+      "id": "c6885251-96a6-40ce-99b2-4b5209a9e01c",
+      "type": "checkbox",
+      "propertyName": "hideLabel",
+      "parentId": "root",
+      "label": "Hide Label"
+    },
+    {
+      "id": "24a8be15-98eb-40f7-99ea-ebb602693e9c",
+      "type": "editModeSelector",
+      "propertyName": "editMode",
+      "parentId": "root",
+      "label": "Edit mode"
+    },
+    {
+      "id": "24a8ae22-98eb-40f7-99ea-ebb602693e9c",
+      "type": "numberField",
+      "propertyName": "height",
+      "parentId": "root",
+      "label": "Height"
+    }
+  ],
+  "formSettings": {
+    "layout": "horizontal",
+    "colon": true,
+    "labelCol": {
+      "span": 8
+    },
+    "wrapperCol": {
+      "span": 16
+    },
+    "displayName": "DEFAULT_FORM_SETTINGS",
+    "__docgenInfo": {
+      "description": "Default form settings",
+      "displayName": "DEFAULT_FORM_SETTINGS",
+      "props": {}
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "sourceMap": false,
+    "incremental": false,
+    "declaration": true,
+  },
+  "exclude": [
+    "node_modules",
+    "build",
+    "dist",
+    "example",
+    "rollup.config.mjs",
+    "**/tests",
+    "**/*.test.js",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.stories.d.ts",
+    "**/__test__/**",
+    "**/app/**"
+  ],
+}
